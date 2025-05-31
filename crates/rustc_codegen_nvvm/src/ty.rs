@@ -1,6 +1,6 @@
 use crate::abi::{FnAbiLlvmExt, LlvmType};
 use crate::context::CodegenCx;
-use crate::llvm::{self, Bool, False, True, Type, Value};
+use crate::llvm::{self, Bool, False, True, Type, TypeKind, Value};
 use libc::c_uint;
 use rustc_abi::Primitive::{Float, Int, Pointer};
 use rustc_abi::{
@@ -229,11 +229,12 @@ impl<'ll, 'tcx> BaseTypeCodegenMethods<'tcx> for CodegenCx<'ll, 'tcx> {
 
     fn float_width(&self, ty: &'ll Type) -> usize {
         match self.type_kind(ty) {
+            TypeKind::Half | TypeKind::BFloat => 16,
             TypeKind::Float => 32,
             TypeKind::Double => 64,
             TypeKind::X86_FP80 => 80,
             TypeKind::FP128 | TypeKind::PPC_FP128 => 128,
-            _ => bug!("llvm_float_width called on a non-float type"),
+            ty => bug!("llvm_float_width called on a non-float type: {:?}", ty),
         }
     }
 
