@@ -1,6 +1,6 @@
 use crate::abi::{FnAbiLlvmExt, LlvmType};
 use crate::context::CodegenCx;
-use crate::llvm::{self, Bool, False, True, Type, TypeKind, Value};
+use crate::llvm::{self, Bool, False, True, Type, Value};
 use libc::c_uint;
 use rustc_abi::Primitive::{Float, Int, Pointer};
 use rustc_abi::{
