@@ -191,6 +191,9 @@ fn build_deps(deps_target_dir: &Path, codegen_backend_path: &Path, target: &str)
             "compiletests-deps-helper",
             "-Zbuild-std=core,alloc",
             "-Zbuild-std-features=compiler-builtins-mem",
+                    // TODO(RDambrosio016): Remove this once we can get meaningful error messages in panic to work.
+        // for now we enable it to remove some useless indirect calls in the ptx.
+        "-Zbuild-std-features=panic_immediate_abort".into(),
             &*format!("--target={}", target),
         ])
         .arg("--target-dir")
@@ -349,9 +352,6 @@ fn rust_flags(codegen_backend_path: &Path) -> String {
         "-Zcrate-attr=register_tool(nvvm_internal)".into(),
         "-Zcrate-attr=no_std".into(),
         "-Zsaturating_float_casts=false".into(),
-        // TODO(RDambrosio016): Remove this once we can get meaningful error messages in panic to work.
-        // for now we enable it to remove some useless indirect calls in the ptx.
-        "-Zbuild-std-features=panic_immediate_abort".into(),
         // NOTE(LegNeato) flags copied from `cuda-builder` are all above this line.
         // NOTE(LegNeato) flags copied from `rust-gpu`'s compiletests are all below this
         // line.
