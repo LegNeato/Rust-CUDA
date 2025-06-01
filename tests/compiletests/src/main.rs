@@ -191,9 +191,9 @@ fn build_deps(deps_target_dir: &Path, codegen_backend_path: &Path, target: &str)
             "compiletests-deps-helper",
             "-Zbuild-std=core,alloc",
             "-Zbuild-std-features=compiler-builtins-mem",
-                    // TODO(RDambrosio016): Remove this once we can get meaningful error messages in panic to work.
-        // for now we enable it to remove some useless indirect calls in the ptx.
-        "-Zbuild-std-features=panic_immediate_abort".into(),
+            // TODO(RDambrosio016): Remove this once we can get meaningful error messages in panic to work.
+            // for now we enable it to remove some useless indirect calls in the ptx.
+            "-Zbuild-std-features=panic_immediate_abort".into(),
             &*format!("--target={}", target),
         ])
         .arg("--target-dir")
@@ -220,11 +220,13 @@ fn build_deps(deps_target_dir: &Path, codegen_backend_path: &Path, target: &str)
         DepKind::ProcMacro,
         target,
     );
+    let libnvvm = find_lib(deps_target_dir, "libnvvm", DepKind::CudaLib, target);
 
     let all_libs = [
         &compiler_builtins,
         &core,
         &cuda_std,
+        &libnvvm,
         &glam,
         &cuda_std_macros,
     ];
@@ -250,6 +252,7 @@ fn build_deps(deps_target_dir: &Path, codegen_backend_path: &Path, target: &str)
             core: core.ok().unwrap(),
             glam: glam.ok().unwrap(),
             compiler_builtins: compiler_builtins.ok().unwrap(),
+            libnvvm: libnvvm.ok().unwrap(),
             cuda_std: cuda_std.ok().unwrap(),
             cuda_std_macros: cuda_std_macros.ok().unwrap(),
         }
@@ -338,6 +341,7 @@ struct TestDeps {
     compiler_builtins: PathBuf,
     cuda_std: PathBuf,
     cuda_std_macros: PathBuf,
+    libnvvm: PathBuf,
     glam: PathBuf,
 }
 
