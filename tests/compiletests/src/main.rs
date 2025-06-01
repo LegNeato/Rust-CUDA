@@ -355,7 +355,7 @@ fn rust_flags(codegen_backend_path: &Path) -> String {
         // NOTE(LegNeato) flags copied from `cuda-builder` are all above this line.
         "-Zcrate-attr=no_std".into(),
         "-Zsaturating_float_casts=false".into(),
-                // NOTE(LegNeato) flags copied from `rust-gpu`'s compiletests are all below this
+        // NOTE(LegNeato) flags copied from `rust-gpu`'s compiletests are all below this
         // line.
         // Ensure the codegen backend is emitted in `.d` files to force Cargo
         // to rebuild crates compiled with it when it changes (this used to be
@@ -413,9 +413,9 @@ fn dylib_path() -> Vec<PathBuf> {
     }
 }
 
-fn find_rustc_codegen_cuda() -> PathBuf {
+fn find_rustc_codegen_nvvm() -> PathBuf {
     let filename = format!(
-        "{}rustc_codegen_cuda{}",
+        "{}rustc_codegen_nvvm{}",
         env::consts::DLL_PREFIX,
         env::consts::DLL_SUFFIX
     );
