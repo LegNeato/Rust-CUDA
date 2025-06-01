@@ -1,6 +1,5 @@
 use clap::Parser;
 use itertools::Itertools as _;
-use rustc_codegen_spirv_target_specs::TARGET_SPEC_DIR_PATH;
 use std::{
     env, io,
     path::{Path, PathBuf},
@@ -29,10 +28,6 @@ impl Opt {
 }
 
 const CUDA_TARGET_SUFFIX: &str = "-nvidia-cuda";
-
-fn target_spec_json(target: &str) -> String {
-    format!("{TARGET_SPEC_DIR_PATH}/{target}.json")
-}
 
 #[derive(Copy, Clone)]
 enum DepKind {
@@ -171,7 +166,7 @@ impl Runner {
                 stage_id,
                 target_rustcflags: Some(flags),
                 mode: mode.parse().expect("Invalid mode"),
-                target: target_spec_json(&target),
+                target,
                 src_base: self.tests_dir.join(mode),
                 build_base: self.compiletest_build_dir.clone(),
                 bless: self.opt.bless,
@@ -194,9 +189,9 @@ fn build_deps(deps_target_dir: &Path, codegen_backend_path: &Path, target: &str)
             "build",
             "-p",
             "compiletests-deps-helper",
-            "-Zbuild-std=core",
+            "-Zbuild-std=core,alloc",
             "-Zbuild-std-features=compiler-builtins-mem",
-            &*format!("--target={}", target_spec_json(target)),
+            &*format!("--target={}", target),
         ])
         .arg("--target-dir")
         .arg(deps_target_dir)
@@ -352,9 +347,12 @@ fn rust_flags(codegen_backend_path: &Path) -> String {
         &*format!("-Zcodegen-backend={}", codegen_backend_path.display()),
         "-Zcrate-attr=feature(register_tool)",
         "-Zcrate-attr=register_tool(nvvm_internal)".into(),
-        // NOTE(LegNeato) flags copied from `cuda-builder` are all above this line.
         "-Zcrate-attr=no_std".into(),
         "-Zsaturating_float_casts=false".into(),
+        // TODO(RDambrosio016): Remove this once we can get meaningful error messages in panic to work.
+        // for now we enable it to remove some useless indirect calls in the ptx.
+        "-Zbuild-std-features=panic_immediate_abort".into(),
+        // NOTE(LegNeato) flags copied from `cuda-builder` are all above this line.
         // NOTE(LegNeato) flags copied from `rust-gpu`'s compiletests are all below this
         // line.
         // Ensure the codegen backend is emitted in `.d` files to force Cargo
