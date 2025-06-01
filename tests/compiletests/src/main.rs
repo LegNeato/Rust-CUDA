@@ -112,6 +112,7 @@ impl Runner {
                 ),
                 &*format!("--extern cuda_std={}", deps.cuda_std.display()),
                 &*format!("--extern glam={}", deps.glam.display()),
+                &*format!("--extern nvvm={}", deps.libnvvm.display()),
                 "--crate-type dylib",
                 "-Zunstable-options",
                 "-Zcrate-attr=no_std",
