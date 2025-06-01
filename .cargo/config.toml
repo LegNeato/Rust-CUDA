@@ -1,2 +1,3 @@
 [alias]
+compiletest = "run --release -p compiletests --"
 xtask = "run -p xtask --bin xtask --"

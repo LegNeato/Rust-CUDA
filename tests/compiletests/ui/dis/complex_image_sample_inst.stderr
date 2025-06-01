@@ -1,0 +1,14 @@
+%1 = OpFunction  %2  None %3
+%4 = OpFunctionParameter  %2
+%5 = OpFunctionParameter  %6
+%7 = OpFunctionParameter  %6
+%8 = OpFunctionParameter  %9
+%10 = OpFunctionParameter  %9
+%11 = OpLabel
+OpLine %12 18 8
+%13 = OpAccessChain  %14  %15 %16
+%17 = OpLoad  %18  %13
+%19 = OpImageSampleProjExplicitLod  %2  %17 %4 Grad|ConstOffset %5 %7 %20
+OpNoLine
+OpReturnValue %19
+OpFunctionEnd

@@ -1,0 +1,23 @@
+%1 = OpFunction  %2  None %3
+%4 = OpLabel
+OpLine %5 13 12
+%6 = OpLoad  %7  %8
+OpLine %5 14 4
+%9 = OpULessThan  %10  %11 %12
+OpNoLine
+OpSelectionMerge %13 None
+OpBranchConditional %9 %14 %15
+%14 = OpLabel
+OpBranch %13
+%15 = OpLabel
+OpReturn
+%13 = OpLabel
+OpLine %5 14 4
+%16 = OpCompositeExtract  %17  %6 0
+%18 = OpFAdd  %17  %16 %19
+%20 = OpCompositeInsert  %7  %18 %6 0
+OpLine %5 15 4
+OpStore %21 %20
+OpNoLine
+OpReturn
+OpFunctionEnd

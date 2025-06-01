@@ -1,0 +1,12 @@
+[package]
+name = "compiletests-deps-helper"
+description = "Shared dependencies of all the compiletest tests"
+version = "0.0.0"
+publish = false
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+spirv-std = { workspace = true }

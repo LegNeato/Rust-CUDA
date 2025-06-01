@@ -5,22 +5,29 @@ members = [
   "crates/optix/examples/ex*",
   "crates/optix/examples/ex*/device",
   "crates/optix/examples/rust/ex*",
-
   "xtask",
-
+  "tests/compiletests",
   "examples/cuda/vecadd",
   "examples/cuda/vecadd/kernels",
   "examples/cuda/gemm",
   "examples/cuda/gemm/kernels",
   "examples/cuda/path_tracer",
   "examples/cuda/path_tracer/kernels",
-
   "examples/optix/*",
 ]
+exclude = ["crates/optix/examples/common"]
 
-exclude = [
-    "crates/optix/examples/common",
-]
+[workspace.package]
+edition = "2021"
+authors = ["Rust CUDA Developers"]
+license = "MIT OR Apache-2.0"
+description = "A codegen backend for Rustc which targets the libnvvm CUDA library"
+repository = "https://github.com/Rust-GPU/Rust-CUDA"
+readme = "../../README.md"
+
+[workspace.dependencies]
+rustc_codegen_nvvm = { path = "crates/rustc_codegen_nvvm" }
+cuda_std = { path = "crates/cuda_std" }
 
 [profile.dev.package.rustc_codegen_nvvm]
 opt-level = 3
