@@ -214,7 +214,7 @@ fn build_deps(deps_target_dir: &Path, codegen_backend_path: &Path, target: &str)
         target,
     );
     let core = find_lib(deps_target_dir, "core", DepKind::CudaLib, target);
-    let spirv_std = find_lib(deps_target_dir, "cuda_std", DepKind::CudaLib, target);
+    let cuda_std = find_lib(deps_target_dir, "cuda_std", DepKind::CudaLib, target);
     let glam = find_lib(deps_target_dir, "glam", DepKind::CudaLib, target);
     let cuda_std_macros = find_lib(
         deps_target_dir,
