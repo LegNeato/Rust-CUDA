@@ -440,11 +440,19 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
 
     fn volatile_load(&mut self, ty: &'ll Type, ptr: &'ll Value) -> &'ll Value {
         trace!("Volatile load `{:?}`", ptr);
-        let ptr = self.pointercast(ptr, self.cx.type_ptr_to(ty));
+        let original_ptr_llty = self.cx.val_ty(ptr);
+        let required_ptr_llty_for_load = self.cx.type_ptr_to(ty);
+
+        let final_ptr_for_llvm_load = if original_ptr_llty == required_ptr_llty_for_load {
+            ptr
+        } else {
+            self.bitcast(ptr, required_ptr_llty_for_load)
+        };
+
         unsafe {
-            let load = llvm::LLVMBuildLoad(self.llbuilder, ptr, UNNAMED);
-            llvm::LLVMSetVolatile(load, llvm::True);
-            load
+            let load_instr = llvm::LLVMBuildLoad(self.llbuilder, final_ptr_for_llvm_load, UNNAMED);
+            llvm::LLVMSetVolatile(load_instr, llvm::True);
+            load_instr
         }
     }
 
