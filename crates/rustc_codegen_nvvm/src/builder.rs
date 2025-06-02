@@ -430,11 +430,69 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
 
     fn load(&mut self, ty: &'ll Type, ptr: &'ll Value, align: Align) -> &'ll Value {
         trace!("Load {ty:?} {:?}", ptr);
-        let ptr = self.pointercast(ptr, self.cx.type_ptr_to(ty));
+        // `ty` is the LLVM type of the data we want to load from memory (e.g., i64).
+        // `ptr` is the LLVM value representing the memory address (e.g., could be an
+        // i8* or already an i64*).
+
+        let original_ptr_llty = self.cx.val_ty(ptr);
+
+        // For LLVMBuildLoad in LLVM 7, the pointer operand must be PointeeType*, and
+        // PointeeType is what will be loaded. So, `ptr` must be cast to `ty*`.
+        let required_ptr_llty_for_load = self.cx.type_ptr_to(ty);
+
+        trace!(
+            "Builder::load: Type to load: {:?}, Original ptr type: {:?}, Required ptr type for load: {:?}, align={:?}",
+            ty,
+            original_ptr_llty,
+            required_ptr_llty_for_load,
+            align.bytes()
+        );
+
+        // Sanity check: ptr must be a pointer type.
+        assert_eq!(
+            self.cx.type_kind(original_ptr_llty),
+            TypeKind::Pointer,
+            "Attempting to load from a non-pointer LLVM value. Original type: {:?}. Required load type: {:?}",
+            original_ptr_llty,
+            ty
+        );
+
+        let final_ptr_for_llvm_load = if original_ptr_llty == required_ptr_llty_for_load {
+            // The pointer is already correctly typed (e.g., loading i64 from an i64*).
+            ptr
+        } else {
+            // The pointer type needs adjustment (e.g., ptr is an i8*, but we need to load an i64).
+            // We must bitcast ptr to required_ptr_llty_for_load (e.g., i64*).
+            debug!(
+                "Builder::load: Pointer type mismatch. \
+                 Type to load: {:?}, Original pointer type: {:?}, Required pointer type for load: {:?}. \
+                 Injecting bitcast for pointer operand.",
+                ty, original_ptr_llty, required_ptr_llty_for_load
+            );
+            self.bitcast(ptr, required_ptr_llty_for_load)
+        };
+
+        // Now, final_ptr_for_llvm_load is guaranteed to be of type `ty*`.
+        // The LLVM 7 `LLVMBuildLoad` C-API infers the type of the value to be loaded
+        // from the pointee type of its pointer argument.
         unsafe {
-            let load = llvm::LLVMBuildLoad(self.llbuilder, ptr, UNNAMED);
-            llvm::LLVMSetAlignment(load, align.bytes() as c_uint);
-            load
+            let load_instr = llvm::LLVMBuildLoad(self.llbuilder, final_ptr_for_llvm_load, UNNAMED);
+
+            // Sanity check: the type of the loaded value should match `ty`.
+            let actual_loaded_llty = self.cx.val_ty(load_instr);
+            if actual_loaded_llty != ty {
+                bug!(
+                    "Builder::load: LLVMBuildLoad produced a value of type ({:?}) which does not match the expected `ty` parameter ({:?}). \
+                     Pointer type passed to LLVMBuildLoad was: {:?}, after casting from original: {:?}.",
+                    actual_loaded_llty,
+                    ty,
+                    final_ptr_for_llvm_load,
+                    original_ptr_llty
+                );
+            }
+
+            llvm::LLVMSetAlignment(load_instr, align.bytes() as c_uint);
+            load_instr
         }
     }
 
