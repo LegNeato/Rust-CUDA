@@ -251,7 +251,8 @@ fn codegen_into_ptx_file(
 
     // object files (theyre not object files, they are impostors ඞ) are the bitcode modules produced by this codegen session
     // they *should* be the final crate.
-    for obj in objects {
+    for (i, obj) in objects.iter().enumerate() {
+        debug!("Reading object file {}: {:?}", i, obj);
         let bitcode = std::fs::read(obj)?;
         modules.push(bitcode);
     }

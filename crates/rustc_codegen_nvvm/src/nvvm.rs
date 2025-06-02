@@ -159,7 +159,8 @@ unsafe fn cleanup_dicompileunit(module: &Module) {
 
 fn merge_llvm_modules(modules: Vec<Vec<u8>>, llcx: &Context) -> &Module {
     let module = unsafe { crate::create_module(llcx, "merged_modules") };
-    for merged_module in modules {
+    for (i, merged_module) in modules.iter().enumerate() {
+        debug!("Merging object file #{}", i);
         unsafe {
             let tmp = LLVMRustParseBitcodeForLTO(
                 llcx,
