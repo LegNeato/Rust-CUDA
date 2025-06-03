@@ -674,6 +674,7 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
             align.bytes()
         );
         assert_eq!(self.cx.type_kind(self.cx.val_ty(ptr)), TypeKind::Pointer);
+        let ptr = self.check_store(val, ptr);
         unsafe {
             let store = llvm::LLVMBuildStore(self.llbuilder, val, ptr);
             let align = if flags.contains(MemFlags::UNALIGNED) {
@@ -1186,6 +1187,13 @@ impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
     fn align_metadata(&mut self, _load: &'ll Value, _align: Align) {}
 
     fn noundef_metadata(&mut self, _load: &'ll Value) {}
+
+    fn check_store(&mut self, val: &'ll Value, ptr: &'ll Value) -> &'ll Value {
+        // Just use pointercast directly - it will handle the type conversion
+        let val_ty = self.cx.val_ty(val);
+        let ptr_ty = self.cx.type_ptr_to(val_ty);
+        self.pointercast(ptr, ptr_ty)
+    }
 
 
     fn check_call<'b>(
