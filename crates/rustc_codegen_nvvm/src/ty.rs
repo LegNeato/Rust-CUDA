@@ -125,7 +125,7 @@ impl<'ll> CodegenCx<'ll, '_> {
         // Specific workaround for LLVM 7 / NVPTX if LLVMPointerType(ptr, AS) -> ptr
         // This condition checks if we asked for a pointer to a pointer type,
         // but got back the same pointer type (not a pointer-to-pointer).
-        if result_ty == ty && unsafe { llvm::LLVMGetTypeKind(ty) == llvm::TypeKind::Pointer } {
+        if result_ty == ty && unsafe { llvm::LLVMRustGetTypeKind(ty) == llvm::TypeKind::Pointer } {
             // Check if 'ty' is specifically the generic data pointer (like i8* in default AS for data).
             // For NVPTX, AddressSpace::DATA is often 0 (Generic) or 1 (Global).
             // Let's assume AddressSpace::DATA (0 for generic ptr) is the one involved.
