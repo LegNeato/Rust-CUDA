@@ -1189,10 +1189,32 @@ impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
     fn noundef_metadata(&mut self, _load: &'ll Value) {}
 
     fn check_store(&mut self, val: &'ll Value, ptr: &'ll Value) -> &'ll Value {
-        // Just use pointercast directly - it will handle the type conversion
+        // In LLVM 7, we need to ensure the pointer type matches what we're storing
         let val_ty = self.cx.val_ty(val);
-        let ptr_ty = self.cx.type_ptr_to(val_ty);
-        self.pointercast(ptr, ptr_ty)
+        let ptr_ty = self.cx.val_ty(ptr);
+        
+        // Check if this is a pointer type
+        if self.cx.type_kind(ptr_ty) != TypeKind::Pointer {
+            return ptr;
+        }
+        
+        // Get what the pointer points to
+        let pointee_ty = self.cx.element_type(ptr_ty);
+        
+        // If types match, no conversion needed
+        if pointee_ty == val_ty {
+            return ptr;
+        }
+        
+        // We need to bitcast the pointer to the correct type
+        let needed_ptr_ty = self.cx.type_ptr_to(val_ty);
+        trace!(
+            "check_store: bitcasting pointer from {:?} (pointing to {:?}) to {:?} (pointing to {:?})",
+            ptr_ty, pointee_ty, needed_ptr_ty, val_ty
+        );
+        
+        // Use direct LLVM bitcast to avoid address space complications
+        unsafe { llvm::LLVMBuildBitCast(self.llbuilder, ptr, needed_ptr_ty, unnamed()) }
     }
 
 

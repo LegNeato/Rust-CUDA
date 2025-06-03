@@ -160,16 +160,33 @@ unsafe fn cleanup_dicompileunit(module: &Module) {
 fn merge_llvm_modules(modules: Vec<Vec<u8>>, llcx: &Context) -> &Module {
     let module = unsafe { crate::create_module(llcx, "merged_modules") };
     for (i, merged_module) in modules.iter().enumerate() {
-        debug!("Merging object file #{}", i);
+        debug!("Merging object file #{} (size: {} bytes)", i, merged_module.len());
+        
+        // Debug: dump bitcode to file for inspection
+        if std::env::var("NVVM_DUMP_BITCODE").is_ok() {
+            let filename = format!("/tmp/nvvm_module_{}.bc", i);
+            std::fs::write(&filename, merged_module).unwrap();
+            eprintln!("Dumped bitcode to {}", filename);
+        }
+        
         unsafe {
-            let tmp = LLVMRustParseBitcodeForLTO(
+            let tmp = match LLVMRustParseBitcodeForLTO(
                 llcx,
                 merged_module.as_ptr(),
                 merged_module.len(),
                 unnamed(),
                 0,
-            )
-            .expect("Failed to parse module bitcode");
+            ) {
+                Some(m) => m,
+                None => {
+                    // Try to get more information about the error
+                    if let Some(err) = llvm::last_error() {
+                        panic!("Failed to parse module bitcode #{}: {}", i, err);
+                    } else {
+                        panic!("Failed to parse module bitcode #{} (no error message)", i);
+                    }
+                }
+            };
             LLVMLinkModules2(module, tmp);
         }
     }
