@@ -121,35 +121,55 @@ impl<'ll> CodegenCx<'ll, '_> {
     pub(crate) fn type_ptr_to_ext(&self, ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
         let result_ty = unsafe { llvm::LLVMPointerType(ty, address_space.0) };
 
-        // Specific workaround for LLVM 7 / NVPTX if LLVMPointerType(ptr, AS) -> ptr
-        // This condition checks if we asked for a pointer to a pointer type,
-        // but got back the same pointer type (not a pointer-to-pointer).
+        // Workaround for LLVM 7 / NVPTX if LLVMPointerType(ptr, AS) -> ptr
+        // Check if the input `ty` was already a pointer and if `LLVMPointerType`
+        // returned the same type, indicating no new level of indirection was added.
         if result_ty == ty && unsafe { llvm::LLVMRustGetTypeKind(ty) == llvm::TypeKind::Pointer } {
-            // Check if 'ty' is specifically the generic data pointer (like i8* in default AS for data).
-            // For NVPTX, AddressSpace::DATA is often 0 (Generic) or 1 (Global).
-            // Let's assume AddressSpace::DATA (0 for generic ptr) is the one involved.
-            let generic_data_ptr_type = self.type_ptr_ext(AddressSpace::DATA); // Gets i8* in AddressSpace::DATA
+            // This is the "quirk" situation. We need to specifically identify if `ty`
+            // is the generic data pointer that's causing the issue. For LLVM 7 on
+            // NVPTX, this is typically equivalent to an i8 pointer in a default data
+            // address space (e.g., AS 0 or 1).
 
-            if ty == generic_data_ptr_type {
-                // We attempted to create a pointer to the generic data pointer type
-                // (e.g., `(i8 addrspace(N))*`) but `LLVMPointerType` returned the
-                // generic data pointer type itself (`i8 addrspace(N)*`).
-                let i8_llty = self.type_i8();
-                let i8_ptr_llty = unsafe { llvm::LLVMPointerType(i8_llty, address_space.0) }; // Should be `i8*` (or `ptr`)
-                let i8_ptr_ptr_llty =
-                    unsafe { llvm::LLVMPointerType(i8_ptr_llty, address_space.0) }; // Should be `i8**` (or `ptr*`)
+            // Define what the generic `ptr` type looks like when created from `i8`.
+            // Assuming AddressSpace::DATA is the relevant one for such generic pointers.
+            let i8_llty = self.type_i8();
+            let canonical_generic_ptr_llty_in_data_as =
+                unsafe { llvm::LLVMPointerType(i8_llty, AddressSpace::DATA.0) };
 
-                if ty == i8_ptr_llty && result_ty == i8_ptr_llty {
-                    // If input was i8* (ptr) and output was i8* (ptr)
-                    // This means LLVMPointerType(i8*, AS) -> i8*
-                    // We need i8**.
+            // Now, check if our input `ty` IS this canonical generic data pointer
+            // AND if we were trying to create a pointer to it in the *same* AddressSpace::DATA.
+            // (If address_space was different, LLVM should naturally create a new pointer type).
+            if ty == canonical_generic_ptr_llty_in_data_as && address_space == AddressSpace::DATA {
+                // We tried to make `(i8* AS_DATA)* AS_DATA` but got `i8* AS_DATA` back.
+                // This is the problematic case. We need to force what should be `(i8*
+                // AS_DATA)* AS_DATA`.
+                let ptr_to_canonical_generic_ptr_llty = unsafe {
+                    llvm::LLVMPointerType(
+                        canonical_generic_ptr_llty_in_data_as,
+                        AddressSpace::DATA.0,
+                    )
+                };
+
+                // If ptr_to_canonical_generic_ptr_llty is *still* the same as canonical_generic_ptr_llty,
+                // then LLVM 7 truly cannot make a distinct `ptr*` from `ptr` using LLVMPointerType
+                if ptr_to_canonical_generic_ptr_llty != canonical_generic_ptr_llty {
                     tracing::debug!(
-                        "Applying LLVMPointerType quirk workaround for ptr-to-ptr. Requested ptr to {:?}, got same. Forcing to pointer to (pointer to i8). Old result: {:?}, New result: {:?}",
+                        "type_ptr_to_ext: Quirk detected for generic ptr. Input ty: {:?}, Requested AS: {:?}. Initial result: {:?}. Forced to: {:?}",
                         ty,
+                        address_space.0,
                         result_ty,
-                        i8_ptr_ptr_llty
+                        ptr_to_canonical_generic_ptr_llty
                     );
-                    return i8_ptr_ptr_llty;
+                    return ptr_to_canonical_generic_ptr_llty;
+                } else {
+                    // This case means LLVMPointerType(i8*_AS_DATA, AS_DATA) -> i8*_AS_DATA
+                    // AND LLVMPointerType( (i8*_AS_DATA), AS_DATA) -> i8*_AS_DATA (still!)
+                    tracing::warn!(
+                        "type_ptr_to_ext: LLVM 7 / NVPTX ptr quirk: LLVMPointerType cannot create distinct ptr-to-ptr for generic ptr type {:?}. This will likely lead to errors.",
+                        ty
+                    );
+                    // Return original result_ty, as we can't improve it.
+                    return result_ty;
                 }
             }
         }
