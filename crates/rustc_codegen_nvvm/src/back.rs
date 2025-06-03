@@ -10,7 +10,7 @@ use rustc_codegen_ssa::{
     back::write::{CodegenContext, ModuleConfig},
     base::maybe_create_entry_wrapper,
     mono_item::MonoItemExt,
-    traits::{BaseTypeCodegenMethods, ThinBufferMethods},
+    traits::{BaseTypeCodegenMethods, ThinBufferMethods, ModuleBufferMethods},
 };
 use rustc_errors::{DiagCtxtHandle, FatalError};
 use rustc_fs_util::path_to_c_string;
@@ -25,7 +25,7 @@ use rustc_target::spec::{CodeModel, RelocModel};
 use crate::common::AsCCharPtr;
 use crate::llvm::{self};
 use crate::override_fns::define_or_override_fn;
-use crate::{LlvmMod, NvvmCodegenBackend, builder::Builder, context::CodegenCx, lto::ThinBuffer};
+use crate::{LlvmMod, NvvmCodegenBackend, builder::Builder, context::CodegenCx, lto::{ThinBuffer, ModuleBuffer}};
 
 pub fn llvm_err(handle: DiagCtxtHandle, msg: &str) -> FatalError {
     match llvm::last_error() {
@@ -208,9 +208,10 @@ pub(crate) unsafe fn codegen(
         .prof
         .generic_activity_with_arg("NVVM_module_codegen_make_bitcode", &module.name[..]);
 
-    let thin = ThinBuffer::new(llmod);
+    // Use ModuleBuffer instead of ThinBuffer to avoid ThinLTO bitcode format incompatibility
+    let buffer = ModuleBuffer::new(llmod);
 
-    let data = thin.data();
+    let data = buffer.data();
 
     let _bc_emit_timer = cgcx
         .prof
