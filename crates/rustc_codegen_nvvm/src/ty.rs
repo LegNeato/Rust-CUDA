@@ -115,8 +115,7 @@ impl<'ll> CodegenCx<'ll, '_> {
             TypeKind::Function,
             "don't call ptr_to on function types, use ptr_to_llvm_type on FnAbi instead or explicitly specify an address space if it makes sense"
         );
-
-        unsafe { llvm::LLVMPointerType(ty, AddressSpace::DATA.0) }
+        self.type_ptr_to_ext(ty, AddressSpace::DATA)
     }
 
     pub(crate) fn type_ptr_to_ext(&self, ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
