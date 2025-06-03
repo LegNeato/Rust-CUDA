@@ -120,7 +120,41 @@ impl<'ll> CodegenCx<'ll, '_> {
     }
 
     pub(crate) fn type_ptr_to_ext(&self, ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
-        unsafe { llvm::LLVMPointerType(ty, address_space.0) }
+        let result_ty = unsafe { llvm::LLVMPointerType(ty, address_space.0) };
+
+        // Specific workaround for LLVM 7 / NVPTX if LLVMPointerType(ptr, AS) -> ptr
+        // This condition checks if we asked for a pointer to a pointer type,
+        // but got back the same pointer type (not a pointer-to-pointer).
+        if result_ty == ty && unsafe { llvm::LLVMGetTypeKind(ty) == llvm::TypeKind::Pointer } {
+            // Check if 'ty' is specifically the generic data pointer (like i8* in default AS for data).
+            // For NVPTX, AddressSpace::DATA is often 0 (Generic) or 1 (Global).
+            // Let's assume AddressSpace::DATA (0 for generic ptr) is the one involved.
+            let generic_data_ptr_type = self.type_ptr_ext(AddressSpace::DATA); // Gets i8* in AddressSpace::DATA
+
+            if ty == generic_data_ptr_type {
+                // We attempted to create a pointer to the generic data pointer type
+                // (e.g., `(i8 addrspace(N))*`) but `LLVMPointerType` returned the
+                // generic data pointer type itself (`i8 addrspace(N)*`).
+                let i8_llty = self.type_i8();
+                let i8_ptr_llty = unsafe { llvm::LLVMPointerType(i8_llty, address_space.0) }; // Should be `i8*` (or `ptr`)
+                let i8_ptr_ptr_llty =
+                    unsafe { llvm::LLVMPointerType(i8_ptr_llty, address_space.0) }; // Should be `i8**` (or `ptr*`)
+
+                if ty == i8_ptr_llty && result_ty == i8_ptr_llty {
+                    // If input was i8* (ptr) and output was i8* (ptr)
+                    // This means LLVMPointerType(i8*, AS) -> i8*
+                    // We need i8**.
+                    tracing::debug!(
+                        "Applying LLVMPointerType quirk workaround for ptr-to-ptr. Requested ptr to {:?}, got same. Forcing to pointer to (pointer to i8). Old result: {:?}, New result: {:?}",
+                        ty,
+                        result_ty,
+                        i8_ptr_ptr_llty
+                    );
+                    return i8_ptr_ptr_llty;
+                }
+            }
+        }
+        result_ty
     }
 
     pub(crate) fn func_params_types(&self, ty: &'ll Type) -> Vec<&'ll Type> {
