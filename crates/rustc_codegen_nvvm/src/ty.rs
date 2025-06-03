@@ -115,77 +115,12 @@ impl<'ll> CodegenCx<'ll, '_> {
             TypeKind::Function,
             "don't call ptr_to on function types, use ptr_to_llvm_type on FnAbi instead or explicitly specify an address space if it makes sense"
         );
-        self.type_ptr_to_ext(ty, AddressSpace::DATA)
+
+        unsafe { llvm::LLVMPointerType(ty, AddressSpace::DATA.0) }
     }
 
     pub(crate) fn type_ptr_to_ext(&self, ty: &'ll Type, address_space: AddressSpace) -> &'ll Type {
-        let result_ty = unsafe { llvm::LLVMPointerType(ty, address_space.0) };
-
-        // Check if the input `ty` was already a pointer type,
-        // and if the `result_ty` from `LLVMPointerType` is identical to `ty`.
-        // This indicates LLVM might not have added another level of indirection as expected.
-        if result_ty == ty && unsafe { llvm::LLVMRustGetTypeKind(ty) == llvm::TypeKind::Pointer } {
-            // This condition means we tried to make a pointer to a pointer, but got the original pointer type back.
-            // This is most problematic if `ty` is the generic `ptr` type used by NVPTX
-            // (often `i8*` in a default data address space like AddressSpace::DATA).
-
-            // Define what the canonical generic `ptr` type (targetted by `AddressSpace::DATA`) looks like when created from `i8`.
-            let i8_llty = self.type_i8();
-            let canonical_generic_ptr_llty_in_data_as = unsafe {
-                llvm::LLVMPointerType(i8_llty, AddressSpace::DATA.0) // Using AddressSpace::DATA explicitly
-            };
-
-            // Now, check if our input `ty` IS this canonical generic data pointer
-            // AND if we were trying to create a pointer to it also in `AddressSpace::DATA`.
-            if ty == canonical_generic_ptr_llty_in_data_as && address_space == AddressSpace::DATA {
-                // We attempted to create `(i8* AS_DATA)* AS_DATA` but `LLVMPointerType`
-                // (in the `result_ty` assignment above) returned `i8* AS_DATA` itself.
-
-                // Let's explicitly try to form the pointer-to-pointer type again,
-                // ensuring the inner pointer is the canonical `i8* AS_DATA`.
-                let ptr_to_canonical_generic_ptr_llty = unsafe {
-                    llvm::LLVMPointerType(
-                        canonical_generic_ptr_llty_in_data_as,
-                        AddressSpace::DATA.0,
-                    )
-                };
-
-                // If this explicit formation *does* yield a type different from the input `ty`
-                // (which was also `result_ty`), it means we've successfully created the distinct `ptr*` type.
-                if ptr_to_canonical_generic_ptr_llty != ty {
-                    // Or check against result_ty, they are the same here
-                    tracing::debug!(
-                        "type_ptr_to_ext: Quirk detected for generic ptr to generic ptr in AddressSpace::DATA. \
-                         Input ty: {:?}, Requested AS for outer ptr: {:?}. \
-                         Initial LLVMPointerType output (result_ty): {:?}. \
-                         Forced to (ptr_to_canonical_generic_ptr_llty): {:?}",
-                        ty,
-                        address_space.0,
-                        result_ty,
-                        ptr_to_canonical_generic_ptr_llty
-                    );
-                    return ptr_to_canonical_generic_ptr_llty;
-                } else {
-                    // This path means:
-                    // 1. ty == canonical_generic_ptr_llty_in_data_as (input is `ptr AS_DATA`)
-                    // 2. address_space == AddressSpace::DATA (target for outer pointer is `AS_DATA`)
-                    // 3. result_ty == ty (LLVMPointerType(ptr AS_DATA, AS_DATA) -> ptr AS_DATA)
-                    // 4. ptr_to_canonical_generic_ptr_llty == ty (LLVMPointerType(ptr AS_DATA, AS_DATA) -> ptr AS_DATA, *still*)
-                    // This would imply a fundamental inability of LLVM 7/NVPTX to create a distinct (ptr AS_DATA)* AS_DATA.
-                    // The LLVM error for `store` suggests this shouldn't be the case.
-                    tracing::warn!(
-                        "type_ptr_to_ext: LLVM 7 / NVPTX ptr quirk: LLVMPointerType seems unable to create a distinct \
-                         pointer-to-generic-pointer type for ty: {:?} in target AS: {:?}. \
-                         Initial result was also {:?}. This will likely lead to errors.",
-                        ty,
-                        address_space.0,
-                        result_ty
-                    );
-                    // Fall through to return original result_ty, as we can't improve it with this strategy.
-                }
-            }
-        }
-        result_ty
+        unsafe { llvm::LLVMPointerType(ty, address_space.0) }
     }
 
     pub(crate) fn func_params_types(&self, ty: &'ll Type) -> Vec<&'ll Type> {
