@@ -10,7 +10,7 @@ use rustc_codegen_ssa::{
     back::write::{CodegenContext, ModuleConfig},
     base::maybe_create_entry_wrapper,
     mono_item::MonoItemExt,
-    traits::{BaseTypeCodegenMethods, ThinBufferMethods, ModuleBufferMethods},
+    traits::BaseTypeCodegenMethods,
 };
 use rustc_errors::{DiagCtxtHandle, FatalError};
 use rustc_fs_util::path_to_c_string;
@@ -25,7 +25,7 @@ use rustc_target::spec::{CodeModel, RelocModel};
 use crate::common::AsCCharPtr;
 use crate::llvm::{self};
 use crate::override_fns::define_or_override_fn;
-use crate::{LlvmMod, NvvmCodegenBackend, builder::Builder, context::CodegenCx, lto::{ThinBuffer, ModuleBuffer}};
+use crate::{LlvmMod, NvvmCodegenBackend, builder::Builder, context::CodegenCx};
 
 pub fn llvm_err(handle: DiagCtxtHandle, msg: &str) -> FatalError {
     match llvm::last_error() {
@@ -208,17 +208,16 @@ pub(crate) unsafe fn codegen(
         .prof
         .generic_activity_with_arg("NVVM_module_codegen_make_bitcode", &module.name[..]);
 
-    // Use ModuleBuffer instead of ThinBuffer to avoid ThinLTO bitcode format incompatibility
-    let buffer = ModuleBuffer::new(llmod);
-
-    let data = buffer.data();
-
     let _bc_emit_timer = cgcx
         .prof
         .generic_activity_with_arg("NVVM_module_codegen_emit_bitcode", &module.name[..]);
 
-    if let Err(e) = std::fs::write(&out, data) {
-        let msg = format!("failed to write bytecode to {}: {}", out.display(), e);
+    // Write bitcode directly using LLVM 7's function to ensure compatibility
+    let out_c = path_to_c_string(&out);
+    let result = unsafe { llvm::LLVMWriteBitcodeToFile(llmod, out_c.as_ptr()) };
+
+    if result != 0 {
+        let msg = format!("failed to write bytecode to {}", out.display());
         dcx.err(msg);
     }
 

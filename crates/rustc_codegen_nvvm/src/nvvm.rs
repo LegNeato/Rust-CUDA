@@ -160,15 +160,19 @@ unsafe fn cleanup_dicompileunit(module: &Module) {
 fn merge_llvm_modules(modules: Vec<Vec<u8>>, llcx: &Context) -> &Module {
     let module = unsafe { crate::create_module(llcx, "merged_modules") };
     for (i, merged_module) in modules.iter().enumerate() {
-        debug!("Merging object file #{} (size: {} bytes)", i, merged_module.len());
-        
+        debug!(
+            "Merging object file #{} (size: {} bytes)",
+            i,
+            merged_module.len()
+        );
+
         // Debug: dump bitcode to file for inspection
         if std::env::var("NVVM_DUMP_BITCODE").is_ok() {
             let filename = format!("/tmp/nvvm_module_{}.bc", i);
             std::fs::write(&filename, merged_module).unwrap();
             eprintln!("Dumped bitcode to {}", filename);
         }
-        
+
         unsafe {
             let tmp = match LLVMRustParseBitcodeForLTO(
                 llcx,
