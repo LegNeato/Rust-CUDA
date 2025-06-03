@@ -4,7 +4,7 @@ use crate::back::demangle_callback;
 use crate::builder::unnamed;
 use crate::common::AsCCharPtr;
 use crate::context::CodegenArgs;
-use crate::llvm::*;
+use crate::llvm::{self, *};
 use crate::lto::ThinBuffer;
 use nvvm::*;
 use rustc_codegen_ssa::traits::ThinBufferMethods;

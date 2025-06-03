@@ -430,7 +430,8 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
 
     fn load(&mut self, ty: &'ll Type, ptr: &'ll Value, align: Align) -> &'ll Value {
         trace!("Load {ty:?} {:?}", ptr);
-        let ptr = self.pointercast(ptr, self.cx.type_ptr_to(ty));
+        // For LLVM 7, ensure the pointer type matches what we're loading
+        let ptr = self.check_load(ty, ptr);
         unsafe {
             let load = llvm::LLVMBuildLoad(self.llbuilder, ptr, UNNAMED);
             llvm::LLVMSetAlignment(load, align.bytes() as c_uint);
@@ -440,7 +441,8 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
 
     fn volatile_load(&mut self, ty: &'ll Type, ptr: &'ll Value) -> &'ll Value {
         trace!("Volatile load `{:?}`", ptr);
-        let ptr = self.pointercast(ptr, self.cx.type_ptr_to(ty));
+        // For LLVM 7, ensure the pointer type matches what we're loading
+        let ptr = self.check_load(ty, ptr);
         unsafe {
             let load = llvm::LLVMBuildLoad(self.llbuilder, ptr, UNNAMED);
             llvm::LLVMSetVolatile(load, llvm::True);
@@ -1187,6 +1189,34 @@ impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
     fn align_metadata(&mut self, _load: &'ll Value, _align: Align) {}
 
     fn noundef_metadata(&mut self, _load: &'ll Value) {}
+
+    fn check_load(&mut self, ty: &'ll Type, ptr: &'ll Value) -> &'ll Value {
+        // For LLVM 7, ensure the pointer type matches what we're loading
+        let ptr_ty = self.cx.val_ty(ptr);
+        
+        // Check if this is a pointer type
+        if self.cx.type_kind(ptr_ty) != TypeKind::Pointer {
+            return ptr;
+        }
+        
+        // Get what the pointer points to
+        let pointee_ty = self.cx.element_type(ptr_ty);
+        
+        // If types match, no conversion needed
+        if pointee_ty == ty {
+            return ptr;
+        }
+        
+        // We need to bitcast the pointer to the correct type
+        let needed_ptr_ty = self.cx.type_ptr_to(ty);
+        trace!(
+            "check_load: bitcasting pointer from {:?} (pointing to {:?}) to {:?} (pointing to {:?})",
+            ptr_ty, pointee_ty, needed_ptr_ty, ty
+        );
+        
+        // Use direct LLVM bitcast
+        unsafe { llvm::LLVMBuildBitCast(self.llbuilder, ptr, needed_ptr_ty, unnamed()) }
+    }
 
     fn check_store(&mut self, val: &'ll Value, ptr: &'ll Value) -> &'ll Value {
         // In LLVM 7, we need to ensure the pointer type matches what we're storing
