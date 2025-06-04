@@ -1231,6 +1231,21 @@ impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
         // Get what the pointer points to
         let pointee_ty = self.cx.element_type(ptr_ty);
 
+        // Special case: if we're storing through an i8* but the value is not i8,
+        // we need to bitcast to the correct pointer type
+        if self.cx.type_kind(pointee_ty) == TypeKind::Integer {
+            let int_width = self.cx.int_width(pointee_ty);
+            if int_width == 8 && val_ty != pointee_ty {
+                // This is likely an i8* from an alloca that needs to be cast
+                let needed_ptr_ty = self.cx.type_ptr_to(val_ty);
+                trace!(
+                    "check_store: bitcasting i8* to correct type - from {:?} to {:?} for value type {:?}",
+                    ptr_ty, needed_ptr_ty, val_ty
+                );
+                return unsafe { llvm::LLVMBuildBitCast(self.llbuilder, ptr, needed_ptr_ty, unnamed()) };
+            }
+        }
+
         // If types match, no conversion needed
         if pointee_ty == val_ty {
             return ptr;

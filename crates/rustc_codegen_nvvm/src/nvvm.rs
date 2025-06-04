@@ -167,10 +167,31 @@ fn merge_llvm_modules(modules: Vec<Vec<u8>>, llcx: &Context) -> &Module {
         );
 
         // Debug: dump bitcode to file for inspection
-        if std::env::var("NVVM_DUMP_BITCODE").is_ok() {
+        if std::env::var("NVVM_DUMP_BITCODE").is_ok() || i == 3 {
             let filename = format!("/tmp/nvvm_module_{}.bc", i);
             std::fs::write(&filename, merged_module).unwrap();
             eprintln!("Dumped bitcode to {}", filename);
+            
+            // Also try to disassemble it to see what's inside
+            if i == 3 {
+                eprintln!("Module #3 is failing. Running llvm-dis-7 on it...");
+                let dis_result = std::process::Command::new("llvm-dis-7")
+                    .arg(&filename)
+                    .arg("-o")
+                    .arg(format!("{}.ll", filename))
+                    .output();
+                
+                match dis_result {
+                    Ok(output) => {
+                        if !output.status.success() {
+                            eprintln!("llvm-dis-7 failed: {}", String::from_utf8_lossy(&output.stderr));
+                        } else {
+                            eprintln!("Disassembled to {}.ll", filename);
+                        }
+                    }
+                    Err(e) => eprintln!("Failed to run llvm-dis-7: {}", e),
+                }
+            }
         }
 
         unsafe {
