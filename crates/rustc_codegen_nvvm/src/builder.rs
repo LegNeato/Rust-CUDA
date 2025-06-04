@@ -659,6 +659,8 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
 
     fn store(&mut self, val: &'ll Value, ptr: &'ll Value, align: Align) -> &'ll Value {
         trace!("Store val `{:?}` into ptr `{:?}`", val, ptr);
+        // Fix the pointer type to match the value being stored
+        let ptr = self.check_store(val, ptr);
         self.store_with_flags(val, ptr, align, MemFlags::empty())
     }
 
@@ -676,7 +678,6 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
             align.bytes()
         );
         assert_eq!(self.cx.type_kind(self.cx.val_ty(ptr)), TypeKind::Pointer);
-        let ptr = self.check_store(val, ptr);
         unsafe {
             let store = llvm::LLVMBuildStore(self.llbuilder, val, ptr);
             let align = if flags.contains(MemFlags::UNALIGNED) {

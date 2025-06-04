@@ -1,3 +1,4 @@
+    Updating git repository `https://github.com/LegNeato/Rust-CUDA.git`
    Compiling libc v0.2.172
    Compiling shlex v1.3.0
    Compiling proc-macro2 v1.0.95
@@ -7,88 +8,88 @@
    Compiling bitflags v2.9.1
    Compiling memchr v2.7.4
    Compiling glob v0.3.2
-   Compiling prettyplease v0.2.33
    Compiling regex-syntax v0.8.5
-   Compiling either v1.15.0
+   Compiling prettyplease v0.2.33
+   Compiling log v0.4.27
    Compiling vcpkg v0.2.15
    Compiling minimal-lexical v0.2.1
-   Compiling log v0.4.27
+   Compiling either v1.15.0
    Compiling bindgen v0.71.1
    Compiling rustc-hash v2.1.1
    Compiling bimap v0.6.3
    Compiling rustix v1.0.7
    Compiling libloading v0.8.8
-   Compiling once_cell v1.21.3
-   Compiling serde v1.0.219
    Compiling libm v0.2.15
    Compiling linux-raw-sys v0.9.4
-   Compiling semver-parser v0.7.0
+   Compiling once_cell v1.21.3
+   Compiling serde v1.0.219
    Compiling semver v1.0.26
-   Compiling curl v0.4.47
    Compiling serde_json v1.0.140
-   Compiling itertools v0.13.0
+   Compiling semver-parser v0.7.0
    Compiling autocfg v1.4.0
-   Compiling tracing-core v0.1.33
-   Compiling openssl-probe v0.1.6
-   Compiling itoa v1.0.15
-   Compiling ryu v1.0.20
-   Compiling regex-syntax v0.6.29
-   Compiling semver v0.6.0
-   Compiling static_assertions v1.1.0
+   Compiling itertools v0.13.0
+   Compiling curl v0.4.47
    Compiling adler2 v2.0.0
+   Compiling tracing-core v0.1.33
+   Compiling regex-syntax v0.6.29
+   Compiling openssl-probe v0.1.6
+   Compiling static_assertions v1.1.0
+   Compiling ryu v1.0.20
+   Compiling semver v0.6.0
+   Compiling itoa v1.0.15
    Compiling clang-sys v1.8.1
    Compiling twox-hash v1.6.3
-   Compiling crc32fast v1.4.2
    Compiling miniz_oxide v0.8.8
-   Compiling build-helper v0.1.1
-   Compiling nom v7.1.3
-   Compiling hashbrown v0.15.3
-   Compiling num-traits v0.2.19
-   Compiling overload v0.1.1
-   Compiling object v0.36.7
-   Compiling lazy_static v1.5.0
+   Compiling crc32fast v1.4.2
    Compiling equivalent v1.0.2
-   Compiling quote v1.0.40
+   Compiling build-helper v0.1.1
+   Compiling hashbrown v0.15.3
+   Compiling nom v7.1.3
+   Compiling num-traits v0.2.19
+   Compiling object v0.36.7
    Compiling pin-project-lite v0.2.16
+   Compiling lazy_static v1.5.0
+   Compiling overload v0.1.1
+   Compiling tracing-log v0.2.0
+   Compiling quote v1.0.40
    Compiling sharded-slab v0.1.7
    Compiling nu-ansi-term v0.46.0
-   Compiling tracing-log v0.2.0
    Compiling ruzstd v0.7.3
    Compiling rustc_version v0.4.1
    Compiling thread_local v1.1.8
+   Compiling stable_deref_trait v1.2.0
    Compiling fallible-iterator v0.3.0
+   Compiling smallvec v1.15.0
    Compiling zerocopy v0.8.25
    Compiling syn v2.0.101
    Compiling flate2 v1.1.1
-   Compiling smallvec v1.15.0
-   Compiling stable_deref_trait v1.2.0
    Compiling itertools v0.14.0
-   Compiling jobserver v0.1.33
-   Compiling socket2 v0.5.10
-   Compiling filetime v0.2.25
    Compiling vek v0.17.1
-   Compiling rustc-demangle v0.1.24
+   Compiling jobserver v0.1.33
+   Compiling filetime v0.2.25
+   Compiling socket2 v0.5.10
    Compiling indexmap v2.9.0
+   Compiling rustc-demangle v0.1.24
    Compiling cc v1.2.25
    Compiling mint v0.5.9
-   Compiling bytemuck v1.23.0
-   Compiling hex v0.4.3
-   Compiling regex-automata v0.4.9
    Compiling glam v0.29.3
+   Compiling bytemuck v1.23.0
+   Compiling regex-automata v0.4.9
+   Compiling hex v0.4.3
+   Compiling gimli v0.30.0
    Compiling getrandom v0.2.16
    Compiling rand_core v0.6.4
-   Compiling gimli v0.30.0
    Compiling regex-automata v0.1.10
-   Compiling cexpr v0.6.0
-   Compiling xattr v1.5.0
-   Compiling approx v0.5.1
    Compiling num-integer v0.1.46
+   Compiling approx v0.5.1
+   Compiling xattr v1.5.0
+   Compiling cexpr v0.6.0
    Compiling tar v0.4.44
    Compiling matchers v0.1.0
-   Compiling openssl-sys v0.9.109
    Compiling libz-sys v1.1.22
-   Compiling curl-sys v0.4.80+curl-8.12.1
+   Compiling openssl-sys v0.9.109
    Compiling lzma-sys v0.1.20
+   Compiling curl-sys v0.4.80+curl-8.12.1
    Compiling ppv-lite86 v0.2.21
    Compiling regex v1.11.1
    Compiling rand_chacha v0.3.1
@@ -97,16 +98,16 @@
    Compiling xz v0.1.0
    Compiling serde_derive v1.0.219
    Compiling tracing-attributes v0.1.28
-   Compiling rustc_codegen_nvvm_macros v0.1.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
-   Compiling cust_derive v0.2.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
-   Compiling cust_core v0.1.1 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
-   Compiling rustc_codegen_nvvm v0.3.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
+   Compiling rustc_codegen_nvvm_macros v0.1.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
+   Compiling cust_derive v0.2.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
+   Compiling cust_core v0.1.1 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
+   Compiling rustc_codegen_nvvm v0.3.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
    Compiling tracing v0.1.41
    Compiling tracing-subscriber v0.3.19
-   Compiling cust_raw v0.11.3 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
-   Compiling nvvm v0.1.1 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
-   Compiling cust v0.3.2 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
-   Compiling cuda_builder v0.3.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
+   Compiling cust_raw v0.11.3 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
+   Compiling nvvm v0.1.1 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
+   Compiling cust v0.3.2 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
+   Compiling cuda_builder v0.3.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
    Compiling ed25519_vanity v0.1.0 (/root/ed25519-vanity-rs)
 error: failed to run custom build command for `ed25519_vanity v0.1.0 (/root/ed25519-vanity-rs)`
 
@@ -1758,9 +1759,9 @@ Caused by:
   DEBUG rustc_codegen_nvvm::debug_info::metadata: build_basic_type_di_node: u32
   DEBUG rustc_codegen_nvvm::debug_info::metadata: type_di_node: u32 kind: u32
   DEBUG rustc_codegen_nvvm::debug_info::metadata: type_di_node: cuda_std::vek::Vec3<u32> kind: cuda_std::vek::Vec3<u32>
-  DEBUG rustc_codegen_nvvm::debug_info::metadata: abs_path="/root/.cargo/git/checkouts/rust-cuda-97fe623ab90e914e/4b56c81/crates/cuda_std/src/thread.rs"
+  DEBUG rustc_codegen_nvvm::debug_info::metadata: abs_path="/root/.cargo/git/checkouts/rust-cuda-97fe623ab90e914e/0d84e41/crates/cuda_std/src/thread.rs"
   DEBUG rustc_codegen_nvvm::debug_info::metadata: working_directory=LocalPath("/root/ed25519-vanity-rs/kernel")
-  DEBUG rustc_codegen_nvvm::debug_info::metadata: source_file.name=Real(LocalPath("/root/.cargo/git/checkouts/rust-cuda-97fe623ab90e914e/4b56c81/crates/cuda_std/src/thread.rs"))
+  DEBUG rustc_codegen_nvvm::debug_info::metadata: source_file.name=Real(LocalPath("/root/.cargo/git/checkouts/rust-cuda-97fe623ab90e914e/0d84e41/crates/cuda_std/src/thread.rs"))
   DEBUG rustc_codegen_nvvm::debug_info::metadata: build_compile_unit_di_node: "src/lib.rs/@/776ujmih72ixapfgijhbs9om6"
   DEBUG rustc_codegen_nvvm::context: Creating new CodegenCx
   DEBUG rustc_codegen_nvvm: Creating llvm module with name `776ujmih72ixapfgijhbs9om6`
@@ -2640,8 +2641,8 @@ Caused by:
        Locking 9 packages to latest Rust 1.87.0-nightly compatible versions
         Adding block-buffer v0.10.4
         Adding crypto-common v0.1.6
-        Adding cuda_std v0.2.2 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
-        Adding cuda_std_macros v0.2.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
+        Adding cuda_std v0.2.2 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
+        Adding cuda_std_macros v0.2.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
         Adding digest v0.10.7
         Adding generic-array v0.14.7
         Adding sha2 v0.10.9
@@ -2649,10 +2650,10 @@ Caused by:
         Adding version_check v0.9.5
      Compiling compiler_builtins v0.1.148
      Compiling core v0.0.0 (/root/.rustup/toolchains/nightly-2025-03-02-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/core)
-     Compiling semver v1.0.26
      Compiling typenum v1.18.0
-     Compiling libm v0.2.15
      Compiling version_check v0.9.5
+     Compiling libm v0.2.15
+     Compiling semver v1.0.26
      Compiling autocfg v1.4.0
      Compiling proc-macro2 v1.0.95
      Compiling unicode-ident v1.0.18
@@ -2664,10 +2665,10 @@ Caused by:
      Compiling generic-array v0.14.7
      Compiling num-traits v0.2.19
      Compiling rustc_version v0.4.1
-     Compiling quote v1.0.40
      Compiling vek v0.17.1
+     Compiling quote v1.0.40
      Compiling syn v2.0.101
-     Compiling cuda_std_macros v0.2.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
+     Compiling cuda_std_macros v0.2.0 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
      Compiling rustc-std-workspace-core v1.99.0 (/root/.rustup/toolchains/nightly-2025-03-02-x86_64-unknown-linux-gnu/lib/rustlib/src/rust/library/rustc-std-workspace-core)
   warning: some trace filter directives would enable traces that are disabled statically
    | `trace` would enable the TRACE level for all targets
@@ -2689,16 +2690,16 @@ Caused by:
    = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
   warning: some trace filter directives would enable traces that are disabled statically
-   | `trace` would enable the TRACE level for all targets
-   = note: the static max level is `debug`
-   = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
-  warning: some trace filter directives would enable traces that are disabled statically
   warning: some trace filter directives would enable traces that are disabled statically
    | `trace` would enable the TRACE level for all targets
    | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
    = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
+   = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
+  warning: some trace filter directives would enable traces that are disabled statically
+   | `trace` would enable the TRACE level for all targets
+   = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
      Compiling half v2.6.0
   warning: some trace filter directives would enable traces that are disabled statically
@@ -2713,14 +2714,14 @@ Caused by:
    | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
-     Compiling block-buffer v0.10.4
      Compiling crypto-common v0.1.6
-  warning: some trace filter directives would enable traces that are disabled statically
+     Compiling block-buffer v0.10.4
   warning: some trace filter directives would enable traces that are disabled statically
    | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
-   | `trace` would enable the TRACE level for all targets
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
+  warning: some trace filter directives would enable traces that are disabled statically
+   | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
      Compiling digest v0.10.7
@@ -2733,13 +2734,9 @@ Caused by:
    | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
-     Compiling num-integer v0.1.46
      Compiling approx v0.5.1
+     Compiling num-integer v0.1.46
   warning: some trace filter directives would enable traces that are disabled statically
-   | `trace` would enable the TRACE level for all targets
-   = note: the static max level is `debug`
-  warning: some trace filter directives would enable traces that are disabled statically
-   = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
    | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
@@ -2747,7 +2744,11 @@ Caused by:
    | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
    = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
-     Compiling cuda_std v0.2.2 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#4b56c818)
+  warning: some trace filter directives would enable traces that are disabled statically
+   | `trace` would enable the TRACE level for all targets
+   = note: the static max level is `debug`
+   = help: to enable TRACE logging, remove the `max_level_debug` feature from the `tracing` crate
+     Compiling cuda_std v0.2.2 (https://github.com/LegNeato/Rust-CUDA.git?branch=fixsha2#0d84e41e)
   warning: some trace filter directives would enable traces that are disabled statically
    | `trace` would enable the TRACE level for all targets
    = note: the static max level is `debug`
@@ -2846,36 +2847,39 @@ Caused by:
   Dumped bitcode to /tmp/nvvm_module_1.bc
   Dumped bitcode to /tmp/nvvm_module_2.bc
   Dumped bitcode to /tmp/nvvm_module_3.bc
+  Module #3 is failing. Running llvm-dis-7 on it...
+  llvm-dis-7 failed: llvm-dis-7: error: Explicit load/store type does not match pointee type of pointer operand (Producer: 'LLVM7.0.1' Reader: 'LLVM 7.0.1')
 
-  thread 'rustc' panicked at /root/.cargo/git/checkouts/rust-cuda-97fe623ab90e914e/4b56c81/crates/rustc_codegen_nvvm/src/nvvm.rs:188:25:
+
+  thread 'rustc' panicked at /root/.cargo/git/checkouts/rust-cuda-97fe623ab90e914e/0d84e41/crates/rustc_codegen_nvvm/src/nvvm.rs:209:25:
   Failed to parse module bitcode #3: Explicit load/store type does not match pointee type of pointer operand (Producer: 'LLVM7.0.1' Reader: 'LLVM 7.0.1')
   stack backtrace:
-     0:     0x77cb9ebbedf4 - <std::sys::backtrace::BacktraceLock::print::DisplayBacktrace as core::fmt::Display>::fmt::hdbd106d724e72c20
-     1:     0x77cb9f4057e2 - core::fmt::write::h861eecc74abebf7a
-     2:     0x77cba044dd51 - std::io::Write::write_fmt::h493b3152b071fba0
-     3:     0x77cb9ebbec52 - std::sys::backtrace::BacktraceLock::print::h71f315c25fc266cb
-     4:     0x77cb9ebc1532 - std::panicking::default_hook::{{closure}}::h8019dc6a2c6c0fe7
-     5:     0x77cb9ebc1124 - std::panicking::default_hook::h497f769686a88dd6
-     6:     0x77cb9dd18417 - std[e7ccd300aecc5933]::panicking::update_hook::<alloc[8cc49891b291256f]::boxed::Box<rustc_driver_impl[b622dd38a520489a]::install_ice_hook::{closure#1}>>::{closure#0}
-     7:     0x77cb9dd18417 - std[e7ccd300aecc5933]::panicking::update_hook::<alloc[8cc49891b291256f]::boxed::Box<rustc_driver_impl[b622dd38a520489a]::install_ice_hook::{closure#1}>>::{closure#0}
-     8:     0x77cb9ebc1da3 - std::panicking::rust_panic_with_hook::h98fc165e90ef379e
-     9:     0x77cb9ebc1a9a - std::panicking::begin_panic_handler::{{closure}}::h2c1a60d0a908eaec
-    10:     0x77cb9ebbf2c9 - std::sys::backtrace::__rust_end_short_backtrace::he8aba8f9b7ddf304
-    11:     0x77cb9ebc175d - rust_begin_unwind
-    12:     0x77cb9b85a680 - core::panicking::panic_fmt::hcbf39f8c1e585f84
-    13:     0x77cb8d3ef8d7 - rustc_codegen_nvvm::nvvm::merge_llvm_modules::h60b54695501c17fc
-    14:     0x77cb8d3ee3d6 - rustc_codegen_nvvm::nvvm::codegen_bitcode_modules::hd502d8514e08e76a
-    15:     0x77cb8d3e8011 - rustc_codegen_nvvm::link::codegen_into_ptx_file::h9c11fb7b3e7302fe
-    16:     0x77cb8d3e72b0 - rustc_codegen_nvvm::link::link_exe::h0cd31ebadf3c4882
-    17:     0x77cb8d3e5f0f - rustc_codegen_nvvm::link::link::h68d39a7c6f77553e
-    18:     0x77cb8d3f6c5a - <rustc_codegen_nvvm::NvvmCodegenBackend as rustc_codegen_ssa::traits::backend::CodegenBackend>::link::h2c924544c34ace19
-    19:     0x77cba04f7b25 - <rustc_interface[f15b12210e2206a6]::queries::Linker>::link
-    20:     0x77cba0503ba3 - rustc_interface[f15b12210e2206a6]::interface::run_compiler::<(), rustc_driver_impl[b622dd38a520489a]::run_compiler::{closure#0}>::{closure#1}
-    21:     0x77cba0359bc8 - std[e7ccd300aecc5933]::sys::backtrace::__rust_begin_short_backtrace::<rustc_interface[f15b12210e2206a6]::util::run_in_thread_with_globals<rustc_interface[f15b12210e2206a6]::util::run_in_thread_pool_with_globals<rustc_interface[f15b12210e2206a6]::interface::run_compiler<(), rustc_driver_impl[b622dd38a520489a]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>
-    22:     0x77cba035a4b4 - <<std[e7ccd300aecc5933]::thread::Builder>::spawn_unchecked_<rustc_interface[f15b12210e2206a6]::util::run_in_thread_with_globals<rustc_interface[f15b12210e2206a6]::util::run_in_thread_pool_with_globals<rustc_interface[f15b12210e2206a6]::interface::run_compiler<(), rustc_driver_impl[b622dd38a520489a]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>::{closure#1} as core[9e5e7b8b77114b88]::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
-    23:     0x77cba035b8ab - std::sys::pal::unix::thread::Thread::new::thread_start::h20288ab9ea215a81
-    24:     0x77cb9a48aaa4 - <unknown>
-    25:     0x77cb9a517a34 - clone
+     0:     0x75a4e11bedf4 - <std::sys::backtrace::BacktraceLock::print::DisplayBacktrace as core::fmt::Display>::fmt::hdbd106d724e72c20
+     1:     0x75a4e1a057e2 - core::fmt::write::h861eecc74abebf7a
+     2:     0x75a4e2a4dd51 - std::io::Write::write_fmt::h493b3152b071fba0
+     3:     0x75a4e11bec52 - std::sys::backtrace::BacktraceLock::print::h71f315c25fc266cb
+     4:     0x75a4e11c1532 - std::panicking::default_hook::{{closure}}::h8019dc6a2c6c0fe7
+     5:     0x75a4e11c1124 - std::panicking::default_hook::h497f769686a88dd6
+     6:     0x75a4e0318417 - std[e7ccd300aecc5933]::panicking::update_hook::<alloc[8cc49891b291256f]::boxed::Box<rustc_driver_impl[b622dd38a520489a]::install_ice_hook::{closure#1}>>::{closure#0}
+     7:     0x75a4e0318417 - std[e7ccd300aecc5933]::panicking::update_hook::<alloc[8cc49891b291256f]::boxed::Box<rustc_driver_impl[b622dd38a520489a]::install_ice_hook::{closure#1}>>::{closure#0}
+     8:     0x75a4e11c1da3 - std::panicking::rust_panic_with_hook::h98fc165e90ef379e
+     9:     0x75a4e11c1a9a - std::panicking::begin_panic_handler::{{closure}}::h2c1a60d0a908eaec
+    10:     0x75a4e11bf2c9 - std::sys::backtrace::__rust_end_short_backtrace::he8aba8f9b7ddf304
+    11:     0x75a4e11c175d - rust_begin_unwind
+    12:     0x75a4dde5a680 - core::panicking::panic_fmt::hcbf39f8c1e585f84
+    13:     0x75a4cf9ef891 - rustc_codegen_nvvm::nvvm::merge_llvm_modules::h60b54695501c17fc
+    14:     0x75a4cf9ede26 - rustc_codegen_nvvm::nvvm::codegen_bitcode_modules::hd502d8514e08e76a
+    15:     0x75a4cf9e7a61 - rustc_codegen_nvvm::link::codegen_into_ptx_file::h9c11fb7b3e7302fe
+    16:     0x75a4cf9e6d00 - rustc_codegen_nvvm::link::link_exe::h0cd31ebadf3c4882
+    17:     0x75a4cf9e595f - rustc_codegen_nvvm::link::link::h68d39a7c6f77553e
+    18:     0x75a4cf9f6c0a - <rustc_codegen_nvvm::NvvmCodegenBackend as rustc_codegen_ssa::traits::backend::CodegenBackend>::link::h2c924544c34ace19
+    19:     0x75a4e2af7b25 - <rustc_interface[f15b12210e2206a6]::queries::Linker>::link
+    20:     0x75a4e2b03ba3 - rustc_interface[f15b12210e2206a6]::interface::run_compiler::<(), rustc_driver_impl[b622dd38a520489a]::run_compiler::{closure#0}>::{closure#1}
+    21:     0x75a4e2959bc8 - std[e7ccd300aecc5933]::sys::backtrace::__rust_begin_short_backtrace::<rustc_interface[f15b12210e2206a6]::util::run_in_thread_with_globals<rustc_interface[f15b12210e2206a6]::util::run_in_thread_pool_with_globals<rustc_interface[f15b12210e2206a6]::interface::run_compiler<(), rustc_driver_impl[b622dd38a520489a]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>
+    22:     0x75a4e295a4b4 - <<std[e7ccd300aecc5933]::thread::Builder>::spawn_unchecked_<rustc_interface[f15b12210e2206a6]::util::run_in_thread_with_globals<rustc_interface[f15b12210e2206a6]::util::run_in_thread_pool_with_globals<rustc_interface[f15b12210e2206a6]::interface::run_compiler<(), rustc_driver_impl[b622dd38a520489a]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>::{closure#1} as core[9e5e7b8b77114b88]::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+    23:     0x75a4e295b8ab - std::sys::pal::unix::thread::Thread::new::thread_start::h20288ab9ea215a81
+    24:     0x75a4dca8aaa4 - <unknown>
+    25:     0x75a4dcb17a34 - clone
     26:                0x0 - <unknown>
 
   error: the compiler unexpectedly panicked. this is a bug.
@@ -2884,7 +2888,7 @@ Caused by:
 
   note: please make sure that you have updated to the latest nightly
 
-  note: please attach the file at `/root/ed25519-vanity-rs/kernel/rustc-ice-2025-06-04T02_20_44-49610.txt` to your bug report
+  note: please attach the file at `/root/ed25519-vanity-rs/kernel/rustc-ice-2025-06-04T02_25_22-52803.txt` to your bug report
 
   note: compiler flags: --crate-type cdylib --crate-type rlib -C embed-bitcode=no -C debuginfo=2 -C incremental=[REDACTED] -Z unstable-options -Z codegen-backend=/root/ed25519-vanity-rs/target/release/librustc_codegen_nvvm.so -Z crate-attr=feature(register_tool) -Z crate-attr=register_tool(nvvm_internal) -Z crate-attr=no_std -Z saturating_float_casts=false -C llvm-args=-arch=compute_61 -opt=0 --override-libm
 
@@ -2899,7 +2903,7 @@ Caused by:
 
   note: please make sure that you have updated to the latest nightly
 
-  note: please attach the file at `/root/ed25519-vanity-rs/kernel/rustc-ice-2025-06-04T02_20_44-49610.txt` to your bug report
+  note: please attach the file at `/root/ed25519-vanity-rs/kernel/rustc-ice-2025-06-04T02_25_22-52803.txt` to your bug report
 
   note: compiler flags: --crate-type cdylib --crate-type rlib -C embed-bitcode=no -C debuginfo=2 -C incremental=[REDACTED] -Z unstable-options -Z codegen-backend=/root/ed25519-vanity-rs/target/release/librustc_codegen_nvvm.so -Z crate-attr=feature(register_tool) -Z crate-attr=register_tool(nvvm_internal) -Z crate-attr=no_std -Z saturating_float_casts=false -C llvm-args=-arch=compute_61 -opt=0 --override-libm
 
