@@ -18,9 +18,9 @@ pub mod _hidden {
     /// There are two ways to implement DeviceCopy on your type. The simplest is to use `derive`:
     ///
     /// ```
-    /// use cust::DeviceCopy;
+    /// use cust_core::DeviceCopy;
     ///
-    /// #[derive(Clone, DeviceCopy)]
+    /// #[derive(Clone, Copy, DeviceCopy)]
     /// struct MyStruct(u64);
     ///
     /// # fn main () {}
@@ -31,7 +31,7 @@ pub mod _hidden {
     /// be copied to the device:
     ///
     /// ```compile_fail
-    /// use cust::DeviceCopy;
+    /// use cust_core::DeviceCopy;
     ///
     /// #[derive(Clone, DeviceCopy)]
     /// struct MyStruct(Vec<u64>);
@@ -41,9 +41,9 @@ pub mod _hidden {
     /// You can also implement `DeviceCopy` unsafely:
     ///
     /// ```
-    /// use cust::memory::DeviceCopy;
+    /// use cust_core::DeviceCopy;
     ///
-    /// #[derive(Clone)]
+    /// #[derive(Clone, Copy)]
     /// struct MyStruct(u64);
     ///
     /// unsafe impl DeviceCopy for MyStruct { }
