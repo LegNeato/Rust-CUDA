@@ -154,7 +154,7 @@ macro_rules! math_builder_methods {
                     }
                     "mul" | "unchecked_umul" | "unchecked_smul" => {
                         assert_eq!(args_vec.len(), 2);
-                        return self.call_intrinsic("__nvvm_multi3", &[args_vec[0], args_vec[1]]);
+                        return self.emulate_i128_mul(args_vec[0], args_vec[1]);
                     }
                     "and" => {
                         assert_eq!(args_vec.len(), 2);
@@ -170,21 +170,15 @@ macro_rules! math_builder_methods {
                     }
                     "shl" => {
                         assert_eq!(args_vec.len(), 2);
-                        // Convert shift amount to i32 for compiler-builtins
-                        let shift_amt = self.trunc(args_vec[1], self.type_i32());
-                        return self.call_intrinsic("__nvvm_ashlti3", &[args_vec[0], shift_amt]);
+                        return self.emulate_i128_shl(args_vec[0], args_vec[1]);
                     }
                     "lshr" => {
                         assert_eq!(args_vec.len(), 2);
-                        // Convert shift amount to i32 for compiler-builtins
-                        let shift_amt = self.trunc(args_vec[1], self.type_i32());
-                        return self.call_intrinsic("__nvvm_lshrti3", &[args_vec[0], shift_amt]);
+                        return self.emulate_i128_lshr(args_vec[0], args_vec[1]);
                     }
                     "ashr" => {
                         assert_eq!(args_vec.len(), 2);
-                        // Convert shift amount to i32 for compiler-builtins
-                        let shift_amt = self.trunc(args_vec[1], self.type_i32());
-                        return self.call_intrinsic("__nvvm_ashrti3", &[args_vec[0], shift_amt]);
+                        return self.emulate_i128_ashr(args_vec[0], args_vec[1]);
                     }
                     "neg" => {
                         assert_eq!(args_vec.len(), 1);
@@ -1373,6 +1367,209 @@ impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
         let not_val = self.emulate_i128_not(val);
         let one = self.const_u128(1);
         self.emulate_i128_add(not_val, one)
+    }
+
+    // Emulate 128-bit multiplication
+    // GPU-optimized: No branches, just arithmetic
+    fn emulate_i128_mul(&mut self, lhs: &'ll Value, rhs: &'ll Value) -> &'ll Value {
+        let (lhs_lo, lhs_hi) = self.split_i128(lhs);
+        let (rhs_lo, rhs_hi) = self.split_i128(rhs);
+
+        // Standard 128-bit multiplication algorithm
+        // result_lo = lhs_lo * rhs_lo (take low 64 bits)
+        // result_hi = (lhs_lo * rhs_hi) + (lhs_hi * rhs_lo) + carry_from(lhs_lo * rhs_lo)
+
+        // Full 64x64->128 multiplication for low part
+        let lo_lo_full = self.call_intrinsic("llvm.umul.with.overflow.i64", &[lhs_lo, rhs_lo]);
+        let lo_lo = self.extract_value(lo_lo_full, 0);
+
+        // For the high part, we need the high 64 bits of lhs_lo * rhs_lo
+        // We can get this by doing the multiplication in parts:
+        // Split each 64-bit value into 32-bit halves for more precision
+        let thirty_two = self.const_int(self.type_i64(), 32);
+        let mask_32 = self.const_int(self.type_i64(), 0xFFFFFFFF);
+
+        let lhs_lo_low = self.and(lhs_lo, mask_32);
+        let lhs_lo_high = self.lshr(lhs_lo, thirty_two);
+        let rhs_lo_low = self.and(rhs_lo, mask_32);
+        let rhs_lo_high = self.lshr(rhs_lo, thirty_two);
+
+        // Compute all partial products
+        let ll = self.mul(lhs_lo_low, rhs_lo_low);
+        let lh = self.mul(lhs_lo_low, rhs_lo_high);
+        let hl = self.mul(lhs_lo_high, rhs_lo_low);
+        let hh = self.mul(lhs_lo_high, rhs_lo_high);
+
+        // Combine to get the high 64 bits of lhs_lo * rhs_lo
+        let mid_sum1 = self.add(lh, hl);
+        let mid_carry = self.icmp(IntPredicate::IntULT, mid_sum1, lh);
+        let mid_carry_ext = self.zext(mid_carry, self.type_i64());
+        let carry_to_high = self.shl(mid_carry_ext, thirty_two);
+
+        let mid_high = self.lshr(mid_sum1, thirty_two);
+        let hi_partial = self.add(hh, mid_high);
+        let hi_with_carry = self.add(hi_partial, carry_to_high);
+
+        // Add cross products
+        let lo_hi = self.mul(lhs_lo, rhs_hi);
+        let hi_lo = self.mul(lhs_hi, rhs_lo);
+
+        let hi_sum1 = self.add(hi_with_carry, lo_hi);
+        let hi_sum2 = self.add(hi_sum1, hi_lo);
+
+        self.combine_i128(lo_lo, hi_sum2)
+    }
+
+    // Emulate 128-bit logical right shift
+    // GPU-optimized: Use masks and bitwise ops to avoid branches
+    fn emulate_i128_lshr(&mut self, val: &'ll Value, shift: &'ll Value) -> &'ll Value {
+        let i64_ty = self.type_i64();
+        let i128_ty = self.type_i128();
+        let (lo, hi) = self.split_i128(val);
+
+        // Normalize shift to i128
+        let shift_128 = if self.val_ty(shift) == i128_ty {
+            shift
+        } else {
+            self.zext(shift, i128_ty)
+        };
+
+        // Mask shift to 0-127 range
+        let shift_masked = self.and(shift_128, self.const_u128(127));
+        let shift_64 = self.trunc(shift_masked, i64_ty);
+
+        // Create masks for branchless selection
+        let sixty_four = self.const_int(i64_ty, 64);
+        let shift_lt_64 = self.icmp(IntPredicate::IntULT, shift_64, sixty_four);
+        let shift_ge_64 = self.not(shift_lt_64);
+
+        // Calculate both cases without branches
+        // Case 1: shift < 64
+        let shift_amt = self.and(shift_64, self.const_int(i64_ty, 63));
+        let inv_shift = self.sub(sixty_four, shift_amt);
+
+        let lo_shifted = self.lshr(lo, shift_amt);
+        let hi_to_lo = self.shl(hi, inv_shift);
+        let case1_lo = self.or(lo_shifted, hi_to_lo);
+        let case1_hi = self.lshr(hi, shift_amt);
+
+        // Case 2: shift >= 64
+        let big_shift_amt = self.sub(shift_64, sixty_four);
+        let big_shift_masked = self.and(big_shift_amt, self.const_int(i64_ty, 63));
+        let case2_lo = self.lshr(hi, big_shift_masked);
+        let case2_hi = self.const_int(i64_ty, 0);
+
+        // Branchless selection using masks
+        let mask_64 = self.sext(shift_lt_64, i64_ty);
+        let inv_mask_64 = self.not(mask_64);
+
+        let masked_case1_lo = self.and(case1_lo, mask_64);
+        let masked_case2_lo = self.and(case2_lo, inv_mask_64);
+        let result_lo = self.or(masked_case1_lo, masked_case2_lo);
+        let result_hi = self.and(case1_hi, mask_64); // case2_hi is 0, so no need to OR
+
+        self.combine_i128(result_lo, result_hi)
+    }
+
+    // Emulate 128-bit left shift
+    // GPU-optimized: Branchless implementation
+    fn emulate_i128_shl(&mut self, val: &'ll Value, shift: &'ll Value) -> &'ll Value {
+        let i64_ty = self.type_i64();
+        let i128_ty = self.type_i128();
+        let (lo, hi) = self.split_i128(val);
+
+        // Normalize shift
+        let shift_128 = if self.val_ty(shift) == i128_ty {
+            shift
+        } else {
+            self.zext(shift, i128_ty)
+        };
+
+        let shift_masked = self.and(shift_128, self.const_u128(127));
+        let shift_64 = self.trunc(shift_masked, i64_ty);
+
+        let sixty_four = self.const_int(i64_ty, 64);
+        let shift_lt_64 = self.icmp(IntPredicate::IntULT, shift_64, sixty_four);
+
+        // Both cases computed without branches
+        let shift_amt = self.and(shift_64, self.const_int(i64_ty, 63));
+        let inv_shift = self.sub(sixty_four, shift_amt);
+
+        // Case 1: shift < 64
+        let hi_shifted = self.shl(hi, shift_amt);
+        let lo_to_hi = self.lshr(lo, inv_shift);
+        let case1_hi = self.or(hi_shifted, lo_to_hi);
+        let case1_lo = self.shl(lo, shift_amt);
+
+        // Case 2: shift >= 64
+        let big_shift_amt = self.sub(shift_64, sixty_four);
+        let big_shift_masked = self.and(big_shift_amt, self.const_int(i64_ty, 63));
+        let case2_hi = self.shl(lo, big_shift_masked);
+        let case2_lo = self.const_int(i64_ty, 0);
+
+        // Branchless merge
+        let mask_64 = self.sext(shift_lt_64, i64_ty);
+        let inv_mask_64 = self.not(mask_64);
+
+        let result_lo = self.and(case1_lo, mask_64); // case2_lo is 0
+        let masked_case1_hi = self.and(case1_hi, mask_64);
+        let masked_case2_hi = self.and(case2_hi, inv_mask_64);
+        let result_hi = self.or(masked_case1_hi, masked_case2_hi);
+
+        self.combine_i128(result_lo, result_hi)
+    }
+
+    // Emulate 128-bit arithmetic right shift
+    // GPU-optimized: Minimize branches, use sign extension efficiently
+    fn emulate_i128_ashr(&mut self, val: &'ll Value, shift: &'ll Value) -> &'ll Value {
+        let i64_ty = self.type_i64();
+        let i128_ty = self.type_i128();
+        let (lo, hi) = self.split_i128(val);
+
+        // Get sign bit for sign extension
+        let sign_bit = self.ashr(hi, self.const_int(i64_ty, 63));
+
+        // Normalize shift
+        let shift_128 = if self.val_ty(shift) == i128_ty {
+            shift
+        } else {
+            self.zext(shift, i128_ty)
+        };
+
+        let shift_masked = self.and(shift_128, self.const_u128(127));
+        let shift_64 = self.trunc(shift_masked, i64_ty);
+
+        let sixty_four = self.const_int(i64_ty, 64);
+        let shift_lt_64 = self.icmp(IntPredicate::IntULT, shift_64, sixty_four);
+
+        // Compute both cases
+        let shift_amt = self.and(shift_64, self.const_int(i64_ty, 63));
+        let inv_shift = self.sub(sixty_four, shift_amt);
+
+        // Case 1: shift < 64
+        let lo_shifted = self.lshr(lo, shift_amt);
+        let hi_to_lo = self.shl(hi, inv_shift);
+        let case1_lo = self.or(lo_shifted, hi_to_lo);
+        let case1_hi = self.ashr(hi, shift_amt);
+
+        // Case 2: shift >= 64 (with sign extension)
+        let big_shift_amt = self.sub(shift_64, sixty_four);
+        let big_shift_masked = self.and(big_shift_amt, self.const_int(i64_ty, 63));
+        let case2_lo = self.ashr(hi, big_shift_masked);
+        let case2_hi = sign_bit; // Sign extension
+
+        // Branchless merge
+        let mask_64 = self.sext(shift_lt_64, i64_ty);
+        let inv_mask_64 = self.not(mask_64);
+
+        let masked_case1_lo = self.and(case1_lo, mask_64);
+        let masked_case2_lo = self.and(case2_lo, inv_mask_64);
+        let result_lo = self.or(masked_case1_lo, masked_case2_lo);
+        let masked_case1_hi = self.and(case1_hi, mask_64);
+        let masked_case2_hi = self.and(case2_hi, inv_mask_64);
+        let result_hi = self.or(masked_case1_hi, masked_case2_hi);
+
+        self.combine_i128(result_lo, result_hi)
     }
 
     pub(crate) fn emulate_i128_bswap(&mut self, val: &'ll Value) -> &'ll Value {
