@@ -110,7 +110,7 @@ impl ShuffleDelta {
 }
 
 // ============================================================================
-// Shuffle Errors - Type-safe error handling
+// Shuffle Results - NVVM-compatible return types
 // ============================================================================
 
 /// Error type for shuffle operations
@@ -120,6 +120,109 @@ pub struct InvalidLane;
 impl core::fmt::Display for InvalidLane {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "Shuffle operation accessed an invalid lane")
+    }
+}
+
+/// NVVM-compatible shuffle result type that avoids Result<T, E> issues
+/// This struct directly represents the shuffled value and validity flag
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct ShuffleResult<T> {
+    pub value: T,
+    pub valid: bool,
+}
+
+impl<T> ShuffleResult<T> {
+    #[inline(always)]
+    pub const fn new(value: T, valid: bool) -> Self {
+        Self { value, valid }
+    }
+
+    #[inline(always)]
+    pub const fn is_valid(&self) -> bool {
+        self.valid
+    }
+
+    #[inline(always)]
+    pub const fn is_err(&self) -> bool {
+        !self.valid
+    }
+
+    #[inline(always)]
+    pub fn unwrap_or(self, default: T) -> T {
+        if self.valid {
+            self.value
+        } else {
+            default
+        }
+    }
+
+    #[inline(always)]
+    pub fn unwrap_or_else<F: FnOnce() -> T>(self, f: F) -> T {
+        if self.valid {
+            self.value
+        } else {
+            f()
+        }
+    }
+    
+    #[inline(always)]
+    pub fn unwrap(self) -> T {
+        if self.valid {
+            self.value
+        } else {
+            panic!("called `ShuffleResult::unwrap()` on an invalid shuffle result")
+        }
+    }
+    
+    #[inline(always)]
+    pub fn unwrap_or_default(self) -> T
+    where
+        T: Default,
+    {
+        if self.valid {
+            self.value
+        } else {
+            T::default()
+        }
+    }
+
+    #[inline(always)]
+    pub fn map<U, F: FnOnce(T) -> U>(self, f: F) -> ShuffleResult<U> {
+        if self.valid {
+            ShuffleResult::new(f(self.value), true)
+        } else {
+            ShuffleResult::new(unsafe { core::mem::zeroed() }, false)
+        }
+    }
+
+    #[inline(always)]
+    pub fn or(self, other: ShuffleResult<T>) -> ShuffleResult<T> {
+        if self.valid {
+            self
+        } else {
+            other
+        }
+    }
+
+    #[inline(always)]
+    pub fn and_then<U, F: FnOnce(T) -> ShuffleResult<U>>(self, f: F) -> ShuffleResult<U> {
+        if self.valid {
+            f(self.value)
+        } else {
+            ShuffleResult::new(unsafe { core::mem::zeroed() }, false)
+        }
+    }
+}
+
+impl<T> From<ShuffleResult<T>> for Result<T, InvalidLane> {
+    #[inline(always)]
+    fn from(shuffle_result: ShuffleResult<T>) -> Self {
+        if shuffle_result.valid {
+            Ok(shuffle_result.value)
+        } else {
+            Err(InvalidLane)
+        }
     }
 }
 
@@ -253,7 +356,7 @@ impl<T: ShuffleValue> Shuffle<T> {
     /// Shuffle down by delta
     #[gpu_only]
     #[inline(always)]
-    pub unsafe fn down(self, value: T, pattern: patterns::Down) -> Result<T, InvalidLane> {
+    pub unsafe fn down(self, value: T, pattern: patterns::Down) -> ShuffleResult<T> {
         T::shuffle_down(
             self.mask,
             value,
@@ -265,7 +368,7 @@ impl<T: ShuffleValue> Shuffle<T> {
     /// Shuffle up by delta
     #[gpu_only]
     #[inline(always)]
-    pub unsafe fn up(self, value: T, pattern: patterns::Up) -> Result<T, InvalidLane> {
+    pub unsafe fn up(self, value: T, pattern: patterns::Up) -> ShuffleResult<T> {
         T::shuffle_up(
             self.mask,
             value,
@@ -277,14 +380,14 @@ impl<T: ShuffleValue> Shuffle<T> {
     /// Shuffle with XOR pattern
     #[gpu_only]
     #[inline(always)]
-    pub unsafe fn xor(self, value: T, pattern: patterns::Xor) -> Result<T, InvalidLane> {
+    pub unsafe fn xor(self, value: T, pattern: patterns::Xor) -> ShuffleResult<T> {
         T::shuffle_xor(self.mask, value, pattern.mask(), self.width.value())
     }
 
     /// Shuffle from specific lane
     #[gpu_only]
     #[inline(always)]
-    pub unsafe fn index(self, value: T, pattern: patterns::Index) -> Result<T, InvalidLane> {
+    pub unsafe fn index(self, value: T, pattern: patterns::Index) -> ShuffleResult<T> {
         T::shuffle_idx(
             self.mask,
             value,
@@ -306,7 +409,7 @@ pub trait ShuffleValue: Copy {
         value: Self,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane>;
+    ) -> ShuffleResult<Self>;
 
     /// Shuffle up implementation
     unsafe fn shuffle_up(
@@ -314,7 +417,7 @@ pub trait ShuffleValue: Copy {
         value: Self,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane>;
+    ) -> ShuffleResult<Self>;
 
     /// Shuffle XOR implementation
     unsafe fn shuffle_xor(
@@ -322,7 +425,7 @@ pub trait ShuffleValue: Copy {
         value: Self,
         lane_mask: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane>;
+    ) -> ShuffleResult<Self>;
 
     /// Shuffle index implementation
     unsafe fn shuffle_idx(
@@ -330,7 +433,7 @@ pub trait ShuffleValue: Copy {
         value: Self,
         src_lane: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane>;
+    ) -> ShuffleResult<Self>;
 }
 
 // C-compatible struct to match LLVM IR's {i32, i8} return type
@@ -352,7 +455,7 @@ unsafe fn warp_shuffle_32(
     value: u32,
     b: u32,
     width: u32,
-) -> Result<u32, InvalidLane> {
+) -> ShuffleResult<u32> {
     extern "C" {
         // see libintrinsics.ll - returns {i32, i8} in LLVM IR, which maps to our WarpShuffleResult struct
         fn __nvvm_warp_shuffle(mask: u32, mode: u32, a: u32, b: u32, c: u32) -> WarpShuffleResult;
@@ -367,11 +470,7 @@ unsafe fn warp_shuffle_32(
     c |= (32 - width) << 8; // width encoding
 
     let result = __nvvm_warp_shuffle(mask, mode, value, b, c);
-    if result.predicate != 0 {
-        Ok(result.value)
-    } else {
-        Err(InvalidLane)
-    }
+    ShuffleResult::new(result.value, result.predicate != 0)
 }
 
 // Shuffle modes for the intrinsic
@@ -386,47 +485,51 @@ macro_rules! impl_shuffle_32 {
         $(
             impl ShuffleValue for $ty {
                 #[gpu_only]
-                unsafe fn shuffle_down(mask: WarpMask, value: Self, delta: u32, width: u32) -> Result<Self, InvalidLane> {
-                    warp_shuffle_32(
+                unsafe fn shuffle_down(mask: WarpMask, value: Self, delta: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = warp_shuffle_32(
                         SHUFFLE_MODE_DOWN,
                         mask.raw(),
                         value as u32,
                         delta,
                         width
-                    ).map(|v| v as Self)
+                    );
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_up(mask: WarpMask, value: Self, delta: u32, width: u32) -> Result<Self, InvalidLane> {
-                    warp_shuffle_32(
+                unsafe fn shuffle_up(mask: WarpMask, value: Self, delta: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = warp_shuffle_32(
                         SHUFFLE_MODE_UP,
                         mask.raw(),
                         value as u32,
                         delta,
                         width
-                    ).map(|v| v as Self)
+                    );
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_xor(mask: WarpMask, value: Self, lane_mask: u32, width: u32) -> Result<Self, InvalidLane> {
-                    warp_shuffle_32(
+                unsafe fn shuffle_xor(mask: WarpMask, value: Self, lane_mask: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = warp_shuffle_32(
                         SHUFFLE_MODE_XOR,
                         mask.raw(),
                         value as u32,
                         lane_mask,
                         width
-                    ).map(|v| v as Self)
+                    );
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_idx(mask: WarpMask, value: Self, src_lane: u32, width: u32) -> Result<Self, InvalidLane> {
-                    warp_shuffle_32(
+                unsafe fn shuffle_idx(mask: WarpMask, value: Self, src_lane: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = warp_shuffle_32(
                         SHUFFLE_MODE_IDX,
                         mask.raw(),
                         value as u32,
                         src_lane,
                         width
-                    ).map(|v| v as Self)
+                    );
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
             }
         )*
@@ -445,10 +548,10 @@ impl ShuffleValue for f32 {
         value: Self,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u32 as ShuffleValue>::shuffle_down(mask, bits, delta, width)?;
-        Ok(f32::from_bits(result))
+        let result = <u32 as ShuffleValue>::shuffle_down(mask, bits, delta, width);
+        ShuffleResult::new(f32::from_bits(result.value), result.valid)
     }
 
     #[gpu_only]
@@ -457,10 +560,10 @@ impl ShuffleValue for f32 {
         value: Self,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u32 as ShuffleValue>::shuffle_up(mask, bits, delta, width)?;
-        Ok(f32::from_bits(result))
+        let result = <u32 as ShuffleValue>::shuffle_up(mask, bits, delta, width);
+        ShuffleResult::new(f32::from_bits(result.value), result.valid)
     }
 
     #[gpu_only]
@@ -469,10 +572,10 @@ impl ShuffleValue for f32 {
         value: Self,
         lane_mask: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u32 as ShuffleValue>::shuffle_xor(mask, bits, lane_mask, width)?;
-        Ok(f32::from_bits(result))
+        let result = <u32 as ShuffleValue>::shuffle_xor(mask, bits, lane_mask, width);
+        ShuffleResult::new(f32::from_bits(result.value), result.valid)
     }
 
     #[gpu_only]
@@ -481,10 +584,10 @@ impl ShuffleValue for f32 {
         value: Self,
         src_lane: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u32 as ShuffleValue>::shuffle_idx(mask, bits, src_lane, width)?;
-        Ok(f32::from_bits(result))
+        let result = <u32 as ShuffleValue>::shuffle_idx(mask, bits, src_lane, width);
+        ShuffleResult::new(f32::from_bits(result.value), result.valid)
     }
 }
 
@@ -494,39 +597,48 @@ macro_rules! impl_shuffle_64 {
         $(
             impl ShuffleValue for $ty {
                 #[gpu_only]
-                unsafe fn shuffle_down(mask: WarpMask, value: Self, delta: u32, width: u32) -> Result<Self, InvalidLane> {
+                unsafe fn shuffle_down(mask: WarpMask, value: Self, delta: u32, width: u32) -> ShuffleResult<Self> {
                     let lo = (value & 0xFFFFFFFF) as u32;
                     let hi = (value >> 32) as u32;
-                    let lo_result = <u32 as ShuffleValue>::shuffle_down(mask, lo, delta, width)?;
-                    let hi_result = <u32 as ShuffleValue>::shuffle_down(mask, hi, delta, width)?;
-                    Ok(((hi_result as $ty) << 32) | (lo_result as $ty))
+                    let lo_result = <u32 as ShuffleValue>::shuffle_down(mask, lo, delta, width);
+                    let hi_result = <u32 as ShuffleValue>::shuffle_down(mask, hi, delta, width);
+                    // Both parts must be valid
+                    let valid = lo_result.valid && hi_result.valid;
+                    let value = ((hi_result.value as $ty) << 32) | (lo_result.value as $ty);
+                    ShuffleResult::new(value, valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_up(mask: WarpMask, value: Self, delta: u32, width: u32) -> Result<Self, InvalidLane> {
+                unsafe fn shuffle_up(mask: WarpMask, value: Self, delta: u32, width: u32) -> ShuffleResult<Self> {
                     let lo = (value & 0xFFFFFFFF) as u32;
                     let hi = (value >> 32) as u32;
-                    let lo_result = <u32 as ShuffleValue>::shuffle_up(mask, lo, delta, width)?;
-                    let hi_result = <u32 as ShuffleValue>::shuffle_up(mask, hi, delta, width)?;
-                    Ok(((hi_result as $ty) << 32) | (lo_result as $ty))
+                    let lo_result = <u32 as ShuffleValue>::shuffle_up(mask, lo, delta, width);
+                    let hi_result = <u32 as ShuffleValue>::shuffle_up(mask, hi, delta, width);
+                    let valid = lo_result.valid && hi_result.valid;
+                    let value = ((hi_result.value as $ty) << 32) | (lo_result.value as $ty);
+                    ShuffleResult::new(value, valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_xor(mask: WarpMask, value: Self, lane_mask: u32, width: u32) -> Result<Self, InvalidLane> {
+                unsafe fn shuffle_xor(mask: WarpMask, value: Self, lane_mask: u32, width: u32) -> ShuffleResult<Self> {
                     let lo = (value & 0xFFFFFFFF) as u32;
                     let hi = (value >> 32) as u32;
-                    let lo_result = <u32 as ShuffleValue>::shuffle_xor(mask, lo, lane_mask, width)?;
-                    let hi_result = <u32 as ShuffleValue>::shuffle_xor(mask, hi, lane_mask, width)?;
-                    Ok(((hi_result as $ty) << 32) | (lo_result as $ty))
+                    let lo_result = <u32 as ShuffleValue>::shuffle_xor(mask, lo, lane_mask, width);
+                    let hi_result = <u32 as ShuffleValue>::shuffle_xor(mask, hi, lane_mask, width);
+                    let valid = lo_result.valid && hi_result.valid;
+                    let value = ((hi_result.value as $ty) << 32) | (lo_result.value as $ty);
+                    ShuffleResult::new(value, valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_idx(mask: WarpMask, value: Self, src_lane: u32, width: u32) -> Result<Self, InvalidLane> {
+                unsafe fn shuffle_idx(mask: WarpMask, value: Self, src_lane: u32, width: u32) -> ShuffleResult<Self> {
                     let lo = (value & 0xFFFFFFFF) as u32;
                     let hi = (value >> 32) as u32;
-                    let lo_result = <u32 as ShuffleValue>::shuffle_idx(mask, lo, src_lane, width)?;
-                    let hi_result = <u32 as ShuffleValue>::shuffle_idx(mask, hi, src_lane, width)?;
-                    Ok(((hi_result as $ty) << 32) | (lo_result as $ty))
+                    let lo_result = <u32 as ShuffleValue>::shuffle_idx(mask, lo, src_lane, width);
+                    let hi_result = <u32 as ShuffleValue>::shuffle_idx(mask, hi, src_lane, width);
+                    let valid = lo_result.valid && hi_result.valid;
+                    let value = ((hi_result.value as $ty) << 32) | (lo_result.value as $ty);
+                    ShuffleResult::new(value, valid)
                 }
             }
         )*
@@ -545,10 +657,10 @@ impl ShuffleValue for f64 {
         value: Self,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u64 as ShuffleValue>::shuffle_down(mask, bits, delta, width)?;
-        Ok(f64::from_bits(result))
+        let result = <u64 as ShuffleValue>::shuffle_down(mask, bits, delta, width);
+        ShuffleResult::new(f64::from_bits(result.value), result.valid)
     }
 
     #[gpu_only]
@@ -557,10 +669,10 @@ impl ShuffleValue for f64 {
         value: Self,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u64 as ShuffleValue>::shuffle_up(mask, bits, delta, width)?;
-        Ok(f64::from_bits(result))
+        let result = <u64 as ShuffleValue>::shuffle_up(mask, bits, delta, width);
+        ShuffleResult::new(f64::from_bits(result.value), result.valid)
     }
 
     #[gpu_only]
@@ -569,10 +681,10 @@ impl ShuffleValue for f64 {
         value: Self,
         lane_mask: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u64 as ShuffleValue>::shuffle_xor(mask, bits, lane_mask, width)?;
-        Ok(f64::from_bits(result))
+        let result = <u64 as ShuffleValue>::shuffle_xor(mask, bits, lane_mask, width);
+        ShuffleResult::new(f64::from_bits(result.value), result.valid)
     }
 
     #[gpu_only]
@@ -581,10 +693,10 @@ impl ShuffleValue for f64 {
         value: Self,
         src_lane: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         let bits = value.to_bits();
-        let result = <u64 as ShuffleValue>::shuffle_idx(mask, bits, src_lane, width)?;
-        Ok(f64::from_bits(result))
+        let result = <u64 as ShuffleValue>::shuffle_idx(mask, bits, src_lane, width);
+        ShuffleResult::new(f64::from_bits(result.value), result.valid)
     }
 }
 
@@ -594,27 +706,27 @@ macro_rules! impl_shuffle_small {
         $(
             impl ShuffleValue for $ty {
                 #[gpu_only]
-                unsafe fn shuffle_down(mask: WarpMask, value: Self, delta: u32, width: u32) -> Result<Self, InvalidLane> {
-                    let result = <u32 as ShuffleValue>::shuffle_down(mask, value as u32, delta, width)?;
-                    Ok(result as Self)
+                unsafe fn shuffle_down(mask: WarpMask, value: Self, delta: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = <u32 as ShuffleValue>::shuffle_down(mask, value as u32, delta, width);
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_up(mask: WarpMask, value: Self, delta: u32, width: u32) -> Result<Self, InvalidLane> {
-                    let result = <u32 as ShuffleValue>::shuffle_up(mask, value as u32, delta, width)?;
-                    Ok(result as Self)
+                unsafe fn shuffle_up(mask: WarpMask, value: Self, delta: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = <u32 as ShuffleValue>::shuffle_up(mask, value as u32, delta, width);
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_xor(mask: WarpMask, value: Self, lane_mask: u32, width: u32) -> Result<Self, InvalidLane> {
-                    let result = <u32 as ShuffleValue>::shuffle_xor(mask, value as u32, lane_mask, width)?;
-                    Ok(result as Self)
+                unsafe fn shuffle_xor(mask: WarpMask, value: Self, lane_mask: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = <u32 as ShuffleValue>::shuffle_xor(mask, value as u32, lane_mask, width);
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
 
                 #[gpu_only]
-                unsafe fn shuffle_idx(mask: WarpMask, value: Self, src_lane: u32, width: u32) -> Result<Self, InvalidLane> {
-                    let result = <u32 as ShuffleValue>::shuffle_idx(mask, value as u32, src_lane, width)?;
-                    Ok(result as Self)
+                unsafe fn shuffle_idx(mask: WarpMask, value: Self, src_lane: u32, width: u32) -> ShuffleResult<Self> {
+                    let result = <u32 as ShuffleValue>::shuffle_idx(mask, value as u32, src_lane, width);
+                    ShuffleResult::new(result.value as Self, result.valid)
                 }
             }
         )*
@@ -641,11 +753,11 @@ pub trait ShuffleExt: ShuffleValue {
         mask: WarpMask,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane>;
+    ) -> ShuffleResult<Self>;
 
     /// Shuffle this value up
     unsafe fn shuffle_up(self, mask: WarpMask, delta: u32, width: u32)
-        -> Result<Self, InvalidLane>;
+        -> ShuffleResult<Self>;
 }
 
 impl<T: ShuffleValue> ShuffleExt for T {
@@ -661,7 +773,7 @@ impl<T: ShuffleValue> ShuffleExt for T {
         mask: WarpMask,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         ShuffleValue::shuffle_down(mask, self, delta, width)
     }
 
@@ -672,7 +784,7 @@ impl<T: ShuffleValue> ShuffleExt for T {
         mask: WarpMask,
         delta: u32,
         width: u32,
-    ) -> Result<Self, InvalidLane> {
+    ) -> ShuffleResult<Self> {
         ShuffleValue::shuffle_up(mask, self, delta, width)
     }
 }
