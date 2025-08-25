@@ -1,0 +1,12 @@
+error[E0599]: no method named `minimum` found for struct `ReductionResult<i32, cuda_std::warp::reduce::Add>` in the current scope
+  --> $DIR/minimum_on_add_result.rs:12:29
+   |
+12 |     let _wrong = add_result.minimum();
+   |                             ^^^^^^^ method not found in `ReductionResult<i32, cuda_std::warp::reduce::Add>`
+   |
+   = note: the method was found for
+           - `ReductionResult<T, Min>`
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0599`.

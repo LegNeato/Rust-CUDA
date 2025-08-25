@@ -295,7 +295,7 @@ pub struct EqualityResult {
 
 impl EqualityResult {
     #[inline(always)]
-    const fn new(all_equal: bool) -> Self {
+    pub const fn new(all_equal: bool) -> Self {
         Self {
             all_equal,
             match_mask: None,
@@ -303,7 +303,7 @@ impl EqualityResult {
     }
 
     #[inline(always)]
-    const fn with_mask(all_equal: bool, mask: WarpMask) -> Self {
+    pub const fn with_mask(all_equal: bool, mask: WarpMask) -> Self {
         Self {
             all_equal,
             match_mask: Some(mask),

@@ -1,13 +1,9 @@
 //! Warp shuffle operations with extreme type safety.
 //!
-//! This module provides type-safe abstractions for CUDA warp shuffle operations,
-//! making invalid states unrepresentable and ensuring all validation happens
-//! at compile time.
+//! This module provides type-safe abstractions for CUDA warp shuffle operations.
 
 use super::sync::WarpMask;
 use crate::gpu_only;
-#[cfg(target_os = "cuda")]
-use core::arch::asm;
 use core::marker::PhantomData;
 
 // ============================================================================
@@ -28,12 +24,6 @@ impl ShuffleWidth {
         } else {
             None
         }
-    }
-
-    /// Create from raw value (internal use only)
-    #[inline(always)]
-    const fn from_raw(width: u32) -> Self {
-        Self(width)
     }
 
     /// Full warp width (32 threads)
@@ -165,7 +155,7 @@ impl<T> ShuffleResult<T> {
             f()
         }
     }
-    
+
     #[inline(always)]
     pub fn unwrap(self) -> T {
         if self.valid {
@@ -174,7 +164,7 @@ impl<T> ShuffleResult<T> {
             panic!("called `ShuffleResult::unwrap()` on an invalid shuffle result")
         }
     }
-    
+
     #[inline(always)]
     pub fn unwrap_or_default(self) -> T
     where
@@ -748,16 +738,10 @@ pub trait ShuffleExt: ShuffleValue {
     fn shuffle(mask: WarpMask, width: ShuffleWidth) -> Shuffle<Self>;
 
     /// Shuffle this value down
-    unsafe fn shuffle_down(
-        self,
-        mask: WarpMask,
-        delta: u32,
-        width: u32,
-    ) -> ShuffleResult<Self>;
+    unsafe fn shuffle_down(self, mask: WarpMask, delta: u32, width: u32) -> ShuffleResult<Self>;
 
     /// Shuffle this value up
-    unsafe fn shuffle_up(self, mask: WarpMask, delta: u32, width: u32)
-        -> ShuffleResult<Self>;
+    unsafe fn shuffle_up(self, mask: WarpMask, delta: u32, width: u32) -> ShuffleResult<Self>;
 }
 
 impl<T: ShuffleValue> ShuffleExt for T {
@@ -768,23 +752,13 @@ impl<T: ShuffleValue> ShuffleExt for T {
 
     #[gpu_only]
     #[inline(always)]
-    unsafe fn shuffle_down(
-        self,
-        mask: WarpMask,
-        delta: u32,
-        width: u32,
-    ) -> ShuffleResult<Self> {
+    unsafe fn shuffle_down(self, mask: WarpMask, delta: u32, width: u32) -> ShuffleResult<Self> {
         ShuffleValue::shuffle_down(mask, self, delta, width)
     }
 
     #[gpu_only]
     #[inline(always)]
-    unsafe fn shuffle_up(
-        self,
-        mask: WarpMask,
-        delta: u32,
-        width: u32,
-    ) -> ShuffleResult<Self> {
+    unsafe fn shuffle_up(self, mask: WarpMask, delta: u32, width: u32) -> ShuffleResult<Self> {
         ShuffleValue::shuffle_up(mask, self, delta, width)
     }
 }

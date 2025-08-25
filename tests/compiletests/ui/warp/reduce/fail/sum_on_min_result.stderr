@@ -1,0 +1,18 @@
+error[E0599]: `ReductionResult<i32, Min>` is not an iterator
+  --> $DIR/sum_on_min_result.rs:12:29
+   |
+12 |     let _wrong = min_result.sum();
+   |                             ^^^ `ReductionResult<i32, Min>` is not an iterator
+   |
+  ::: /workspace/crates/cuda_std/src/warp/reduce.rs:82:1
+   |
+82 | pub struct ReductionResult<T, Op: ReductionOp> {
+   | ---------------------------------------------- doesn't satisfy `ReductionResult<i32, Min>: Iterator`
+   |
+   = note: the following trait bounds were not satisfied:
+           `ReductionResult<i32, Min>: Iterator`
+           which is required by `&mut ReductionResult<i32, Min>: Iterator`
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0599`.

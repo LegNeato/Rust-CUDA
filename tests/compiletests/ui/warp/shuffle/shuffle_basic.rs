@@ -1,4 +1,4 @@
-// Test basic shuffle operations - covers fundamental shuffle functionality
+// Test basic shuffle operations
 // build-pass
 
 use cuda_std::kernel;

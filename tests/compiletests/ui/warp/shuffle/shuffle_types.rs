@@ -1,4 +1,4 @@
-// Test shuffle with all supported types - i8, i16, i32, i64, u8, u16, u32, u64, f32, f64
+// Test shuffle with all supported types
 // build-pass
 
 use cuda_std::kernel;

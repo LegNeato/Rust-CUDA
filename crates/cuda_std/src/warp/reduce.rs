@@ -4,7 +4,6 @@
 //! making invalid states unrepresentable and ensuring all validation happens
 //! at compile time.
 
-use super::shuffle::ShuffleValue;
 use super::sync::WarpMask;
 use crate::gpu_only;
 #[cfg(target_os = "cuda")]
@@ -416,6 +415,7 @@ impl BitwiseReduceValue for u32 {
 impl ReduceValue for i64 {
     #[gpu_only]
     unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         // Implement using shuffle operations in a tree reduction pattern
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
@@ -427,6 +427,7 @@ impl ReduceValue for i64 {
 
     #[gpu_only]
     unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -437,6 +438,7 @@ impl ReduceValue for i64 {
 
     #[gpu_only]
     unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -449,6 +451,7 @@ impl ReduceValue for i64 {
 impl BitwiseReduceValue for i64 {
     #[gpu_only]
     unsafe fn reduce_and(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -459,6 +462,7 @@ impl BitwiseReduceValue for i64 {
 
     #[gpu_only]
     unsafe fn reduce_or(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -469,6 +473,7 @@ impl BitwiseReduceValue for i64 {
 
     #[gpu_only]
     unsafe fn reduce_xor(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -481,6 +486,7 @@ impl BitwiseReduceValue for i64 {
 impl ReduceValue for u64 {
     #[gpu_only]
     unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -491,6 +497,7 @@ impl ReduceValue for u64 {
 
     #[gpu_only]
     unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -501,6 +508,7 @@ impl ReduceValue for u64 {
 
     #[gpu_only]
     unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -513,6 +521,7 @@ impl ReduceValue for u64 {
 impl BitwiseReduceValue for u64 {
     #[gpu_only]
     unsafe fn reduce_and(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -523,6 +532,7 @@ impl BitwiseReduceValue for u64 {
 
     #[gpu_only]
     unsafe fn reduce_or(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -533,6 +543,7 @@ impl BitwiseReduceValue for u64 {
 
     #[gpu_only]
     unsafe fn reduce_xor(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -549,6 +560,7 @@ impl BitwiseReduceValue for u64 {
 impl ReduceValue for f32 {
     #[gpu_only]
     unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -559,6 +571,7 @@ impl ReduceValue for f32 {
 
     #[gpu_only]
     unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -569,6 +582,7 @@ impl ReduceValue for f32 {
 
     #[gpu_only]
     unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -581,6 +595,7 @@ impl ReduceValue for f32 {
 impl ReduceValue for f64 {
     #[gpu_only]
     unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -591,6 +606,7 @@ impl ReduceValue for f64 {
 
     #[gpu_only]
     unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
@@ -601,6 +617,7 @@ impl ReduceValue for f64 {
 
     #[gpu_only]
     unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
+        use super::shuffle::ShuffleValue;
         for offset in [16, 8, 4, 2, 1] {
             let shuffled =
                 <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);

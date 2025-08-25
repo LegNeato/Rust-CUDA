@@ -1,4 +1,4 @@
-// Test Shuffle struct API and patterns - covers the high-level Shuffle API
+// Test Shuffle struct API and patterns
 // build-pass
 
 use core::marker::PhantomData;

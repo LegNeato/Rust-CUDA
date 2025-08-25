@@ -1,0 +1,15 @@
+error[E0599]: no method named `maximum` found for struct `ReductionResult<i32, Min>` in the current scope
+  --> $DIR/maximum_on_min_result.rs:12:29
+   |
+12 |     let _wrong = min_result.maximum();
+   |                             ^^^^^^^
+   |
+help: there is a method `minimum` with a similar name
+   |
+12 -     let _wrong = min_result.maximum();
+12 +     let _wrong = min_result.minimum();
+   |
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0599`.

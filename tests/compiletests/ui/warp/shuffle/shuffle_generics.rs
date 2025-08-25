@@ -1,4 +1,4 @@
-// Test generic shuffle operations - covers generic functions, structs, and Result conversions
+// Test generic shuffle operations
 // build-pass
 
 use core::marker::PhantomData;
