@@ -4,9 +4,9 @@ error[E0599]: `ReductionResult<i32, Min>` is not an iterator
 12 |     let _wrong = min_result.sum();
    |                             ^^^ `ReductionResult<i32, Min>` is not an iterator
    |
-  ::: /workspace/crates/cuda_std/src/warp/reduce.rs:82:1
+  ::: /workspace/crates/cuda_std/src/warp/reduce.rs:57:1
    |
-82 | pub struct ReductionResult<T, Op: ReductionOp> {
+57 | pub struct ReductionResult<T, Op: ReductionOp> {
    | ---------------------------------------------- doesn't satisfy `ReductionResult<i32, Min>: Iterator`
    |
    = note: the following trait bounds were not satisfied:

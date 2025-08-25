@@ -23,9 +23,9 @@ error[E0277]: the trait bound `NonCopyType: ReduceValue` is not satisfied
               u32
               u64
 note: required by a bound in `Reduction`
-   --> /workspace/crates/cuda_std/src/warp/reduce.rs:154:25
+   --> /workspace/crates/cuda_std/src/warp/reduce.rs:129:25
     |
-154 | pub struct Reduction<T: ReduceValue> {
+129 | pub struct Reduction<T: ReduceValue> {
     |                         ^^^^^^^^^^^ required by this bound in `Reduction`
 
 error[E0599]: the function or associated item `all_threads` exists for struct `Reduction<NonCopyType>`, but its trait bounds were not satisfied
@@ -40,9 +40,9 @@ error[E0599]: the function or associated item `all_threads` exists for struct `R
     = note: the following trait bounds were not satisfied:
             `NonCopyType: ReduceValue`
 note: the trait `ReduceValue` must be implemented
-   --> /workspace/crates/cuda_std/src/warp/reduce.rs:232:1
+   --> /workspace/crates/cuda_std/src/warp/reduce.rs:207:1
     |
-232 | pub trait ReduceValue: Copy {
+207 | pub trait ReduceValue: Copy {
     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: aborting due to 3 previous errors

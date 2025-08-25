@@ -10,12 +10,12 @@ error[E0277]: the trait bound `f32: BitwiseReduceValue` is not satisfied
               u32
               u64
 note: required by a bound in `Reduction::<T>::and`
-   --> /workspace/crates/cuda_std/src/warp/reduce.rs:201:12
+   --> /workspace/crates/cuda_std/src/warp/reduce.rs:176:12
     |
-199 |     pub unsafe fn and(&self, value: T) -> ReductionResult<T, And>
+174 |     pub unsafe fn and(&self, value: T) -> ReductionResult<T, And>
     |                   --- required by a bound in this associated function
-200 |     where
-201 |         T: BitwiseReduceValue,
+175 |     where
+176 |         T: BitwiseReduceValue,
     |            ^^^^^^^^^^^^^^^^^^ required by this bound in `Reduction::<T>::and`
 
 error: aborting due to 1 previous error

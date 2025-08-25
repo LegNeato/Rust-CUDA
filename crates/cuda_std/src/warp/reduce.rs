@@ -25,52 +25,27 @@ mod sealed {
     pub trait Sealed {}
 }
 
-/// Addition reduction
-#[derive(Debug, Clone, Copy)]
-pub struct Add;
-impl sealed::Sealed for Add {}
-impl ReductionOp for Add {
-    const NAME: &'static str = "add";
+// Macro to define reduction operations
+macro_rules! define_reduction_op {
+    ($($name:ident => $str:literal),* $(,)?) => {
+        $(
+            #[derive(Debug, Clone, Copy)]
+            pub struct $name;
+            impl sealed::Sealed for $name {}
+            impl ReductionOp for $name {
+                const NAME: &'static str = $str;
+            }
+        )*
+    };
 }
 
-/// Minimum reduction
-#[derive(Debug, Clone, Copy)]
-pub struct Min;
-impl sealed::Sealed for Min {}
-impl ReductionOp for Min {
-    const NAME: &'static str = "min";
-}
-
-/// Maximum reduction
-#[derive(Debug, Clone, Copy)]
-pub struct Max;
-impl sealed::Sealed for Max {}
-impl ReductionOp for Max {
-    const NAME: &'static str = "max";
-}
-
-/// Bitwise AND reduction
-#[derive(Debug, Clone, Copy)]
-pub struct And;
-impl sealed::Sealed for And {}
-impl ReductionOp for And {
-    const NAME: &'static str = "and";
-}
-
-/// Bitwise OR reduction
-#[derive(Debug, Clone, Copy)]
-pub struct Or;
-impl sealed::Sealed for Or {}
-impl ReductionOp for Or {
-    const NAME: &'static str = "or";
-}
-
-/// Bitwise XOR reduction
-#[derive(Debug, Clone, Copy)]
-pub struct Xor;
-impl sealed::Sealed for Xor {}
-impl ReductionOp for Xor {
-    const NAME: &'static str = "xor";
+define_reduction_op! {
+    Add => "add",
+    Min => "min",
+    Max => "max",
+    And => "and",
+    Or => "or",
+    Xor => "xor",
 }
 
 // ============================================================================
@@ -256,301 +231,89 @@ pub trait BitwiseReduceValue: ReduceValue {
 // Implementations for integer types using native PTX instructions
 // ============================================================================
 
+// Macro for PTX-based reduction operations
+macro_rules! impl_ptx_reduce_op {
+    ($fn_name:ident, $ptx_op:literal) => {
+        #[gpu_only]
+        unsafe fn $fn_name(mask: WarpMask, value: Self) -> Self {
+            let out;
+            asm!(
+                concat!("redux.sync.", $ptx_op, " {}, {}, {};"),
+                out(reg32) out,
+                in(reg32) value,
+                in(reg32) mask.raw()
+            );
+            out
+        }
+    };
+}
+
 impl ReduceValue for i32 {
-    #[gpu_only]
-    unsafe fn reduce_add(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.add.s32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_min(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.min.s32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_max(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.max.s32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
+    impl_ptx_reduce_op!(reduce_add, "add.s32");
+    impl_ptx_reduce_op!(reduce_min, "min.s32");
+    impl_ptx_reduce_op!(reduce_max, "max.s32");
 }
 
 impl BitwiseReduceValue for i32 {
-    #[gpu_only]
-    unsafe fn reduce_and(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.and.b32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_or(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.or.b32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_xor(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.xor.b32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
+    impl_ptx_reduce_op!(reduce_and, "and.b32");
+    impl_ptx_reduce_op!(reduce_or, "or.b32");
+    impl_ptx_reduce_op!(reduce_xor, "xor.b32");
 }
 
 impl ReduceValue for u32 {
-    #[gpu_only]
-    unsafe fn reduce_add(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.add.u32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_min(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.min.u32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_max(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.max.u32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
+    impl_ptx_reduce_op!(reduce_add, "add.u32");
+    impl_ptx_reduce_op!(reduce_min, "min.u32");
+    impl_ptx_reduce_op!(reduce_max, "max.u32");
 }
 
 impl BitwiseReduceValue for u32 {
-    #[gpu_only]
-    unsafe fn reduce_and(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.and.b32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_or(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.or.b32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_xor(mask: WarpMask, value: Self) -> Self {
-        let out;
-        asm!(
-            "redux.sync.xor.b32 {}, {}, {};",
-            out(reg32) out,
-            in(reg32) value,
-            in(reg32) mask.raw()
-        );
-        out
-    }
+    impl_ptx_reduce_op!(reduce_and, "and.b32");
+    impl_ptx_reduce_op!(reduce_or, "or.b32");
+    impl_ptx_reduce_op!(reduce_xor, "xor.b32");
 }
 
 // ============================================================================
 // Implementations for 64-bit types using shuffle operations
 // ============================================================================
 
+// Macro for shuffle-based reduction operations
+macro_rules! impl_shuffle_reduce_op {
+    ($fn_name:ident, $op:expr) => {
+        #[gpu_only]
+        unsafe fn $fn_name(mask: WarpMask, mut value: Self) -> Self {
+            use super::shuffle::ShuffleValue;
+            for offset in [16, 8, 4, 2, 1] {
+                let shuffled =
+                    <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
+                value = ($op)(value, shuffled);
+            }
+            value
+        }
+    };
+}
+
 impl ReduceValue for i64 {
-    #[gpu_only]
-    unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        // Implement using shuffle operations in a tree reduction pattern
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.wrapping_add(shuffled);
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.min(shuffled);
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.max(shuffled);
-        }
-        value
-    }
+    impl_shuffle_reduce_op!(reduce_add, |a: Self, b| a.wrapping_add(b));
+    impl_shuffle_reduce_op!(reduce_min, |a: Self, b| a.min(b));
+    impl_shuffle_reduce_op!(reduce_max, |a: Self, b| a.max(b));
 }
 
 impl BitwiseReduceValue for i64 {
-    #[gpu_only]
-    unsafe fn reduce_and(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value &= shuffled;
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_or(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value |= shuffled;
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_xor(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value ^= shuffled;
-        }
-        value
-    }
+    impl_shuffle_reduce_op!(reduce_and, |a: Self, b| a & b);
+    impl_shuffle_reduce_op!(reduce_or, |a: Self, b| a | b);
+    impl_shuffle_reduce_op!(reduce_xor, |a: Self, b| a ^ b);
 }
 
 impl ReduceValue for u64 {
-    #[gpu_only]
-    unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.wrapping_add(shuffled);
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.min(shuffled);
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.max(shuffled);
-        }
-        value
-    }
+    impl_shuffle_reduce_op!(reduce_add, |a: Self, b| a.wrapping_add(b));
+    impl_shuffle_reduce_op!(reduce_min, |a: Self, b| a.min(b));
+    impl_shuffle_reduce_op!(reduce_max, |a: Self, b| a.max(b));
 }
 
 impl BitwiseReduceValue for u64 {
-    #[gpu_only]
-    unsafe fn reduce_and(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value &= shuffled;
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_or(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value |= shuffled;
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_xor(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value ^= shuffled;
-        }
-        value
-    }
+    impl_shuffle_reduce_op!(reduce_and, |a: Self, b| a & b);
+    impl_shuffle_reduce_op!(reduce_or, |a: Self, b| a | b);
+    impl_shuffle_reduce_op!(reduce_xor, |a: Self, b| a ^ b);
 }
 
 // ============================================================================
@@ -558,73 +321,15 @@ impl BitwiseReduceValue for u64 {
 // ============================================================================
 
 impl ReduceValue for f32 {
-    #[gpu_only]
-    unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value += shuffled;
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.min(shuffled);
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.max(shuffled);
-        }
-        value
-    }
+    impl_shuffle_reduce_op!(reduce_add, |a: Self, b| a + b);
+    impl_shuffle_reduce_op!(reduce_min, |a: Self, b| a.min(b));
+    impl_shuffle_reduce_op!(reduce_max, |a: Self, b| a.max(b));
 }
 
 impl ReduceValue for f64 {
-    #[gpu_only]
-    unsafe fn reduce_add(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value += shuffled;
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_min(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.min(shuffled);
-        }
-        value
-    }
-
-    #[gpu_only]
-    unsafe fn reduce_max(mask: WarpMask, mut value: Self) -> Self {
-        use super::shuffle::ShuffleValue;
-        for offset in [16, 8, 4, 2, 1] {
-            let shuffled =
-                <Self as ShuffleValue>::shuffle_down(mask, value, offset, 32).unwrap_or(value);
-            value = value.max(shuffled);
-        }
-        value
-    }
+    impl_shuffle_reduce_op!(reduce_add, |a: Self, b| a + b);
+    impl_shuffle_reduce_op!(reduce_min, |a: Self, b| a.min(b));
+    impl_shuffle_reduce_op!(reduce_max, |a: Self, b| a.max(b));
 }
 
 // ============================================================================

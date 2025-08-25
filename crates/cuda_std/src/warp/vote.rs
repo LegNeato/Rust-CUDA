@@ -344,31 +344,28 @@ pub struct WarpMatchResult {
     all_matched: u8,
 }
 
-// Use the match.all intrinsic for equality checking
-impl VoteEquality for i32 {
-    #[gpu_only]
-    unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
-        extern "C" {
-            // Returns mask of matching threads and whether all matched
-            fn __nvvm_warp_match_all_32(mask: u32, value: u32) -> WarpMatchResult;
-        }
-
-        let result = __nvvm_warp_match_all_32(mask.raw(), value as u32);
-        EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
-    }
+// Declare the intrinsics once
+extern "C" {
+    fn __nvvm_warp_match_all_32(mask: u32, value: u32) -> WarpMatchResult;
+    fn __nvvm_warp_match_all_64(mask: u32, value: u64) -> WarpMatchResult;
 }
 
-impl VoteEquality for u32 {
-    #[gpu_only]
-    unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
-        extern "C" {
-            fn __nvvm_warp_match_all_32(mask: u32, value: u32) -> WarpMatchResult;
-        }
-
-        let result = __nvvm_warp_match_all_32(mask.raw(), value);
-        EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
-    }
+// Macro to implement vote equality for 32-bit types
+macro_rules! impl_vote_equality_32 {
+    ($($ty:ty),* $(,)?) => {
+        $(
+            impl VoteEquality for $ty {
+                #[gpu_only]
+                unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
+                    let result = __nvvm_warp_match_all_32(mask.raw(), value as u32);
+                    EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
+                }
+            }
+        )*
+    };
 }
+
+impl_vote_equality_32! { i32, u32 }
 
 // For smaller types, cast to i32
 macro_rules! impl_vote_equality_small {
@@ -389,53 +386,47 @@ impl_vote_equality_small! {
     u8, u16,
 }
 
-impl VoteEquality for i64 {
-    #[gpu_only]
-    unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
-        extern "C" {
-            fn __nvvm_warp_match_all_64(mask: u32, value: u64) -> WarpMatchResult;
-        }
-
-        let result = __nvvm_warp_match_all_64(mask.raw(), value as u64);
-        EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
-    }
+// Macro to implement vote equality for 64-bit types
+macro_rules! impl_vote_equality_64 {
+    ($($ty:ty),* $(,)?) => {
+        $(
+            impl VoteEquality for $ty {
+                #[gpu_only]
+                unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
+                    let result = __nvvm_warp_match_all_64(mask.raw(), value as u64);
+                    EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
+                }
+            }
+        )*
+    };
 }
 
-impl VoteEquality for u64 {
-    #[gpu_only]
-    unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
-        extern "C" {
-            fn __nvvm_warp_match_all_64(mask: u32, value: u64) -> WarpMatchResult;
-        }
+impl_vote_equality_64! { i64, u64 }
 
-        let result = __nvvm_warp_match_all_64(mask.raw(), value);
-        EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
-    }
+// Macro for floating-point vote equality using bit conversion
+macro_rules! impl_vote_equality_float {
+    (32, $ty:ty) => {
+        impl VoteEquality for $ty {
+            #[gpu_only]
+            unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
+                let result = __nvvm_warp_match_all_32(mask.raw(), value.to_bits());
+                EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
+            }
+        }
+    };
+    (64, $ty:ty) => {
+        impl VoteEquality for $ty {
+            #[gpu_only]
+            unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
+                let result = __nvvm_warp_match_all_64(mask.raw(), value.to_bits());
+                EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
+            }
+        }
+    };
 }
 
-impl VoteEquality for f32 {
-    #[gpu_only]
-    unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
-        extern "C" {
-            fn __nvvm_warp_match_all_32(mask: u32, value: u32) -> WarpMatchResult;
-        }
-
-        let result = __nvvm_warp_match_all_32(mask.raw(), value.to_bits());
-        EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
-    }
-}
-
-impl VoteEquality for f64 {
-    #[gpu_only]
-    unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
-        extern "C" {
-            fn __nvvm_warp_match_all_64(mask: u32, value: u64) -> WarpMatchResult;
-        }
-
-        let result = __nvvm_warp_match_all_64(mask.raw(), value.to_bits());
-        EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
-    }
-}
+impl_vote_equality_float!(32, f32);
+impl_vote_equality_float!(64, f64);
 
 // ============================================================================
 // Extension Traits - Making the API intuitive and composable
