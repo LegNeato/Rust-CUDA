@@ -1,7 +1,7 @@
 use std::cmp;
 
 use libc::c_uint;
-use rustc_abi::BackendRepr::Scalar;
+use rustc_abi::BackendRepr::{Scalar, ScalarPair};
 use rustc_abi::CanonAbi;
 use rustc_abi::Size;
 use rustc_abi::{HasDataLayout, Primitive, Reg, RegKind};
@@ -29,49 +29,91 @@ pub(crate) fn readjust_fn_abi<'tcx>(
     fn_abi: &'tcx FnAbi<'tcx, Ty<'tcx>>,
 ) -> &'tcx FnAbi<'tcx, Ty<'tcx>> {
     // dont override anything in the rust abi for now
-    if fn_abi.conv == CanonAbi::Rust {
-        return fn_abi;
-    }
+    // Actually, we need to handle Rust ABI too for internal functions
+    // if fn_abi.conv == CanonAbi::Rust {
+    //     return fn_abi;
+    // }
+
     let readjust_arg_abi = |arg: &ArgAbi<'tcx, Ty<'tcx>>| {
         let mut arg = ArgAbi {
             layout: arg.layout,
             mode: arg.mode.clone(),
         };
 
-        // ignore zsts
+        // Rule 1: Ignore ZSTs - they generate no NVVM IR params
         if arg.layout.is_zst() {
             arg.mode = PassMode::Ignore;
+            return arg;
         }
 
-        if let TyKind::Ref(_, ty, _) = arg.layout.ty.kind()
-            && matches!(ty.kind(), TyKind::Slice(_))
-        {
-            let mut ptr_attrs = ArgAttributes::new();
-            if let PassMode::Indirect { attrs, .. } = arg.mode {
-                ptr_attrs.regular = attrs.regular;
+        // Rule 2: Slices and fat pointers should be Pair (ptr, len)
+        // This correctly maps to two NVVM IR params
+        if let TyKind::Ref(_, ty, _) = arg.layout.ty.kind() {
+            if matches!(ty.kind(), TyKind::Slice(_) | TyKind::Str) {
+                let mut ptr_attrs = ArgAttributes::new();
+                if let PassMode::Indirect { attrs, .. } = arg.mode {
+                    ptr_attrs.regular = attrs.regular;
+                }
+                arg.mode = PassMode::Pair(ptr_attrs, ArgAttributes::new());
+                return arg;
             }
-            arg.mode = PassMode::Pair(ptr_attrs, ArgAttributes::new());
         }
 
-        if arg.layout.ty.is_array() && !matches!(arg.mode, PassMode::Direct { .. }) {
-            arg.mode = PassMode::Direct(ArgAttributes::new());
+        // Rule 3: Handle arrays based on size
+        // Small arrays (<= 64 bits) can be Direct, large ones should be Indirect
+        if arg.layout.ty.is_array() {
+            if arg.layout.size.bytes() <= 8 {
+                // Small arrays can be passed as Direct scalars
+                if !matches!(arg.mode, PassMode::Direct { .. }) {
+                    arg.mode = PassMode::Direct(ArgAttributes::new());
+                }
+            }
+            // Large arrays keep their mode (likely Indirect)
+            return arg;
         }
 
-        // pass all adts directly as values, ptx wants them to be passed all by value, but rustc's
-        // ptx-kernel abi seems to be wrong, and it's unstable.
-        if arg.layout.ty.is_adt() && !matches!(arg.mode, PassMode::Direct { .. }) {
-            arg.mode = PassMode::Direct(ArgAttributes::new());
+        // Rule 4: Handle ADTs carefully to preserve ABI semantics
+        if let rustc_middle::ty::TyKind::Adt(adt_def, _) = arg.layout.ty.kind() {
+            // Transparent wrappers should keep their Cast mode
+            if adt_def.repr().transparent() {
+                return arg;
+            }
+
+            // Enums (including Result) should keep their mode to preserve optimizations
+            // - Niche-optimized enums may use Pair
+            // - Simple enums may use Direct
+            if adt_def.is_enum() {
+                return arg;
+            }
+
+            // Small plain structs can be forced to Direct if not already set
+            if adt_def.is_struct() {
+                // Only for small structs that fit in registers
+                if arg.layout.size.bytes() <= 16 {
+                    if matches!(arg.mode, PassMode::Indirect { .. }) {
+                        // Keep Indirect for structs that rustc determined need it
+                        return arg;
+                    }
+                    if !matches!(arg.mode, PassMode::Direct { .. }) {
+                        arg.mode = PassMode::Direct(ArgAttributes::new());
+                    }
+                }
+                // Large structs keep their mode (likely Indirect)
+            }
         }
+
         arg
     };
-    tcx.arena.alloc(FnAbi {
+    let result = tcx.arena.alloc(FnAbi {
         args: fn_abi.args.iter().map(readjust_arg_abi).collect(),
         ret: readjust_arg_abi(&fn_abi.ret),
         c_variadic: fn_abi.c_variadic,
         fixed_count: fn_abi.fixed_count,
         conv: fn_abi.conv,
         can_unwind: fn_abi.can_unwind,
-    })
+    });
+
+    result
 }
 
 macro_rules! for_each_kind {

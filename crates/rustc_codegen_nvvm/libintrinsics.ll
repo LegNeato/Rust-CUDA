@@ -388,5 +388,35 @@ start:
 
 declare { i32, i1 } @llvm.nvvm.match.all.sync.i64(i32, i64) #1
 
+; WMMA (Warp Matrix-Multiply-Accumulate) intrinsics for tensor cores  
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.load.c.sync.row.stride.f32(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.c.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+
+declare void @llvm.nvvm.wmma.m16n16k16.store.d.sync.row.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare void @llvm.nvvm.wmma.m16n16k16.store.d.sync.col.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare void @llvm.nvvm.wmma.m16n16k16.store.d.sync.row.stride.f16(i8 addrspace(1)*, i16, i16, i16, i16, i16, i16, i16, i16, i32) #1
+declare void @llvm.nvvm.wmma.m16n16k16.store.d.sync.col.stride.f16(i8 addrspace(1)*, i16, i16, i16, i16, i16, i16, i16, i16, i32) #1
+
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.col.row.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+
+; Integer WMMA intrinsics (s8/u8 with s32 accumulator)
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.c.sync.row.stride.s32(i8 addrspace(1)*, i32) #1
+declare void @llvm.nvvm.wmma.m16n16k16.store.d.sync.row.stride.s32(i8 addrspace(1)*, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.s8.s8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.u8.u8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+
 attributes #0 = { alwaysinline speculatable }
 attributes #1 = { alwaysinline }

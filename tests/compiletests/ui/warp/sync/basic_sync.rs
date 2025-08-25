@@ -10,11 +10,15 @@ pub unsafe fn test_warp_functions() {
     let _lane = warp::lane_id();
 
     // Test active mask function
-    let _mask = warp::activemask();
+    let _mask = warp::active_mask();
 
     // Test warp sync with full mask
-    warp::sync_warp(0xFFFFFFFF);
+    warp::sync(warp::WarpMask::all());
 
     // Test warp sync with partial mask
-    warp::sync_warp(0x0000FFFF);
+    warp::sync_mask(0x0000FFFF);
+    
+    // Test creating specific lane masks
+    let _single_lane = warp::WarpMask::lane(5);
+    let _custom_mask = warp::WarpMask::new(0xFF00FF00);
 }

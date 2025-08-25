@@ -58,7 +58,7 @@ use crate::gpu_only;
 macro_rules! shared_array {
     ($array_type:ty; $len:expr) => {{
         #[$crate::gpu_only]
-        #[inline(always)]
+        #[inline(never)] // MUST be never - inline(always) breaks shared memory!
         fn shared_array() -> *mut $array_type {
             use ::core::{cell::UnsafeCell, mem::MaybeUninit};
             struct SyncWrapper(UnsafeCell<MaybeUninit<[$array_type; $len]>>);

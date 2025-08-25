@@ -101,6 +101,20 @@ pub fn codegen_bitcode_modules(
         }
     }
 
+    // Debug: Save LLVM IR to file for debugging
+    if std::env::var("DEBUG_NVVM_LLVM").is_ok() {
+        unsafe {
+            let debug_path = "/workspace/target/debug_nvvm.ll";
+            let result = LLVMRustPrintModule(
+                module,
+                debug_path.as_c_char_ptr(),
+                debug_path.len(),
+                demangle_callback,
+            );
+            eprintln!("DEBUG: Saved LLVM IR to {}", debug_path);
+        }
+    }
+
     let buf = ThinBuffer::new(module);
 
     prog.add_module(buf.data(), "merged".to_string())?;
