@@ -99,16 +99,53 @@ impl WarpMask {
         Self(!self.0)
     }
 
-    /// Check if this mask is empty.
+    /// Create a mask for even-numbered lanes (0, 2, 4, ...).
+    #[inline]
+    pub const fn even_lanes() -> Self {
+        Self(0x55555555)
+    }
+
+    /// Create a mask for odd-numbered lanes (1, 3, 5, ...).
+    #[inline]
+    pub const fn odd_lanes() -> Self {
+        Self(0xAAAAAAAA)
+    }
+
+    /// Create a mask for a specific quadrant (0-3).
+    #[inline]
+    pub const fn quadrant(quad: u32) -> Self {
+        debug_assert!(quad < 4);
+        Self(0xFF << (quad * 8))
+    }
+
+    /// Create a mask for a range of lanes.
+    #[inline]
+    pub const fn range(start: u32, end: u32) -> Self {
+        debug_assert!(start <= end);
+        debug_assert!(end <= super::WARP_SIZE);
+        if start == end {
+            return Self(0);
+        }
+        let count = end - start;
+        Self::lanes(start, count)
+    }
+
+    /// Check if the mask is empty (no lanes set).
     #[inline]
     pub const fn is_empty(self) -> bool {
         self.0 == 0
     }
 
-    /// Check if this mask includes all lanes.
+    /// Check if the mask is full (all lanes set).
     #[inline]
     pub const fn is_full(self) -> bool {
         self.0 == super::FULL_MASK
+    }
+
+    /// Count the number of set lanes in the mask.
+    #[inline]
+    pub const fn count(self) -> u32 {
+        self.0.count_ones()
     }
 }
 

@@ -473,7 +473,12 @@ const SHUFFLE_MODE_IDX: u32 = 3;
 macro_rules! impl_shuffle_op {
     ($fn_name:ident, $mode:expr) => {
         #[gpu_only]
-        unsafe fn $fn_name(mask: WarpMask, value: Self, param: u32, width: u32) -> ShuffleResult<Self> {
+        unsafe fn $fn_name(
+            mask: WarpMask,
+            value: Self,
+            param: u32,
+            width: u32,
+        ) -> ShuffleResult<Self> {
             let result = warp_shuffle_32($mode, mask.raw(), value as u32, param, width);
             ShuffleResult::new(result.value as Self, result.valid)
         }
@@ -502,7 +507,12 @@ impl_shuffle_32! {
 macro_rules! impl_shuffle_float_op {
     ($fn_name:ident, $bits_ty:ty, $to_bits:ident, $from_bits:ident) => {
         #[gpu_only]
-        unsafe fn $fn_name(mask: WarpMask, value: Self, param: u32, width: u32) -> ShuffleResult<Self> {
+        unsafe fn $fn_name(
+            mask: WarpMask,
+            value: Self,
+            param: u32,
+            width: u32,
+        ) -> ShuffleResult<Self> {
             let bits = value.$to_bits();
             let result = <$bits_ty as ShuffleValue>::$fn_name(mask, bits, param, width);
             ShuffleResult::new(Self::$from_bits(result.value), result.valid)
@@ -522,7 +532,12 @@ impl ShuffleValue for f32 {
 macro_rules! impl_shuffle_64_op {
     ($fn_name:ident) => {
         #[gpu_only]
-        unsafe fn $fn_name(mask: WarpMask, value: Self, param: u32, width: u32) -> ShuffleResult<Self> {
+        unsafe fn $fn_name(
+            mask: WarpMask,
+            value: Self,
+            param: u32,
+            width: u32,
+        ) -> ShuffleResult<Self> {
             let lo = (value & 0xFFFFFFFF) as u32;
             let hi = (value >> 32) as u32;
             let lo_result = <u32 as ShuffleValue>::$fn_name(mask, lo, param, width);
@@ -561,11 +576,16 @@ impl ShuffleValue for f64 {
     impl_shuffle_float_op!(shuffle_idx, u64, to_bits, from_bits);
 }
 
-// Generic macro for small type shuffle operations  
+// Generic macro for small type shuffle operations
 macro_rules! impl_shuffle_small_op {
     ($fn_name:ident) => {
         #[gpu_only]
-        unsafe fn $fn_name(mask: WarpMask, value: Self, param: u32, width: u32) -> ShuffleResult<Self> {
+        unsafe fn $fn_name(
+            mask: WarpMask,
+            value: Self,
+            param: u32,
+            width: u32,
+        ) -> ShuffleResult<Self> {
             let result = <u32 as ShuffleValue>::$fn_name(mask, value as u32, param, width);
             ShuffleResult::new(result.value as Self, result.valid)
         }

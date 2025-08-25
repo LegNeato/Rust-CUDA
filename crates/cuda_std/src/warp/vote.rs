@@ -410,7 +410,10 @@ macro_rules! impl_vote_equality_float {
             #[gpu_only]
             unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
                 let result = __nvvm_warp_match_all_32(mask.raw(), value.to_bits());
-                EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
+                EqualityResult::with_mask(
+                    result.all_matched != 0,
+                    WarpMask::new(result.matched_mask),
+                )
             }
         }
     };
@@ -419,7 +422,10 @@ macro_rules! impl_vote_equality_float {
             #[gpu_only]
             unsafe fn vote_all_equal(mask: WarpMask, value: Self) -> EqualityResult {
                 let result = __nvvm_warp_match_all_64(mask.raw(), value.to_bits());
-                EqualityResult::with_mask(result.all_matched != 0, WarpMask::new(result.matched_mask))
+                EqualityResult::with_mask(
+                    result.all_matched != 0,
+                    WarpMask::new(result.matched_mask),
+                )
             }
         }
     };

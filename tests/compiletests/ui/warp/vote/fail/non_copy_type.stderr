@@ -1,0 +1,16 @@
+error[E0599]: no function or associated item named `vote_all_equal` found for struct `NonCopyType` in the current scope
+  --> $DIR/non_copy_type.rs:19:32
+   |
+9  |     struct NonCopyType {
+   |     ------------------ function or associated item `vote_all_equal` not found for this struct
+...
+19 |     let _result = NonCopyType::vote_all_equal(mask, value);
+   |                                ^^^^^^^^^^^^^^ function or associated item not found in `NonCopyType`
+   |
+   = help: items from traits can only be used if the trait is implemented and in scope
+   = note: the following trait defines an item `vote_all_equal`, perhaps you need to implement it:
+           candidate #1: `VoteEquality`
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0599`.
