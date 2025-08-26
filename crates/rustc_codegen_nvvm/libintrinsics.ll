@@ -389,10 +389,17 @@ start:
 declare { i32, i1 } @llvm.nvvm.match.all.sync.i64(i32, i64) #1
 
 ; WMMA (Warp Matrix-Multiply-Accumulate) intrinsics for tensor cores  
+; f16 16x16x16
 declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
 declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
 declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
 declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+
+; bf16 16x16x16  
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.bf16(i8 addrspace(1)*, i32) #1
 declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.load.c.sync.row.stride.f32(i8 addrspace(1)*, i32) #1
 declare { i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.load.c.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
 
@@ -403,6 +410,14 @@ declare void @llvm.nvvm.wmma.m16n16k16.store.d.sync.col.stride.f16(i8 addrspace(
 
 declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.col.row.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
 declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.col.col.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+
+; bf16 MMA intrinsics
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.col.row.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k16.mma.sync.col.col.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
 
 ; Integer WMMA intrinsics (s8/u8 with s32 accumulator)
 declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.s8(i8 addrspace(1)*, i32) #1
@@ -417,6 +432,104 @@ declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.loa
 declare void @llvm.nvvm.wmma.m16n16k16.store.d.sync.row.stride.s32(i8 addrspace(1)*, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
 declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.s8.s8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
 declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.u8.u8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+
+; 32x8x16 shape intrinsics for f16
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
+
+; 32x8x16 shape intrinsics for bf16
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.row.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.col.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.col.row.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.col.col.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.load.c.sync.row.stride.f32(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.load.c.sync.col.stride.f32(i8 addrspace(1)*, i32) #1
+declare void @llvm.nvvm.wmma.m32n8k16.store.d.sync.row.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare void @llvm.nvvm.wmma.m32n8k16.store.d.sync.col.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.row.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.col.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.col.row.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m32n8k16.mma.sync.col.col.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+
+; 32x8x16 shape intrinsics for i8/u8
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.c.sync.row.stride.s32(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.load.c.sync.col.stride.s32(i8 addrspace(1)*, i32) #1
+declare void @llvm.nvvm.wmma.m32n8k16.store.d.sync.row.stride.s32(i8 addrspace(1)*, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare void @llvm.nvvm.wmma.m32n8k16.store.d.sync.col.stride.s32(i8 addrspace(1)*, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.row.s8.s8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.col.s8.s8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.row.u8.u8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m32n8k16.mma.sync.row.col.u8.u8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+
+; 8x32x16 shape intrinsics for f16
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.f16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.f16(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.load.c.sync.row.stride.f32(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.load.c.sync.col.stride.f32(i8 addrspace(1)*, i32) #1
+declare void @llvm.nvvm.wmma.m8n32k16.store.d.sync.row.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare void @llvm.nvvm.wmma.m8n32k16.store.d.sync.col.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.row.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.col.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.col.row.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.col.col.f16.f32(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+
+; 8x32x16 shape intrinsics for bf16
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.bf16(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.row.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.col.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.col.row.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m8n32k16.mma.sync.col.col.bf16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, float, float, float, float, float, float, float, float) #1
+
+; 8x32x16 shape intrinsics for i8/u8
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.s8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.u8(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.c.sync.row.stride.s32(i8 addrspace(1)*, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.load.c.sync.col.stride.s32(i8 addrspace(1)*, i32) #1
+declare void @llvm.nvvm.wmma.m8n32k16.store.d.sync.row.stride.s32(i8 addrspace(1)*, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare void @llvm.nvvm.wmma.m8n32k16.store.d.sync.col.stride.s32(i8 addrspace(1)*, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.row.s8.s8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.col.s8.s8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.row.u8.u8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+declare { i32, i32, i32, i32, i32, i32, i32, i32 } @llvm.nvvm.wmma.m8n32k16.mma.sync.row.col.u8.u8.s32(i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32, i32) #1
+
+; 8x8x4 shape intrinsics for f64
+declare { double, double, double, double } @llvm.nvvm.wmma.m8n8k4.load.a.sync.row.stride.f64(i8 addrspace(1)*, i32) #1
+declare { double, double, double, double } @llvm.nvvm.wmma.m8n8k4.load.a.sync.col.stride.f64(i8 addrspace(1)*, i32) #1
+declare { double, double, double, double } @llvm.nvvm.wmma.m8n8k4.load.b.sync.row.stride.f64(i8 addrspace(1)*, i32) #1
+declare { double, double, double, double } @llvm.nvvm.wmma.m8n8k4.load.b.sync.col.stride.f64(i8 addrspace(1)*, i32) #1
+declare { double, double } @llvm.nvvm.wmma.m8n8k4.load.c.sync.row.stride.f64(i8 addrspace(1)*, i32) #1
+declare { double, double } @llvm.nvvm.wmma.m8n8k4.load.c.sync.col.stride.f64(i8 addrspace(1)*, i32) #1
+declare void @llvm.nvvm.wmma.m8n8k4.store.d.sync.row.stride.f64(i8 addrspace(1)*, double, double, i32) #1
+declare void @llvm.nvvm.wmma.m8n8k4.store.d.sync.col.stride.f64(i8 addrspace(1)*, double, double, i32) #1
+declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.row.row.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
+declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.row.col.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
+declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.col.row.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
+declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.col.col.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
 
 attributes #0 = { alwaysinline speculatable }
 attributes #1 = { alwaysinline }

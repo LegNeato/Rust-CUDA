@@ -17,7 +17,7 @@ pub mod sync;
 pub mod vote;
 
 // Re-export commonly used items at the module level
-pub use matrix::{MatrixElement, TensorCore};
+pub use matrix::{Layout, MatrixElement, TensorCore, TensorCoreShape};
 pub use reduce::{BitwiseReduceValue, ReduceValue, Reduction};
 pub use shuffle::{InvalidLane, Shuffle, ShuffleValue, ShuffleWidth};
 pub use sync::{active_mask, lane_id, sync, sync_mask, WarpMask};

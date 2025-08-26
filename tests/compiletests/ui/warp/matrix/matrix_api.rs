@@ -3,7 +3,8 @@
 
 use cuda_std::kernel;
 use cuda_std::warp::matrix::{
-    dims, layout, Accumulator, MatrixA, MatrixB, StrideValidator, TensorCore, ValidStride,
+    dims, layout, Accumulator, MatrixA, MatrixB, MatrixElement, StrideValidator, 
+    TensorCore, TensorCoreShape, ValidStride,
 };
 use cuda_std::{bf16, f16};
 
@@ -100,7 +101,7 @@ pub unsafe fn test_shape_as_type_parameter() {
 pub unsafe fn test_generic_functions_with_constraints() {
     fn create_tensor_core<S>() -> TensorCore<f16, S>
     where
-        S: dims::TensorCoreShape,
+        S: TensorCoreShape,
     {
         TensorCore::new()
     }
@@ -108,7 +109,7 @@ pub unsafe fn test_generic_functions_with_constraints() {
     fn create_matrix_a<T, S>() -> MatrixA<T, S, layout::Row>
     where
         T: MatrixElement,
-        S: dims::TensorCoreShape,
+        S: TensorCoreShape,
     {
         MatrixA::new()
     }

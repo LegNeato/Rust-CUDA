@@ -155,8 +155,8 @@ pub unsafe fn test_layout_combinations() {
     // acc.mma(&a_col, &b_col);
 }
 
-#[kernel]
-pub unsafe fn test_generic_matrix_operations<T>()
+// Helper generic function (not a kernel)
+fn test_generic_operations_helper<T>()
 where
     T: MatrixElement,
 {
@@ -173,6 +173,13 @@ where
     // Can be called with any valid element type
     let _a_f16 = create_matrix_a::<f16, dims::Shape<16, 16, 16>, layout::Row>();
     let _a_i8 = create_matrix_a::<i8, dims::Shape<16, 16, 16>, layout::Col>();
+}
+
+#[kernel]
+pub unsafe fn test_generic_matrix_operations() {
+    // Kernel functions can't be generic, but they can call generic functions
+    test_generic_operations_helper::<f16>();
+    test_generic_operations_helper::<i8>();
 }
 
 #[kernel]
