@@ -11,9 +11,7 @@ pub unsafe fn test_vote_non_copy() {
     }
 
     let mask = WarpMask::all();
-    let value = NonCopyType {
-        data: [1, 2, 3],
-    };
+    let value = NonCopyType { data: [1, 2, 3] };
 
     // NonCopyType doesn't implement Copy or VoteEquality
     let _result = NonCopyType::vote_all_equal(mask, value);

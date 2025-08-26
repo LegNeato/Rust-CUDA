@@ -1,7 +1,7 @@
 // Test that invalid matrix dimensions cannot be created
 // compile-fail
 
-use cuda_std::half::f16;
+use cuda_std::f16;
 use cuda_std::kernel;
 use cuda_std::warp::matrix::{dims, TensorCore};
 

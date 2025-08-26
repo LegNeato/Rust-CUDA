@@ -1,7 +1,7 @@
 // Test CUDA warp matrix functions (tensor core) compile correctly
 // build-pass
 
-use cuda_std::half::f16;
+use cuda_std::f16;
 use cuda_std::kernel;
 use cuda_std::warp::matrix::{dims, layout, MatrixElement, TensorCore};
 
