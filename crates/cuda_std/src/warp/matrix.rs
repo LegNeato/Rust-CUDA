@@ -1334,8 +1334,10 @@ impl MmaWithShapeAndLayout<f32, f32, f32, dims::Shape<16, 16, 8>, layout::Row, l
         
         let result_vals = unsafe {
             wmma_mma_tf32_f32_row_row_m16n16k8(
-                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
-                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                float_to_tf32(a_vals[0]), float_to_tf32(a_vals[1]), float_to_tf32(a_vals[2]), float_to_tf32(a_vals[3]),
+                float_to_tf32(a_vals[4]), float_to_tf32(a_vals[5]), float_to_tf32(a_vals[6]), float_to_tf32(a_vals[7]),
+                float_to_tf32(b_vals[0]), float_to_tf32(b_vals[1]), float_to_tf32(b_vals[2]), float_to_tf32(b_vals[3]),
+                float_to_tf32(b_vals[4]), float_to_tf32(b_vals[5]), float_to_tf32(b_vals[6]), float_to_tf32(b_vals[7]),
                 c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
             )
         };
@@ -1362,8 +1364,10 @@ impl MmaWithShapeAndLayout<f32, f32, f32, dims::Shape<16, 16, 8>, layout::Row, l
         
         let result_vals = unsafe {
             wmma_mma_tf32_f32_row_col_m16n16k8(
-                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
-                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                float_to_tf32(a_vals[0]), float_to_tf32(a_vals[1]), float_to_tf32(a_vals[2]), float_to_tf32(a_vals[3]),
+                float_to_tf32(a_vals[4]), float_to_tf32(a_vals[5]), float_to_tf32(a_vals[6]), float_to_tf32(a_vals[7]),
+                float_to_tf32(b_vals[0]), float_to_tf32(b_vals[1]), float_to_tf32(b_vals[2]), float_to_tf32(b_vals[3]),
+                float_to_tf32(b_vals[4]), float_to_tf32(b_vals[5]), float_to_tf32(b_vals[6]), float_to_tf32(b_vals[7]),
                 c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
             )
         };
@@ -1390,8 +1394,10 @@ impl MmaWithShapeAndLayout<f32, f32, f32, dims::Shape<16, 16, 8>, layout::Col, l
         
         let result_vals = unsafe {
             wmma_mma_tf32_f32_col_row_m16n16k8(
-                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
-                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                float_to_tf32(a_vals[0]), float_to_tf32(a_vals[1]), float_to_tf32(a_vals[2]), float_to_tf32(a_vals[3]),
+                float_to_tf32(a_vals[4]), float_to_tf32(a_vals[5]), float_to_tf32(a_vals[6]), float_to_tf32(a_vals[7]),
+                float_to_tf32(b_vals[0]), float_to_tf32(b_vals[1]), float_to_tf32(b_vals[2]), float_to_tf32(b_vals[3]),
+                float_to_tf32(b_vals[4]), float_to_tf32(b_vals[5]), float_to_tf32(b_vals[6]), float_to_tf32(b_vals[7]),
                 c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
             )
         };
@@ -1418,13 +1424,184 @@ impl MmaWithShapeAndLayout<f32, f32, f32, dims::Shape<16, 16, 8>, layout::Col, l
         
         let result_vals = unsafe {
             wmma_mma_tf32_f32_col_col_m16n16k8(
-                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
-                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                float_to_tf32(a_vals[0]), float_to_tf32(a_vals[1]), float_to_tf32(a_vals[2]), float_to_tf32(a_vals[3]),
+                float_to_tf32(a_vals[4]), float_to_tf32(a_vals[5]), float_to_tf32(a_vals[6]), float_to_tf32(a_vals[7]),
+                float_to_tf32(b_vals[0]), float_to_tf32(b_vals[1]), float_to_tf32(b_vals[2]), float_to_tf32(b_vals[3]),
+                float_to_tf32(b_vals[4]), float_to_tf32(b_vals[5]), float_to_tf32(b_vals[6]), float_to_tf32(b_vals[7]),
                 c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
             )
         };
         
         result.data[..8].copy_from_slice(&result_vals);
+        result
+    }
+}
+
+// i8 × i8 + i32 → i32 implementations for 32x8x16 (Row-Row only)
+impl MmaWithShapeAndLayout<i8, i8, i32, dims::Shape<32, 8, 16>, layout::Row, layout::Row> for i32 {
+    type Output = i32;
+    
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<i8, dims::Shape<32, 8, 16>, layout::Row>,
+        b: &MatrixB<i8, dims::Shape<32, 8, 16>, layout::Row>,
+        c: &Accumulator<i32, dims::Shape<32, 8, 16>>,
+    ) -> Accumulator<i32, dims::Shape<32, 8, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<i8 as MatrixElement>::Storage; 4], [i32; 4]>(
+            *(&a.data[..4] as *const [<i8 as MatrixElement>::Storage] as *const [<i8 as MatrixElement>::Storage; 4])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<i8 as MatrixElement>::Storage; 2], [i32; 2]>(
+            *(&b.data[..2] as *const [<i8 as MatrixElement>::Storage] as *const [<i8 as MatrixElement>::Storage; 2])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<i32 as AccumulatorElement>::Storage; 8], [i32; 8]>(
+            *(&c.data[..8] as *const [<i32 as AccumulatorElement>::Storage] as *const [<i32 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_s8_s32_row_row_m32n8k16(
+                a_vals[0], a_vals[1], a_vals[2], a_vals[3],
+                b_vals[0], b_vals[1],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i32; 8], [<i32 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
+}
+
+// u8 × u8 + i32 → i32 implementations for 32x8x16 (Row-Row only)
+impl MmaWithShapeAndLayout<u8, u8, i32, dims::Shape<32, 8, 16>, layout::Row, layout::Row> for i32 {
+    type Output = i32;
+    
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<u8, dims::Shape<32, 8, 16>, layout::Row>,
+        b: &MatrixB<u8, dims::Shape<32, 8, 16>, layout::Row>,
+        c: &Accumulator<i32, dims::Shape<32, 8, 16>>,
+    ) -> Accumulator<i32, dims::Shape<32, 8, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<u8 as MatrixElement>::Storage; 4], [i32; 4]>(
+            *(&a.data[..4] as *const [<u8 as MatrixElement>::Storage] as *const [<u8 as MatrixElement>::Storage; 4])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<u8 as MatrixElement>::Storage; 2], [i32; 2]>(
+            *(&b.data[..2] as *const [<u8 as MatrixElement>::Storage] as *const [<u8 as MatrixElement>::Storage; 2])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<i32 as AccumulatorElement>::Storage; 8], [i32; 8]>(
+            *(&c.data[..8] as *const [<i32 as AccumulatorElement>::Storage] as *const [<i32 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_u8_s32_row_row_m32n8k16(
+                a_vals[0], a_vals[1], a_vals[2], a_vals[3],
+                b_vals[0], b_vals[1],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i32; 8], [<i32 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
+}
+
+// i8 × i8 + i32 → i32 implementations for 8x32x16 (Row-Row only)
+impl MmaWithShapeAndLayout<i8, i8, i32, dims::Shape<8, 32, 16>, layout::Row, layout::Row> for i32 {
+    type Output = i32;
+    
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<i8, dims::Shape<8, 32, 16>, layout::Row>,
+        b: &MatrixB<i8, dims::Shape<8, 32, 16>, layout::Row>,
+        c: &Accumulator<i32, dims::Shape<8, 32, 16>>,
+    ) -> Accumulator<i32, dims::Shape<8, 32, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<i8 as MatrixElement>::Storage; 2], [i32; 2]>(
+            *(&a.data[..2] as *const [<i8 as MatrixElement>::Storage] as *const [<i8 as MatrixElement>::Storage; 2])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<i8 as MatrixElement>::Storage; 4], [i32; 4]>(
+            *(&b.data[..4] as *const [<i8 as MatrixElement>::Storage] as *const [<i8 as MatrixElement>::Storage; 4])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<i32 as AccumulatorElement>::Storage; 8], [i32; 8]>(
+            *(&c.data[..8] as *const [<i32 as AccumulatorElement>::Storage] as *const [<i32 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_s8_s32_row_row_m8n32k16(
+                a_vals[0], a_vals[1],
+                b_vals[0], b_vals[1], b_vals[2], b_vals[3],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i32; 8], [<i32 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
+}
+
+// u8 × u8 + i32 → i32 implementations for 8x32x16 (Row-Row only)
+impl MmaWithShapeAndLayout<u8, u8, i32, dims::Shape<8, 32, 16>, layout::Row, layout::Row> for i32 {
+    type Output = i32;
+    
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<u8, dims::Shape<8, 32, 16>, layout::Row>,
+        b: &MatrixB<u8, dims::Shape<8, 32, 16>, layout::Row>,
+        c: &Accumulator<i32, dims::Shape<8, 32, 16>>,
+    ) -> Accumulator<i32, dims::Shape<8, 32, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<u8 as MatrixElement>::Storage; 2], [i32; 2]>(
+            *(&a.data[..2] as *const [<u8 as MatrixElement>::Storage] as *const [<u8 as MatrixElement>::Storage; 2])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<u8 as MatrixElement>::Storage; 4], [i32; 4]>(
+            *(&b.data[..4] as *const [<u8 as MatrixElement>::Storage] as *const [<u8 as MatrixElement>::Storage; 4])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<i32 as AccumulatorElement>::Storage; 8], [i32; 8]>(
+            *(&c.data[..8] as *const [<i32 as AccumulatorElement>::Storage] as *const [<i32 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_u8_s32_row_row_m8n32k16(
+                a_vals[0], a_vals[1],
+                b_vals[0], b_vals[1], b_vals[2], b_vals[3],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i32; 8], [<i32 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
+}
+
+// f64 × f64 + f64 → f64 implementations for 8x8x4 (Row-Row only)
+impl MmaWithShapeAndLayout<f64, f64, f64, dims::Shape<8, 8, 4>, layout::Row, layout::Row> for f64 {
+    type Output = f64;
+    
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<f64, dims::Shape<8, 8, 4>, layout::Row>,
+        b: &MatrixB<f64, dims::Shape<8, 8, 4>, layout::Row>,
+        c: &Accumulator<f64, dims::Shape<8, 8, 4>>,
+    ) -> Accumulator<f64, dims::Shape<8, 8, 4>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { *(&a.data[..2] as *const [f64] as *const [f64; 2]) };
+        let b_vals = unsafe { *(&b.data[..2] as *const [f64] as *const [f64; 2]) };
+        let c_vals = unsafe { *(&c.data[..2] as *const [f64] as *const [f64; 2]) };
+        
+        let result_vals = unsafe {
+            wmma_mma_f64_row_row_m8n8k4(
+                a_vals[0], a_vals[1],
+                b_vals[0], b_vals[1],
+                c_vals[0], c_vals[1]
+            )
+        };
+        
+        result.data[..2].copy_from_slice(&result_vals);
         result
     }
 }
