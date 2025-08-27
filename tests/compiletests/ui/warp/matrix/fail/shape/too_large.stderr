@@ -1,0 +1,40 @@
+error[E0277]: `Shape<64, 64, 64>` is not a valid tensor core shape
+    --> $DIR/too_large.rs:10:15
+     |
+10   |     let _tc = TensorCore::<f16, dims::Shape<64, 64, 64>>::new();
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ invalid tensor core shape
+     |
+     = help: the trait `TensorCoreShape` is not implemented for `Shape<64, 64, 64>`
+     = note: See NVIDIA documentation: https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-matrix-functions
+     = help: the following other types implement trait `TensorCoreShape`:
+               Shape<16, 16, 16>
+               Shape<16, 16, 8>
+               Shape<32, 8, 16>
+               Shape<8, 32, 16>
+               Shape<8, 8, 128>
+               Shape<8, 8, 32>
+               Shape<8, 8, 4>
+note: required by a bound in `TensorCore`
+    --> /workspace/crates/cuda_std/src/warp/matrix.rs:2799:48
+     |
+2799 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+     |                                                ^^^^^^^^^^^^^^^ required by this bound in `TensorCore`
+
+error[E0599]: the function or associated item `new` exists for struct `TensorCore<cuda_std::f16, Shape<64, 64, 64>>`, but its trait bounds were not satisfied
+    --> $DIR/too_large.rs:10:59
+     |
+10   |     let _tc = TensorCore::<f16, dims::Shape<64, 64, 64>>::new();
+     |                                                           ^^^ function or associated item cannot be called on `TensorCore<cuda_std::f16, Shape<64, 64, 64>>` due to unsatisfied trait bounds
+     |
+    ::: /workspace/crates/cuda_std/src/warp/matrix.rs:1159:5
+     |
+1159 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
+     |     ---------------------------------------------------------------- doesn't satisfy `Shape<64, 64, 64>: TensorCoreShape`
+     |
+     = note: the following trait bounds were not satisfied:
+             `Shape<64, 64, 64>: TensorCoreShape`
+
+error: aborting due to 2 previous errors
+
+Some errors have detailed explanations: E0277, E0599.
+For more information about an error, try `rustc --explain E0277`.

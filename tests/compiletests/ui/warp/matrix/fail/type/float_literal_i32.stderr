@@ -1,0 +1,22 @@
+error[E0308]: mismatched types
+    --> $DIR/float_literal_i32.rs:14:16
+     |
+14   |     c_i32.fill(1.5f32);
+     |           ---- ^^^^^^ expected `i32`, found `f32`
+     |           |
+     |           arguments to this method are incorrect
+     |
+note: method defined here
+    --> /workspace/crates/cuda_std/src/warp/matrix.rs:1506:12
+     |
+1506 |     pub fn fill(&mut self, value: T) {
+     |            ^^^^
+help: change the type of the numeric literal from `f32` to `i32`
+     |
+14   -     c_i32.fill(1.5f32);
+14   +     c_i32.fill(1i32);
+     |
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0308`.

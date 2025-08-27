@@ -1,0 +1,35 @@
+error[E0277]: `u16` cannot be used as a tensor core matrix element
+    --> $DIR/u16.rs:9:15
+     |
+9    |     let _tc = TensorCore::<u16, dims::Shape<16, 16, 16>>::new();
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ not a valid matrix element type
+     |
+     = help: the trait `MatrixElement` is not implemented for `u16`
+     = note: Valid element types are: f16, bf16, f32, f64, i8, u8, i32, bool
+     = note: f16/bf16 are for half-precision operations, f32 uses TF32 mode, i8/u8 for integer operations
+     = note: See NVIDIA documentation: https://docs.nvidia.com/cuda/cuda-c-programming-guide/#warp-matrix-functions
+     = help: the following other types implement trait `MatrixElement`:
+               f32
+               f64
+               i32
+               i8
+               u8
+note: required by a bound in `TensorCore`
+    --> /workspace/crates/cuda_std/src/warp/matrix.rs:2799:26
+     |
+2799 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+     |                          ^^^^^^^^^^^^^ required by this bound in `TensorCore`
+
+error[E0599]: the function or associated item `new` exists for struct `TensorCore<u16, Shape<16, 16, 16>>`, but its trait bounds were not satisfied
+ --> $DIR/u16.rs:9:59
+  |
+9 |     let _tc = TensorCore::<u16, dims::Shape<16, 16, 16>>::new();
+  |                                                           ^^^ function or associated item cannot be called on `TensorCore<u16, Shape<16, 16, 16>>` due to unsatisfied trait bounds
+  |
+  = note: the following trait bounds were not satisfied:
+          `u16: MatrixElement`
+
+error: aborting due to 2 previous errors
+
+Some errors have detailed explanations: E0277, E0599.
+For more information about an error, try `rustc --explain E0277`.

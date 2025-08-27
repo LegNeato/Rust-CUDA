@@ -1,10 +1,10 @@
 error[E0599]: no function or associated item named `vote_all_equal` found for struct `NonCopyType` in the current scope
-  --> $DIR/non_copy_type.rs:19:32
+  --> $DIR/non_copy_type.rs:17:32
    |
 9  |     struct NonCopyType {
    |     ------------------ function or associated item `vote_all_equal` not found for this struct
 ...
-19 |     let _result = NonCopyType::vote_all_equal(mask, value);
+17 |     let _result = NonCopyType::vote_all_equal(mask, value);
    |                                ^^^^^^^^^^^^^^ function or associated item not found in `NonCopyType`
    |
    = help: items from traits can only be used if the trait is implemented and in scope
