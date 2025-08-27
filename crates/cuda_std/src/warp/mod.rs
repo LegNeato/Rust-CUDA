@@ -8,11 +8,9 @@
 //! - `vote`: Warp voting and ballot operations
 //! - `shuffle`: Warp shuffle operations for data exchange
 //! - `reduce`: Warp reduction operations
-//! - `matrix`: Warp matrix (tensor core) operations
-//! - `matrix_multi`: Multiple fragment support for advanced tiling patterns
+//! - `matrix`: Warp matrix (tensor core) operations including multi-fragment support
 
 pub mod matrix;
-pub mod matrix_multi;
 pub mod reduce;
 pub mod shuffle;
 pub mod sync;

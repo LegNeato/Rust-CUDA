@@ -5,7 +5,7 @@
 
 use cuda_std::prelude::*;
 use cuda_std::warp::matrix::{dims, layout, Accumulator, MatrixA, MatrixB};
-use cuda_std::warp::matrix_multi::{BatchLoad, BatchMma, FragmentArray, FragmentGrid};
+use cuda_std::warp::matrix::multi::{BatchLoad, BatchMma, FragmentArray, FragmentGrid};
 use cuda_std::{bf16, f16};
 
 #[kernel]

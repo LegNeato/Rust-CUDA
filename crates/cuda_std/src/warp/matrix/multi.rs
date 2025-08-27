@@ -3,8 +3,8 @@
 //! This module provides idiomatic Rust patterns for handling multiple matrix fragments
 //! in a single warp, enabling efficient register blocking patterns like 2x8 tiles.
 
-use super::matrix::layout::{Layout, Row};
-use super::matrix::{
+use crate::warp::matrix::layout::{Layout, Row};
+use crate::warp::matrix::{
     Accumulator, AccumulatorElement, MatrixA, MatrixB, MatrixElement, MmaWithShapeAndLayout,
     TensorCoreShape,
 };
@@ -249,8 +249,8 @@ where
     T: MatrixElement,
     Shape: TensorCoreShape,
     L: Layout,
-    super::matrix::StrideValidator<T, STRIDE>: super::matrix::ValidStride,
-    T: super::matrix::ops::LoadMatrixA<Shape, L>,
+    crate::warp::matrix::StrideValidator<T, STRIDE>: crate::warp::matrix::ValidStride,
+    T: crate::warp::matrix::ops::LoadMatrixA<Shape, L>,
 {
     #[inline(always)]
     unsafe fn load_batch(&mut self, ptr: *const u8, offset: usize) {
