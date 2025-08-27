@@ -58,6 +58,7 @@ use super::{
 
 // Import shape types
 type Shape16x16x16 = super::dims::Shape<16, 16, 16>;
+type Shape16x16x8 = super::dims::Shape<16, 16, 8>;
 type Shape32x8x16 = super::dims::Shape<32, 8, 16>;
 type Shape8x32x16 = super::dims::Shape<8, 32, 16>;
 type Shape8x8x4 = super::dims::Shape<8, 8, 4>;
@@ -406,3 +407,80 @@ impl_load_a!(f64, Shape8x8x4, 2, wmma_load_a_f64_row_m8n8k4, wmma_load_a_f64_col
 impl_load_b!(f64, Shape8x8x4, 2, wmma_load_b_f64_row_m8n8k4, wmma_load_b_f64_col_m8n8k4);
 impl_load_c!(f64, Shape8x8x4, 2, wmma_load_c_f64_row_m8n8k4, wmma_load_c_f64_col_m8n8k4);
 impl_store_d!(f64, Shape8x8x4, wmma_store_d_f64_row_m8n8k4, wmma_store_d_f64_col_m8n8k4, f64);
+
+// ============= 16x16x8 shape implementations (TF32) =============
+// f32 uses TF32 with 16x16x8 shape - special handling required
+impl LoadMatrixA<Shape16x16x8, Row> for f32 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_into(ptr: *const u8, stride: i32, out: &mut [f32; 32]) {
+        let raw = wmma_load_a_tf32_row_m16n16k8(ptr, stride);
+        // The intrinsic returns 8 f32 values for TF32
+        // We need to pad to 32 for consistency with the storage size
+        out[0..8].copy_from_slice(&raw);
+        // Zero out the rest
+        for i in 8..32 {
+            out[i] = 0.0;
+        }
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_into(_ptr: *const u8, _stride: i32, _out: &mut [f32; 32]) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixA<Shape16x16x8, Col> for f32 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_into(ptr: *const u8, stride: i32, out: &mut [f32; 32]) {
+        let raw = wmma_load_a_tf32_col_m16n16k8(ptr, stride);
+        out[0..8].copy_from_slice(&raw);
+        for i in 8..32 {
+            out[i] = 0.0;
+        }
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_into(_ptr: *const u8, _stride: i32, _out: &mut [f32; 32]) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixB<Shape16x16x8, Row> for f32 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_into(ptr: *const u8, stride: i32, out: &mut [f32; 32]) {
+        let raw = wmma_load_b_tf32_row_m16n16k8(ptr, stride);
+        out[0..8].copy_from_slice(&raw);
+        for i in 8..32 {
+            out[i] = 0.0;
+        }
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_into(_ptr: *const u8, _stride: i32, _out: &mut [f32; 32]) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixB<Shape16x16x8, Col> for f32 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_into(ptr: *const u8, stride: i32, out: &mut [f32; 32]) {
+        let raw = wmma_load_b_tf32_col_m16n16k8(ptr, stride);
+        out[0..8].copy_from_slice(&raw);
+        for i in 8..32 {
+            out[i] = 0.0;
+        }
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_into(_ptr: *const u8, _stride: i32, _out: &mut [f32; 32]) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+// f32 accumulator for 16x16x8
+impl_load_c!(f32, Shape16x16x8, 8, wmma_load_c_f32_row_m16n16k8, wmma_load_c_f32_col_m16n16k8);
+impl_store_d!(f32, Shape16x16x8, wmma_store_d_f32_row_m16n16k8, wmma_store_d_f32_col_m16n16k8);

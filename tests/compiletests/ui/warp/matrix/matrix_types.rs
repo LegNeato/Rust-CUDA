@@ -28,10 +28,10 @@ pub unsafe fn test_all_element_types() {
 
     // Test f32 element type (TF32)
     {
-        let tc = TensorCore::<f32, dims::Shape<16, 16, 16>>::new();
-        let _a: MatrixA<f32, dims::Shape<16, 16, 16>, layout::Row> = tc.matrix_a();
-        let _b: MatrixB<f32, dims::Shape<16, 16, 16>, layout::Col> = tc.matrix_b();
-        let _c: Accumulator<f32, dims::Shape<16, 16, 16>> = tc.accumulator();
+        let tc = TensorCore::<f32, dims::Shape<16, 16, 8>>::new();
+        let _a: MatrixA<f32, dims::Shape<16, 16, 8>, layout::Row> = tc.matrix_a();
+        let _b: MatrixB<f32, dims::Shape<16, 16, 8>, layout::Col> = tc.matrix_b();
+        let _c: Accumulator<f32, dims::Shape<16, 16, 8>> = tc.accumulator();
     }
 
     // Test i8 element type

@@ -531,5 +531,21 @@ declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.row.col.f64.f64(doubl
 declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.col.row.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
 declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.col.col.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
 
+; TF32 tensor core operations (16x16x8 shape)
+; Note: TF32 uses float storage but with reduced precision during computation
+declare float @llvm.nvvm.f2tf32.rna.f32(float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.load.a.sync.row.stride.tf32(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.load.a.sync.col.stride.tf32(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.load.b.sync.row.stride.tf32(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.load.b.sync.col.stride.tf32(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.load.c.sync.row.stride.f32(i8 addrspace(1)*, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.load.c.sync.col.stride.f32(i8 addrspace(1)*, i32) #1
+declare void @llvm.nvvm.wmma.m16n16k8.store.d.sync.row.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare void @llvm.nvvm.wmma.m16n16k8.store.d.sync.col.stride.f32(i8 addrspace(1)*, float, float, float, float, float, float, float, float, i32) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.mma.sync.row.row.tf32.f32(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.mma.sync.row.col.tf32.f32(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.mma.sync.col.row.tf32.f32(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) #1
+declare { float, float, float, float, float, float, float, float } @llvm.nvvm.wmma.m16n16k8.mma.sync.col.col.tf32.f32(float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float, float) #1
+
 attributes #0 = { alwaysinline speculatable }
 attributes #1 = { alwaysinline }

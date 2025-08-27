@@ -35,7 +35,8 @@ pub unsafe fn test_stride_validation() {
     a.load::<56>(ptr);
     a.load::<64>(ptr);
 
-    let tc_f32 = TensorCore::<f32, Shape>::new();
+    type TF32Shape = dims::Shape<16, 16, 8>;
+    let tc_f32 = TensorCore::<f32, TF32Shape>::new();
     let mut a_f32 = tc_f32.matrix_a::<layout::Row>();
     let ptr_f32: *const f32 = core::ptr::null();
 
