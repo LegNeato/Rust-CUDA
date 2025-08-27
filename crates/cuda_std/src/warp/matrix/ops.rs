@@ -9,16 +9,21 @@ use super::*;
 #[cfg(target_arch = "nvptx64")]
 use super::{
     wmma_load_a_bf16_col_m16n16k16,
+    wmma_load_a_bf16_col_m16n8k16,
     wmma_load_a_bf16_col_m32n8k16,
     wmma_load_a_bf16_col_m8n32k16,
     wmma_load_a_bf16_row_m16n16k16,
+    wmma_load_a_bf16_row_m16n8k16,
     wmma_load_a_bf16_row_m32n8k16,
     wmma_load_a_bf16_row_m8n32k16,
     wmma_load_a_f16_col_m16n16k16,
+    wmma_load_a_f16_col_m16n8k16,
     wmma_load_a_f16_col_m32n8k16,
     wmma_load_a_f16_col_m8n32k16,
     // 16x16x16 intrinsics
     wmma_load_a_f16_row_m16n16k16,
+    // 16x8x16 intrinsics
+    wmma_load_a_f16_row_m16n8k16,
     // 32x8x16 intrinsics
     wmma_load_a_f16_row_m32n8k16,
     // 8x32x16 intrinsics
@@ -27,70 +32,87 @@ use super::{
     // 8x8x4 intrinsics (f64)
     wmma_load_a_f64_row_m8n8k4,
     wmma_load_a_s8_col_m16n16k16,
+    wmma_load_a_s8_col_m16n8k16,
     wmma_load_a_s8_col_m32n8k16,
     wmma_load_a_s8_col_m8n32k16,
     wmma_load_a_s8_row_m16n16k16,
+    wmma_load_a_s8_row_m16n8k16,
     wmma_load_a_s8_row_m32n8k16,
     wmma_load_a_s8_row_m8n32k16,
     wmma_load_a_u8_col_m16n16k16,
+    wmma_load_a_u8_col_m16n8k16,
     wmma_load_a_u8_col_m32n8k16,
     wmma_load_a_u8_col_m8n32k16,
     wmma_load_a_u8_row_m16n16k16,
+    wmma_load_a_u8_row_m16n8k16,
     wmma_load_a_u8_row_m32n8k16,
     wmma_load_a_u8_row_m8n32k16,
     wmma_load_b_bf16_col_m16n16k16,
+    wmma_load_b_bf16_col_m16n8k16,
     wmma_load_b_bf16_col_m32n8k16,
     wmma_load_b_bf16_col_m8n32k16,
     wmma_load_b_bf16_row_m16n16k16,
+    wmma_load_b_bf16_row_m16n8k16,
     wmma_load_b_bf16_row_m32n8k16,
     wmma_load_b_bf16_row_m8n32k16,
     wmma_load_b_f16_col_m16n16k16,
+    wmma_load_b_f16_col_m16n8k16,
     wmma_load_b_f16_col_m32n8k16,
     wmma_load_b_f16_col_m8n32k16,
     wmma_load_b_f16_row_m16n16k16,
+    wmma_load_b_f16_row_m16n8k16,
     wmma_load_b_f16_row_m32n8k16,
     wmma_load_b_f16_row_m8n32k16,
     wmma_load_b_f64_col_m8n8k4,
     wmma_load_b_f64_row_m8n8k4,
     wmma_load_b_s8_col_m16n16k16,
+    wmma_load_b_s8_col_m16n8k16,
     wmma_load_b_s8_col_m32n8k16,
     wmma_load_b_s8_col_m8n32k16,
     wmma_load_b_s8_row_m16n16k16,
+    wmma_load_b_s8_row_m16n8k16,
     wmma_load_b_s8_row_m32n8k16,
     wmma_load_b_s8_row_m8n32k16,
     wmma_load_b_u8_col_m16n16k16,
+    wmma_load_b_u8_col_m16n8k16,
     wmma_load_b_u8_col_m32n8k16,
     wmma_load_b_u8_col_m8n32k16,
     wmma_load_b_u8_row_m16n16k16,
+    wmma_load_b_u8_row_m16n8k16,
     wmma_load_b_u8_row_m32n8k16,
     wmma_load_b_u8_row_m8n32k16,
+    wmma_load_c_f32_col_m16n8k16,
     wmma_load_c_f32_col_m32n8k16,
     wmma_load_c_f32_col_m8n32k16,
     wmma_load_c_f32_row_m16n16k16,
+    wmma_load_c_f32_row_m16n8k16,
     wmma_load_c_f32_row_m32n8k16,
     wmma_load_c_f32_row_m8n32k16,
     wmma_load_c_f64_col_m8n8k4,
     wmma_load_c_f64_row_m8n8k4,
+    wmma_load_c_s32_col_m16n8k16,
     wmma_load_c_s32_col_m32n8k16,
     wmma_load_c_s32_col_m8n32k16,
     wmma_load_c_s32_row_m16n16k16,
+    wmma_load_c_s32_row_m16n8k16,
     wmma_load_c_s32_row_m32n8k16,
     wmma_load_c_s32_row_m8n32k16,
     wmma_store_d_f32_col_m16n16k16,
+    wmma_store_d_f32_col_m16n8k16,
     wmma_store_d_f32_col_m32n8k16,
     wmma_store_d_f32_col_m8n32k16,
     wmma_store_d_f32_row_m16n16k16,
+    wmma_store_d_f32_row_m16n8k16,
     wmma_store_d_f32_row_m32n8k16,
     wmma_store_d_f32_row_m8n32k16,
     wmma_store_d_f64_col_m8n8k4,
     wmma_store_d_f64_row_m8n8k4,
     wmma_store_d_s32_col_m16n16k16,
-
+    wmma_store_d_s32_col_m16n8k16,
     wmma_store_d_s32_col_m32n8k16,
-
     wmma_store_d_s32_col_m8n32k16,
-
     wmma_store_d_s32_row_m16n16k16,
+    wmma_store_d_s32_row_m16n8k16,
     wmma_store_d_s32_row_m32n8k16,
     wmma_store_d_s32_row_m8n32k16,
 };
@@ -98,6 +120,7 @@ use super::{
 // Import shape types
 type Shape16x16x16 = super::dims::Shape<16, 16, 16>;
 type Shape16x16x8 = super::dims::Shape<16, 16, 8>;
+type Shape16x8x16 = super::dims::Shape<16, 8, 16>;
 type Shape32x8x16 = super::dims::Shape<32, 8, 16>;
 type Shape8x32x16 = super::dims::Shape<8, 32, 16>;
 type Shape8x8x4 = super::dims::Shape<8, 8, 4>;
@@ -291,6 +314,30 @@ macro_rules! impl_store_d {
                     ptr, data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7],
                     stride,
                 );
+            }
+        }
+    };
+    // Special case for 16x8x16 shape which uses 4 values
+    ($type:ty, $shape:ty, $row_fn:ident, $col_fn:ident, m16n8k16) => {
+        impl StoreMatrixD<$shape, Row> for $type {
+            #[inline(always)]
+            unsafe fn store_d_from(
+                ptr: *mut u8,
+                data: &[<$type as AccumulatorElement>::Storage; 32],
+                stride: i32,
+            ) {
+                $row_fn(ptr, data[0], data[1], data[2], data[3], stride);
+            }
+        }
+
+        impl StoreMatrixD<$shape, Col> for $type {
+            #[inline(always)]
+            unsafe fn store_d_from(
+                ptr: *mut u8,
+                data: &[<$type as AccumulatorElement>::Storage; 32],
+                stride: i32,
+            ) {
+                $col_fn(ptr, data[0], data[1], data[2], data[3], stride);
             }
         }
     };
@@ -573,6 +620,103 @@ impl_store_d!(
     Shape32x8x16,
     wmma_store_d_s32_row_m32n8k16,
     wmma_store_d_s32_col_m32n8k16
+);
+
+// ============= 16x8x16 shape implementations =============
+// f16
+impl_load_a!(
+    f16,
+    Shape16x8x16,
+    8,
+    wmma_load_a_f16_row_m16n8k16,
+    wmma_load_a_f16_col_m16n8k16
+);
+impl_load_b!(
+    f16,
+    Shape16x8x16,
+    8,
+    wmma_load_b_f16_row_m16n8k16,
+    wmma_load_b_f16_col_m16n8k16
+);
+
+// bf16
+impl_load_a!(
+    bf16,
+    Shape16x8x16,
+    8,
+    wmma_load_a_bf16_row_m16n8k16,
+    wmma_load_a_bf16_col_m16n8k16
+);
+impl_load_b!(
+    bf16,
+    Shape16x8x16,
+    8,
+    wmma_load_b_bf16_row_m16n8k16,
+    wmma_load_b_bf16_col_m16n8k16
+);
+
+// i8
+impl_load_a!(
+    i8,
+    Shape16x8x16,
+    2,
+    wmma_load_a_s8_row_m16n8k16,
+    wmma_load_a_s8_col_m16n8k16
+);
+impl_load_b!(
+    i8,
+    Shape16x8x16,
+    2,
+    wmma_load_b_s8_row_m16n8k16,
+    wmma_load_b_s8_col_m16n8k16
+);
+
+// u8
+impl_load_a!(
+    u8,
+    Shape16x8x16,
+    2,
+    wmma_load_a_u8_row_m16n8k16,
+    wmma_load_a_u8_col_m16n8k16
+);
+impl_load_b!(
+    u8,
+    Shape16x8x16,
+    2,
+    wmma_load_b_u8_row_m16n8k16,
+    wmma_load_b_u8_col_m16n8k16
+);
+
+// f32 accumulator for 16x8x16
+impl_load_c!(
+    f32,
+    Shape16x8x16,
+    4,
+    wmma_load_c_f32_row_m16n8k16,
+    wmma_load_c_f32_col_m16n8k16
+);
+impl_store_d!(
+    f32,
+    Shape16x8x16,
+    wmma_store_d_f32_row_m16n8k16,
+    wmma_store_d_f32_col_m16n8k16,
+    m16n8k16
+);
+
+// i32 accumulator for 16x8x16
+impl_load_c!(
+    i32,
+    Shape16x8x16,
+    4,
+    wmma_load_c_s32_row_m16n8k16,
+    wmma_load_c_s32_col_m16n8k16
+);
+impl_store_d!(
+    i32,
+    Shape16x8x16,
+    wmma_store_d_s32_row_m16n8k16,
+    wmma_store_d_s32_col_m16n8k16,
+    m16n8k16
 );
 
 // ============= 8x32x16 shape implementations =============
