@@ -15,9 +15,9 @@ error[E0277]: `u16` cannot be used as a tensor core matrix element
                i8
                u8
 note: required by a bound in `TensorCore`
-    --> /workspace/crates/cuda_std/src/warp/matrix.rs:3145:26
+    --> /workspace/crates/cuda_std/src/warp/matrix.rs:3143:26
      |
-3145 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+3143 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
      |                          ^^^^^^^^^^^^^ required by this bound in `TensorCore`
 
 error[E0599]: the function or associated item `new` exists for struct `TensorCore<u16, Shape<16, 16, 16>>`, but its trait bounds were not satisfied

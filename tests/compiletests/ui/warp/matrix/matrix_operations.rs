@@ -1,9 +1,9 @@
 // Test matrix operations and MMA compile correctly
 // build-pass
 
-use cuda_std::f16;
 use cuda_std::kernel;
 use cuda_std::warp::matrix::{dims, layout, TensorCore};
+use cuda_std::{bf16, f16};
 
 #[kernel]
 pub unsafe fn test_mma_operations() {
@@ -164,4 +164,54 @@ pub unsafe fn test_accumulator_initialization() {
     acc_i32.fill(1i32);
     acc_i32.fill(-1i32);
     acc_i32.fill(100i32);
+}
+
+#[kernel]
+pub unsafe fn test_16x8x16_shape_operations() {
+    // Test the new 16x8x16 shape
+    type Shape = dims::Shape<16, 8, 16>;
+
+    // Test with f16
+    {
+        let tc = TensorCore::<f16, Shape>::new();
+        let a = tc.matrix_a::<layout::Row>();
+        let b = tc.matrix_b::<layout::Row>();
+        let mut acc = tc.accumulator();
+
+        acc.fill(0.0f32);
+        acc.mma_inplace(&a, &b);
+    }
+
+    // Test with bf16
+    {
+        let tc = TensorCore::<bf16, Shape>::new();
+        let a = tc.matrix_a::<layout::Row>();
+        let b = tc.matrix_b::<layout::Row>();
+        let mut acc = tc.accumulator();
+
+        acc.fill(1.0f32);
+        let _result = acc.mma(&a, &b);
+    }
+
+    // Test with i8
+    {
+        let tc = TensorCore::<i8, Shape>::new();
+        let a = tc.matrix_a::<layout::Row>();
+        let b = tc.matrix_b::<layout::Row>();
+        let mut acc = tc.accumulator();
+
+        acc.fill(0i32);
+        acc.mma_inplace(&a, &b);
+    }
+
+    // Test with u8
+    {
+        let tc = TensorCore::<u8, Shape>::new();
+        let a = tc.matrix_a::<layout::Row>();
+        let b = tc.matrix_b::<layout::Row>();
+        let mut acc = tc.accumulator();
+
+        acc.fill(0i32);
+        acc.mma_inplace(&a, &b);
+    }
 }

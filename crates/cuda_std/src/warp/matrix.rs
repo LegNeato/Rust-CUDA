@@ -11,7 +11,7 @@ use half::{bf16, f16};
 pub use self::layout::Layout;
 
 // Module for trait-based dispatch of matrix operations
-mod ops;
+pub mod ops;
 
 // WMMA intrinsic declarations
 // These LLVM intrinsics return arrays by value which is their intended behavior
@@ -1335,6 +1335,7 @@ extern "C" {
 /// Type-level dimensions for matrix operations
 pub mod dims {
     /// Complete shape specification
+    #[derive(Copy, Clone)]
     pub struct Shape<const M: usize, const N: usize, const K: usize>;
 }
 
@@ -1408,9 +1409,11 @@ pub mod layout {
     use super::sealed;
 
     /// Row-major layout
+    #[derive(Copy, Clone)]
     pub struct Row;
 
     /// Column-major layout
+    #[derive(Copy, Clone)]
     pub struct Col;
 
     /// Trait for valid layouts
@@ -1550,6 +1553,7 @@ impl AccumulatorElement for f64 {
 
 /// Matrix A fragment (left operand)
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct MatrixA<T, Shape, L>
 where
     T: MatrixElement,
@@ -1562,6 +1566,7 @@ where
 
 /// Matrix B fragment (right operand)
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct MatrixB<T, Shape, L>
 where
     T: MatrixElement,
@@ -1574,6 +1579,7 @@ where
 
 /// Accumulator matrix fragment
 #[repr(C)]
+#[derive(Copy, Clone)]
 pub struct Accumulator<T, Shape>
 where
     T: AccumulatorElement,
