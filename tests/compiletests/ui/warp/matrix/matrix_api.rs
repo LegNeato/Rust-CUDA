@@ -3,8 +3,8 @@
 
 use cuda_std::kernel;
 use cuda_std::warp::matrix::{
-    dims, layout, Accumulator, MatrixA, MatrixB, MatrixElement, StrideValidator, 
-    TensorCore, TensorCoreShape, ValidStride,
+    dims, layout, Accumulator, MatrixA, MatrixB, MatrixElement, StrideValidator, TensorCore,
+    TensorCoreShape, ValidStride,
 };
 use cuda_std::{bf16, f16};
 

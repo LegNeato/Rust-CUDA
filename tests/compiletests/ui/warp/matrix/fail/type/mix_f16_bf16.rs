@@ -1,7 +1,7 @@
 // compile-fail
 
 use cuda_std::kernel;
-use cuda_std::warp::matrix::{dims, layout, MmaExt, TensorCore};
+use cuda_std::warp::matrix::{dims, layout, TensorCore};
 use cuda_std::{bf16, f16};
 
 #[kernel]
