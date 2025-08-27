@@ -108,6 +108,43 @@ extern "C" {
         stride: i32
     );
     
+    // MMA intrinsics for f16 -> f16
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_row_row_m16n16k16(
+        a0: i16, a1: i16, a2: i16, a3: i16, a4: i16, a5: i16, a6: i16, a7: i16,
+        a8: i16, a9: i16, a10: i16, a11: i16, a12: i16, a13: i16, a14: i16, a15: i16,
+        b0: i16, b1: i16, b2: i16, b3: i16, b4: i16, b5: i16, b6: i16, b7: i16,
+        b8: i16, b9: i16, b10: i16, b11: i16, b12: i16, b13: i16, b14: i16, b15: i16,
+        c0: i16, c1: i16, c2: i16, c3: i16, c4: i16, c5: i16, c6: i16, c7: i16
+    ) -> [i16; 8];
+    
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_row_col_m16n16k16(
+        a0: i16, a1: i16, a2: i16, a3: i16, a4: i16, a5: i16, a6: i16, a7: i16,
+        a8: i16, a9: i16, a10: i16, a11: i16, a12: i16, a13: i16, a14: i16, a15: i16,
+        b0: i16, b1: i16, b2: i16, b3: i16, b4: i16, b5: i16, b6: i16, b7: i16,
+        b8: i16, b9: i16, b10: i16, b11: i16, b12: i16, b13: i16, b14: i16, b15: i16,
+        c0: i16, c1: i16, c2: i16, c3: i16, c4: i16, c5: i16, c6: i16, c7: i16
+    ) -> [i16; 8];
+    
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.col.row.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_col_row_m16n16k16(
+        a0: i16, a1: i16, a2: i16, a3: i16, a4: i16, a5: i16, a6: i16, a7: i16,
+        a8: i16, a9: i16, a10: i16, a11: i16, a12: i16, a13: i16, a14: i16, a15: i16,
+        b0: i16, b1: i16, b2: i16, b3: i16, b4: i16, b5: i16, b6: i16, b7: i16,
+        b8: i16, b9: i16, b10: i16, b11: i16, b12: i16, b13: i16, b14: i16, b15: i16,
+        c0: i16, c1: i16, c2: i16, c3: i16, c4: i16, c5: i16, c6: i16, c7: i16
+    ) -> [i16; 8];
+    
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.col.col.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_col_col_m16n16k16(
+        a0: i16, a1: i16, a2: i16, a3: i16, a4: i16, a5: i16, a6: i16, a7: i16,
+        a8: i16, a9: i16, a10: i16, a11: i16, a12: i16, a13: i16, a14: i16, a15: i16,
+        b0: i16, b1: i16, b2: i16, b3: i16, b4: i16, b5: i16, b6: i16, b7: i16,
+        b8: i16, b9: i16, b10: i16, b11: i16, b12: i16, b13: i16, b14: i16, b15: i16,
+        c0: i16, c1: i16, c2: i16, c3: i16, c4: i16, c5: i16, c6: i16, c7: i16
+    ) -> [i16; 8];
+    
     // MMA intrinsics for f16 -> f32
     #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.f16.f32"]
     pub(crate) fn wmma_mma_f16_f32_row_row_m16n16k16(
@@ -896,6 +933,151 @@ where
         b: &MatrixB<B, Shape, LayoutB>,
         c: &Accumulator<C, Shape>,
     ) -> Accumulator<Self::Output, Shape>;
+}
+
+// f16 × f16 + f16 → f16 with 16x16x16 (all layout combinations)
+impl MmaWithShapeAndLayout<f16, f16, f16, dims::Shape<16, 16, 16>, layout::Row, layout::Row> for f16 {
+    type Output = f16;
+
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<f16, dims::Shape<16, 16, 16>, layout::Row>,
+        b: &MatrixB<f16, dims::Shape<16, 16, 16>, layout::Row>,
+        c: &Accumulator<f16, dims::Shape<16, 16, 16>>,
+    ) -> Accumulator<f16, dims::Shape<16, 16, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&a.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&b.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<f16 as AccumulatorElement>::Storage; 8], [i16; 8]>(
+            *(&c.data[..8] as *const [<f16 as AccumulatorElement>::Storage] as *const [<f16 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_f16_f16_row_row_m16n16k16(
+                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
+                a_vals[8], a_vals[9], a_vals[10], a_vals[11], a_vals[12], a_vals[13], a_vals[14], a_vals[15],
+                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                b_vals[8], b_vals[9], b_vals[10], b_vals[11], b_vals[12], b_vals[13], b_vals[14], b_vals[15],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i16; 8], [<f16 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
+}
+
+impl MmaWithShapeAndLayout<f16, f16, f16, dims::Shape<16, 16, 16>, layout::Row, layout::Col> for f16 {
+    type Output = f16;
+
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<f16, dims::Shape<16, 16, 16>, layout::Row>,
+        b: &MatrixB<f16, dims::Shape<16, 16, 16>, layout::Col>,
+        c: &Accumulator<f16, dims::Shape<16, 16, 16>>,
+    ) -> Accumulator<f16, dims::Shape<16, 16, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&a.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&b.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<f16 as AccumulatorElement>::Storage; 8], [i16; 8]>(
+            *(&c.data[..8] as *const [<f16 as AccumulatorElement>::Storage] as *const [<f16 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_f16_f16_row_col_m16n16k16(
+                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
+                a_vals[8], a_vals[9], a_vals[10], a_vals[11], a_vals[12], a_vals[13], a_vals[14], a_vals[15],
+                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                b_vals[8], b_vals[9], b_vals[10], b_vals[11], b_vals[12], b_vals[13], b_vals[14], b_vals[15],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i16; 8], [<f16 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
+}
+
+impl MmaWithShapeAndLayout<f16, f16, f16, dims::Shape<16, 16, 16>, layout::Col, layout::Row> for f16 {
+    type Output = f16;
+
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<f16, dims::Shape<16, 16, 16>, layout::Col>,
+        b: &MatrixB<f16, dims::Shape<16, 16, 16>, layout::Row>,
+        c: &Accumulator<f16, dims::Shape<16, 16, 16>>,
+    ) -> Accumulator<f16, dims::Shape<16, 16, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&a.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&b.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<f16 as AccumulatorElement>::Storage; 8], [i16; 8]>(
+            *(&c.data[..8] as *const [<f16 as AccumulatorElement>::Storage] as *const [<f16 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_f16_f16_col_row_m16n16k16(
+                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
+                a_vals[8], a_vals[9], a_vals[10], a_vals[11], a_vals[12], a_vals[13], a_vals[14], a_vals[15],
+                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                b_vals[8], b_vals[9], b_vals[10], b_vals[11], b_vals[12], b_vals[13], b_vals[14], b_vals[15],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i16; 8], [<f16 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
+}
+
+impl MmaWithShapeAndLayout<f16, f16, f16, dims::Shape<16, 16, 16>, layout::Col, layout::Col> for f16 {
+    type Output = f16;
+
+    #[gpu_only]
+    fn mma(
+        a: &MatrixA<f16, dims::Shape<16, 16, 16>, layout::Col>,
+        b: &MatrixB<f16, dims::Shape<16, 16, 16>, layout::Col>,
+        c: &Accumulator<f16, dims::Shape<16, 16, 16>>,
+    ) -> Accumulator<f16, dims::Shape<16, 16, 16>> {
+        let mut result = Accumulator::new();
+        
+        let a_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&a.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let b_vals = unsafe { core::mem::transmute::<[<f16 as MatrixElement>::Storage; 16], [i16; 16]>(
+            *(&b.data[..16] as *const [<f16 as MatrixElement>::Storage] as *const [<f16 as MatrixElement>::Storage; 16])
+        )};
+        let c_vals = unsafe { core::mem::transmute::<[<f16 as AccumulatorElement>::Storage; 8], [i16; 8]>(
+            *(&c.data[..8] as *const [<f16 as AccumulatorElement>::Storage] as *const [<f16 as AccumulatorElement>::Storage; 8])
+        )};
+        
+        let result_vals = unsafe {
+            wmma_mma_f16_f16_col_col_m16n16k16(
+                a_vals[0], a_vals[1], a_vals[2], a_vals[3], a_vals[4], a_vals[5], a_vals[6], a_vals[7],
+                a_vals[8], a_vals[9], a_vals[10], a_vals[11], a_vals[12], a_vals[13], a_vals[14], a_vals[15],
+                b_vals[0], b_vals[1], b_vals[2], b_vals[3], b_vals[4], b_vals[5], b_vals[6], b_vals[7],
+                b_vals[8], b_vals[9], b_vals[10], b_vals[11], b_vals[12], b_vals[13], b_vals[14], b_vals[15],
+                c_vals[0], c_vals[1], c_vals[2], c_vals[3], c_vals[4], c_vals[5], c_vals[6], c_vals[7]
+            )
+        };
+        
+        result.data[..8].copy_from_slice(&unsafe { core::mem::transmute::<[i16; 8], [<f16 as AccumulatorElement>::Storage; 8]>(result_vals) });
+        result
+    }
 }
 
 // f16 × f16 + f32 → f32 with 16x16x16, Row-Row

@@ -531,6 +531,12 @@ declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.row.col.f64.f64(doubl
 declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.col.row.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
 declare { double, double } @llvm.nvvm.wmma.m8n8k4.mma.sync.col.col.f64.f64(double, double, double, double, double, double, double, double, double, double) #1
 
+; f16 accumulator MMA operations (16x16x16 shape)
+declare { i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.f16.f16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.f16.f16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.mma.sync.col.row.f16.f16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16) #1
+declare { i16, i16, i16, i16, i16, i16, i16, i16 } @llvm.nvvm.wmma.m16n16k16.mma.sync.col.col.f16.f16(i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16, i16) #1
+
 ; TF32 tensor core operations (16x16x8 shape)
 ; Note: TF32 uses float storage but with reduced precision during computation
 declare float @llvm.nvvm.f2tf32.rna.f32(float) #1

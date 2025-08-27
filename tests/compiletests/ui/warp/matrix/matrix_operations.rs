@@ -3,7 +3,7 @@
 
 use cuda_std::f16;
 use cuda_std::kernel;
-use cuda_std::warp::matrix::{dims, layout, MmaExt, TensorCore};
+use cuda_std::warp::matrix::{dims, layout, TensorCore};
 
 #[kernel]
 pub unsafe fn test_mma_operations() {
