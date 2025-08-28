@@ -17,6 +17,11 @@ pub mod ops;
 mod intrinsics;
 use intrinsics::*;
 
+// Stride validation module
+pub mod stride;
+// Re-export for convenience
+pub use stride::{StrideValidator, ValidStride};
+
 // ============================================================================
 // Shape Types with Compile-Time Validation
 // ============================================================================
@@ -1749,80 +1754,7 @@ impl MmaWithShapeAndLayout<f64, f64, f64, dims::Shape<8, 8, 4>, layout::Row, lay
     }
 }
 
-// ============================================================================
-// Stride Validation
-// ============================================================================
-
-/// Compile-time stride validation
-pub struct StrideValidator<T, const STRIDE: usize>(PhantomData<T>);
-
-/// Trait for valid strides
-#[diagnostic::on_unimplemented(
-    message = "`{Self}` is not a valid stride configuration",
-    label = "invalid stride for tensor core operations",
-    note = "f16/bf16 require stride to be a multiple of 8",
-    note = "f32/i32 require stride to be a multiple of 4",
-    note = "i8/u8/bool require stride to be a multiple of 16",
-    note = "f64 requires stride to be a multiple of 2"
-)]
-pub trait ValidStride: sealed::Sealed {}
-
-// f16 requires stride to be multiple of 8
-impl ValidStride for StrideValidator<f16, 8> {}
-impl ValidStride for StrideValidator<f16, 16> {}
-impl ValidStride for StrideValidator<f16, 24> {}
-impl ValidStride for StrideValidator<f16, 32> {}
-impl ValidStride for StrideValidator<f16, 40> {}
-impl ValidStride for StrideValidator<f16, 48> {}
-impl ValidStride for StrideValidator<f16, 56> {}
-impl ValidStride for StrideValidator<f16, 64> {}
-
-// f32 requires stride to be multiple of 4
-impl ValidStride for StrideValidator<f32, 4> {}
-impl ValidStride for StrideValidator<f32, 8> {}
-impl ValidStride for StrideValidator<f32, 12> {}
-impl ValidStride for StrideValidator<f32, 16> {}
-impl ValidStride for StrideValidator<f32, 20> {}
-impl ValidStride for StrideValidator<f32, 24> {}
-impl ValidStride for StrideValidator<f32, 28> {}
-impl ValidStride for StrideValidator<f32, 32> {}
-
-// bf16 requires stride to be multiple of 8 (same as f16)
-impl ValidStride for StrideValidator<bf16, 8> {}
-impl ValidStride for StrideValidator<bf16, 16> {}
-impl ValidStride for StrideValidator<bf16, 24> {}
-impl ValidStride for StrideValidator<bf16, 32> {}
-impl ValidStride for StrideValidator<bf16, 40> {}
-impl ValidStride for StrideValidator<bf16, 48> {}
-impl ValidStride for StrideValidator<bf16, 56> {}
-impl ValidStride for StrideValidator<bf16, 64> {}
-
-// i8/u8 require stride to be multiple of 16
-impl ValidStride for StrideValidator<i8, 16> {}
-impl ValidStride for StrideValidator<i8, 32> {}
-impl ValidStride for StrideValidator<i8, 48> {}
-impl ValidStride for StrideValidator<i8, 64> {}
-
-impl ValidStride for StrideValidator<u8, 16> {}
-impl ValidStride for StrideValidator<u8, 32> {}
-impl ValidStride for StrideValidator<u8, 48> {}
-impl ValidStride for StrideValidator<u8, 64> {}
-
-// i32 requires stride to be multiple of 4 (same as f32)
-impl ValidStride for StrideValidator<i32, 4> {}
-impl ValidStride for StrideValidator<i32, 8> {}
-impl ValidStride for StrideValidator<i32, 12> {}
-impl ValidStride for StrideValidator<i32, 16> {}
-impl ValidStride for StrideValidator<i32, 20> {}
-impl ValidStride for StrideValidator<i32, 24> {}
-impl ValidStride for StrideValidator<i32, 28> {}
-impl ValidStride for StrideValidator<i32, 32> {}
-
-// bool uses u8 stride requirements (multiple of 16)
-impl ValidStride for StrideValidator<bool, 16> {}
-impl ValidStride for StrideValidator<bool, 32> {}
-impl ValidStride for StrideValidator<bool, 48> {}
-impl ValidStride for StrideValidator<bool, 64> {}
+// Stride validation types and implementations are now in the stride module
 
 // ============================================================================
 // Ergonomic Builder API
@@ -1990,5 +1922,5 @@ mod sealed {
     impl Sealed for bool {}
 
     // Seal stride validators
-    impl<T, const S: usize> Sealed for StrideValidator<T, S> {}
+    // StrideValidator sealing is now in stride module
 }
