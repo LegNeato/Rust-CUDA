@@ -25,7 +25,7 @@ pub unsafe fn test_warp_matrix_type_safe() {
     let c_matrix: *mut f32 = core::ptr::null_mut();
 
     // Load operations would use compile-time stride validation
-    a_fragment.load::<16>(a_matrix);  // STRIDE validated at compile time  
+    a_fragment.load::<16>(a_matrix); // STRIDE validated at compile time
     b_fragment.load::<16>(b_matrix);
 
     // Perform matrix multiply-accumulate

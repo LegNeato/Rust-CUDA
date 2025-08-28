@@ -12,12 +12,12 @@ error[E0277]: `CustomLayout` is not a valid matrix layout
               Col
               Row
 note: required by a bound in `Accumulator::<T, Shape>::store`
-   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:396:12
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:401:12
     |
-394 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
+399 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
     |                   ----- required by a bound in this associated function
-395 |     where
-396 |         L: Layout,
+400 |     where
+401 |         L: Layout,
     |            ^^^^^^ required by this bound in `Accumulator::<T, Shape>::store`
 
 error[E0277]: Cannot store accumulator: `f32` with shape `cuda_std::warp::matrix::dims::Shape<16, 16, 16>` and layout `CustomLayout` is not supported
@@ -39,12 +39,12 @@ error[E0277]: Cannot store accumulator: `f32` with shape `cuda_std::warp::matrix
               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<32, 8, 16>, Row>`
             and 2 others
 note: required by a bound in `Accumulator::<T, Shape>::store`
-   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:398:12
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:403:12
     |
-394 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
+399 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
     |                   ----- required by a bound in this associated function
 ...
-398 |         T: ops::StoreMatrixD<Shape, L>,
+403 |         T: ops::StoreMatrixD<Shape, L>,
     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Accumulator::<T, Shape>::store`
 
 error: aborting due to 2 previous errors
