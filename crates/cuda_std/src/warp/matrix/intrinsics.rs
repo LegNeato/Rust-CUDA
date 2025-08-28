@@ -1,6 +1,6 @@
 // WMMA intrinsic declarations
 // rustfmt::skip
-#[allow(improper_ctypes)]
+#![allow(improper_ctypes)]
 
 // ============= 16x16x16 shape =============
 mod m16n16k16 {
