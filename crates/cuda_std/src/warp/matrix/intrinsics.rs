@@ -1,5 +1,5 @@
 // WMMA intrinsic declarations
-// rustfmt::skip
+#![cfg_attr(rustfmt, rustfmt_skip)]
 #![allow(improper_ctypes)]
 
 // ============= 16x16x16 shape =============

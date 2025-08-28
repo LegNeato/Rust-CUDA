@@ -32,7 +32,7 @@ mod sealed {
 }
 
 /// Trait for valid stride configurations
-/// 
+///
 /// This trait is implemented for type-stride combinations that satisfy
 /// the alignment requirements for tensor core operations.
 #[diagnostic::on_unimplemented(
@@ -47,16 +47,16 @@ pub trait ValidStride: sealed::Sealed {}
 
 // Type-specific stride implementation modules
 // Each module includes auto-generated implementations from build.rs
-mod f16;
 mod bf16;
+mod bool;
+mod f16;
 mod f32;
 mod f64;
-mod i8;
-mod u8;
 mod i16;
-mod u16;
 mod i32;
-mod u32;
 mod i64;
+mod i8;
+mod u16;
+mod u32;
 mod u64;
-mod bool;
+mod u8;
