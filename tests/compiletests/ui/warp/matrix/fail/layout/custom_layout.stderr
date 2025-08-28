@@ -1,51 +1,51 @@
 error[E0277]: `CustomLayout` is not a valid matrix layout
-    --> $DIR/custom_layout.rs:17:17
-     |
-17   |     acc.store::<CustomLayout, 16>(ptr);
-     |         -----   ^^^^^^^^^^^^ invalid layout type
-     |         |
-     |         required by a bound introduced by this call
-     |
-     = help: the trait `cuda_std::warp::Layout` is not implemented for `CustomLayout`
-     = note: Use either layout::Row or layout::Col for matrix layout
-     = help: the following other types implement trait `cuda_std::warp::Layout`:
-               Col
-               Row
+   --> $DIR/custom_layout.rs:17:17
+    |
+17  |     acc.store::<CustomLayout, 16>(ptr);
+    |         -----   ^^^^^^^^^^^^ invalid layout type
+    |         |
+    |         required by a bound introduced by this call
+    |
+    = help: the trait `cuda_std::warp::Layout` is not implemented for `CustomLayout`
+    = note: Use either layout::Row or layout::Col for matrix layout
+    = help: the following other types implement trait `cuda_std::warp::Layout`:
+              Col
+              Row
 note: required by a bound in `Accumulator::<T, Shape>::store`
-    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1706:12
-     |
-1704 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
-     |                   ----- required by a bound in this associated function
-1705 |     where
-1706 |         L: Layout,
-     |            ^^^^^^ required by this bound in `Accumulator::<T, Shape>::store`
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:396:12
+    |
+394 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
+    |                   ----- required by a bound in this associated function
+395 |     where
+396 |         L: Layout,
+    |            ^^^^^^ required by this bound in `Accumulator::<T, Shape>::store`
 
 error[E0277]: Cannot store accumulator: `f32` with shape `cuda_std::warp::matrix::dims::Shape<16, 16, 16>` and layout `CustomLayout` is not supported
-    --> $DIR/custom_layout.rs:17:17
-     |
-17   |     acc.store::<CustomLayout, 16>(ptr);
-     |                 ^^^^^^^^^^^^ unsupported accumulator store configuration
-     |
-     = help: the trait `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, CustomLayout>` is not implemented for `f32`
-     = note: This combination of accumulator type, shape, and layout doesn't have a corresponding store implementation
-     = help: the following other types implement trait `StoreMatrixD<Shape, L>`:
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, Col>`
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, Row>`
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 8>, Col>`
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 8>, Row>`
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 8, 16>, Col>`
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 8, 16>, Row>`
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<32, 8, 16>, Col>`
-               `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<32, 8, 16>, Row>`
-             and 2 others
+   --> $DIR/custom_layout.rs:17:17
+    |
+17  |     acc.store::<CustomLayout, 16>(ptr);
+    |                 ^^^^^^^^^^^^ unsupported accumulator store configuration
+    |
+    = help: the trait `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, CustomLayout>` is not implemented for `f32`
+    = note: This combination of accumulator type, shape, and layout doesn't have a corresponding store implementation
+    = help: the following other types implement trait `StoreMatrixD<Shape, L>`:
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, Col>`
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, Row>`
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 8>, Col>`
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 16, 8>, Row>`
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 8, 16>, Col>`
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<16, 8, 16>, Row>`
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<32, 8, 16>, Col>`
+              `f32` implements `StoreMatrixD<cuda_std::warp::matrix::dims::Shape<32, 8, 16>, Row>`
+            and 2 others
 note: required by a bound in `Accumulator::<T, Shape>::store`
-    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1708:12
-     |
-1704 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
-     |                   ----- required by a bound in this associated function
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:398:12
+    |
+394 |     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
+    |                   ----- required by a bound in this associated function
 ...
-1708 |         T: ops::StoreMatrixD<Shape, L>,
-     |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Accumulator::<T, Shape>::store`
+398 |         T: ops::StoreMatrixD<Shape, L>,
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `Accumulator::<T, Shape>::store`
 
 error: aborting due to 2 previous errors
 

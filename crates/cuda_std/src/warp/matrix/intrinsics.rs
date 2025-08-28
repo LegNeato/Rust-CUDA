@@ -1,0 +1,1314 @@
+// WMMA intrinsic declarations
+// rustfmt::skip
+#[allow(improper_ctypes)]
+
+extern "C" {
+    // ============= 16x16x16 intrinsics =============
+    // f16
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_row_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_col_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_row_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_col_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    // bf16
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_row_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_col_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_row_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_col_m16n16k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.c.sync.row.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_row_m16n16k16(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.store.d.sync.row.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_row_m16n16k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.store.d.sync.col.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_col_m16n16k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    // i8/u8 load intrinsics
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_row_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_col_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_row_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.a.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_col_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_row_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_col_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_row_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.b.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_col_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.load.c.sync.row.stride.s32"]
+    pub(crate) fn wmma_load_c_s32_row_m16n16k16(ptr: *const u8, stride: i32) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.store.d.sync.row.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_row_m16n16k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        d4: i32,
+        d5: i32,
+        d6: i32,
+        d7: i32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.store.d.sync.col.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_col_m16n16k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        d4: i32,
+        d5: i32,
+        d6: i32,
+        d7: i32,
+        stride: i32,
+    );
+
+    // MMA intrinsics for f16 -> f16
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_row_row_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: i16,
+        c1: i16,
+        c2: i16,
+        c3: i16,
+        c4: i16,
+        c5: i16,
+        c6: i16,
+        c7: i16,
+    ) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_row_col_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: i16,
+        c1: i16,
+        c2: i16,
+        c3: i16,
+        c4: i16,
+        c5: i16,
+        c6: i16,
+        c7: i16,
+    ) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.col.row.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_col_row_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: i16,
+        c1: i16,
+        c2: i16,
+        c3: i16,
+        c4: i16,
+        c5: i16,
+        c6: i16,
+        c7: i16,
+    ) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.col.col.f16.f16"]
+    pub(crate) fn wmma_mma_f16_f16_col_col_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: i16,
+        c1: i16,
+        c2: i16,
+        c3: i16,
+        c4: i16,
+        c5: i16,
+        c6: i16,
+        c7: i16,
+    ) -> [i16; 8];
+
+    // MMA intrinsics for f16 -> f32
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.f16.f32"]
+    pub(crate) fn wmma_mma_f16_f32_row_row_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.f16.f32"]
+    pub(crate) fn wmma_mma_f16_f32_row_col_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.col.row.f16.f32"]
+    pub(crate) fn wmma_mma_f16_f32_col_row_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.col.col.f16.f32"]
+    pub(crate) fn wmma_mma_f16_f32_col_col_m16n16k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    // MMA intrinsics for i8/u8 -> i32
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.s8.s8.s32"]
+    pub(crate) fn wmma_mma_s8_s32_row_row_m16n16k16(
+        a0: i32,
+        a1: i32,
+        a2: i32,
+        a3: i32,
+        b0: i32,
+        b1: i32,
+        b2: i32,
+        b3: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.s8.s8.s32"]
+    pub(crate) fn wmma_mma_s8_s32_row_col_m16n16k16(
+        a0: i32,
+        a1: i32,
+        a2: i32,
+        a3: i32,
+        b0: i32,
+        b1: i32,
+        b2: i32,
+        b3: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.row.u8.u8.s32"]
+    pub(crate) fn wmma_mma_u8_s32_row_row_m16n16k16(
+        a0: i32,
+        a1: i32,
+        a2: i32,
+        a3: i32,
+        b0: i32,
+        b1: i32,
+        b2: i32,
+        b3: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k16.mma.sync.row.col.u8.u8.s32"]
+    pub(crate) fn wmma_mma_u8_s32_row_col_m16n16k16(
+        a0: i32,
+        a1: i32,
+        a2: i32,
+        a3: i32,
+        b0: i32,
+        b1: i32,
+        b2: i32,
+        b3: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    // ============= 16x8x16 intrinsics =============
+    // f16
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    // bf16
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.row.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_row_m16n8k16(ptr: *const u8, stride: i32) -> [f32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.col.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_col_m16n8k16(ptr: *const u8, stride: i32) -> [f32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.row.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_row_m16n8k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.col.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_col_m16n8k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        stride: i32,
+    );
+
+    // i8/u8 load intrinsics
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.row.stride.s32"]
+    pub(crate) fn wmma_load_c_s32_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.col.stride.s32"]
+    pub(crate) fn wmma_load_c_s32_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.row.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_row_m16n8k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.col.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_col_m16n8k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        stride: i32,
+    );
+
+    // MMA intrinsics for f16 -> f32
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.mma.sync.row.row.f16.f32"]
+    pub(crate) fn wmma_mma_f16_f32_row_row_m16n8k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+    ) -> [f32; 4];
+
+    // MMA intrinsics for bf16 -> f32
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.mma.sync.row.row.bf16.f32"]
+    pub(crate) fn wmma_mma_bf16_f32_row_row_m16n8k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+    ) -> [f32; 4];
+
+    // MMA intrinsics for i8/u8 -> i32
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.mma.sync.row.row.s8.s8.s32"]
+    pub(crate) fn wmma_mma_s8_s32_row_row_m16n8k16(
+        a0: i32,
+        a1: i32,
+        b0: i32,
+        b1: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+    ) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m16n8k16.mma.sync.row.row.u8.u8.s32"]
+    pub(crate) fn wmma_mma_u8_s32_row_row_m16n8k16(
+        a0: i32,
+        a1: i32,
+        b0: i32,
+        b1: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+    ) -> [i32; 4];
+
+    // ============= 32x8x16 intrinsics =============
+    // f16
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_row_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_col_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_row_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_col_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    // bf16
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_row_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_col_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_row_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_col_m32n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.c.sync.row.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_row_m32n8k16(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.c.sync.col.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_col_m32n8k16(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.store.d.sync.row.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_row_m32n8k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.store.d.sync.col.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_col_m32n8k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.c.sync.row.stride.s32"]
+    pub(crate) fn wmma_load_c_s32_row_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.c.sync.col.stride.s32"]
+    pub(crate) fn wmma_load_c_s32_col_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.store.d.sync.row.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_row_m32n8k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        d4: i32,
+        d5: i32,
+        d6: i32,
+        d7: i32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.store.d.sync.col.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_col_m32n8k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        d4: i32,
+        d5: i32,
+        d6: i32,
+        d7: i32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.mma.sync.row.row.f16.f32"]
+    pub(crate) fn wmma_mma_f16_f32_row_row_m32n8k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        a8: i16,
+        a9: i16,
+        a10: i16,
+        a11: i16,
+        a12: i16,
+        a13: i16,
+        a14: i16,
+        a15: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    // i8/u8
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_row_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_col_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_row_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.a.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_col_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_row_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_col_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_row_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.load.b.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_col_m32n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.mma.sync.row.row.s8.s8.s32"]
+    pub(crate) fn wmma_mma_s8_s32_row_row_m32n8k16(
+        a0: i32,
+        a1: i32,
+        a2: i32,
+        a3: i32,
+        b0: i32,
+        b1: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m32n8k16.mma.sync.row.row.u8.u8.s32"]
+    pub(crate) fn wmma_mma_u8_s32_row_row_m32n8k16(
+        a0: i32,
+        a1: i32,
+        a2: i32,
+        a3: i32,
+        b0: i32,
+        b1: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    // ============= 8x32x16 intrinsics =============
+    // f16
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_row_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_a_f16_col_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_row_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.f16"]
+    pub(crate) fn wmma_load_b_f16_col_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    // bf16
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_row_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_a_bf16_col_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_row_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.bf16"]
+    pub(crate) fn wmma_load_b_bf16_col_m8n32k16(ptr: *const u8, stride: i32) -> [i16; 16];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.c.sync.row.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_row_m8n32k16(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.c.sync.col.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_col_m8n32k16(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.store.d.sync.row.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_row_m8n32k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.store.d.sync.col.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_col_m8n32k16(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.c.sync.row.stride.s32"]
+    pub(crate) fn wmma_load_c_s32_row_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.c.sync.col.stride.s32"]
+    pub(crate) fn wmma_load_c_s32_col_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.store.d.sync.row.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_row_m8n32k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        d4: i32,
+        d5: i32,
+        d6: i32,
+        d7: i32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.store.d.sync.col.stride.s32"]
+    pub(crate) fn wmma_store_d_s32_col_m8n32k16(
+        ptr: *mut u8,
+        d0: i32,
+        d1: i32,
+        d2: i32,
+        d3: i32,
+        d4: i32,
+        d5: i32,
+        d6: i32,
+        d7: i32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.mma.sync.row.row.f16.f32"]
+    pub(crate) fn wmma_mma_f16_f32_row_row_m8n32k16(
+        a0: i16,
+        a1: i16,
+        a2: i16,
+        a3: i16,
+        a4: i16,
+        a5: i16,
+        a6: i16,
+        a7: i16,
+        b0: i16,
+        b1: i16,
+        b2: i16,
+        b3: i16,
+        b4: i16,
+        b5: i16,
+        b6: i16,
+        b7: i16,
+        b8: i16,
+        b9: i16,
+        b10: i16,
+        b11: i16,
+        b12: i16,
+        b13: i16,
+        b14: i16,
+        b15: i16,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    // i8/u8
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_row_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_a_s8_col_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_row_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.a.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_a_u8_col_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_row_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.s8"]
+    pub(crate) fn wmma_load_b_s8_col_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.row.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_row_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.load.b.sync.col.stride.u8"]
+    pub(crate) fn wmma_load_b_u8_col_m8n32k16(ptr: *const u8, stride: i32) -> [i32; 4];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.mma.sync.row.row.s8.s8.s32"]
+    pub(crate) fn wmma_mma_s8_s32_row_row_m8n32k16(
+        a0: i32,
+        a1: i32,
+        b0: i32,
+        b1: i32,
+        b2: i32,
+        b3: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m8n32k16.mma.sync.row.row.u8.u8.s32"]
+    pub(crate) fn wmma_mma_u8_s32_row_row_m8n32k16(
+        a0: i32,
+        a1: i32,
+        b0: i32,
+        b1: i32,
+        b2: i32,
+        b3: i32,
+        c0: i32,
+        c1: i32,
+        c2: i32,
+        c3: i32,
+        c4: i32,
+        c5: i32,
+        c6: i32,
+        c7: i32,
+    ) -> [i32; 8];
+
+    // ============= 8x8x4 intrinsics (f64) =============
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.load.a.sync.row.stride.f64"]
+    pub(crate) fn wmma_load_a_f64_row_m8n8k4(ptr: *const u8, stride: i32) -> [f64; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.load.a.sync.col.stride.f64"]
+    pub(crate) fn wmma_load_a_f64_col_m8n8k4(ptr: *const u8, stride: i32) -> [f64; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.load.b.sync.row.stride.f64"]
+    pub(crate) fn wmma_load_b_f64_row_m8n8k4(ptr: *const u8, stride: i32) -> [f64; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.load.b.sync.col.stride.f64"]
+    pub(crate) fn wmma_load_b_f64_col_m8n8k4(ptr: *const u8, stride: i32) -> [f64; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.load.c.sync.row.stride.f64"]
+    pub(crate) fn wmma_load_c_f64_row_m8n8k4(ptr: *const u8, stride: i32) -> [f64; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.load.c.sync.col.stride.f64"]
+    pub(crate) fn wmma_load_c_f64_col_m8n8k4(ptr: *const u8, stride: i32) -> [f64; 2];
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.store.d.sync.row.stride.f64"]
+    pub(crate) fn wmma_store_d_f64_row_m8n8k4(ptr: *mut u8, d0: f64, d1: f64, stride: i32);
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.store.d.sync.col.stride.f64"]
+    pub(crate) fn wmma_store_d_f64_col_m8n8k4(ptr: *mut u8, d0: f64, d1: f64, stride: i32);
+
+    #[link_name = "llvm.nvvm.wmma.m8n8k4.mma.sync.row.row.f64"]
+    pub(crate) fn wmma_mma_f64_row_row_m8n8k4(
+        a0: f64,
+        a1: f64,
+        b0: f64,
+        b1: f64,
+        c0: f64,
+        c1: f64,
+    ) -> [f64; 2];
+
+    // TF32 conversion and operations (16x16x8 shape)
+    #[link_name = "llvm.nvvm.f2tf32.rna.f32"]
+    pub(crate) fn float_to_tf32(x: f32) -> f32;
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.load.a.sync.row.stride.tf32"]
+    pub(crate) fn wmma_load_a_tf32_row_m16n16k8(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.load.a.sync.col.stride.tf32"]
+    pub(crate) fn wmma_load_a_tf32_col_m16n16k8(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.load.b.sync.row.stride.tf32"]
+    pub(crate) fn wmma_load_b_tf32_row_m16n16k8(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.load.b.sync.col.stride.tf32"]
+    pub(crate) fn wmma_load_b_tf32_col_m16n16k8(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.load.c.sync.row.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_row_m16n16k8(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.load.c.sync.col.stride.f32"]
+    pub(crate) fn wmma_load_c_f32_col_m16n16k8(ptr: *const u8, stride: i32) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.store.d.sync.row.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_row_m16n16k8(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.store.d.sync.col.stride.f32"]
+    pub(crate) fn wmma_store_d_f32_col_m16n16k8(
+        ptr: *mut u8,
+        d0: f32,
+        d1: f32,
+        d2: f32,
+        d3: f32,
+        d4: f32,
+        d5: f32,
+        d6: f32,
+        d7: f32,
+        stride: i32,
+    );
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.mma.sync.row.row.tf32.f32"]
+    pub(crate) fn wmma_mma_tf32_f32_row_row_m16n16k8(
+        a0: f32,
+        a1: f32,
+        a2: f32,
+        a3: f32,
+        a4: f32,
+        a5: f32,
+        a6: f32,
+        a7: f32,
+        b0: f32,
+        b1: f32,
+        b2: f32,
+        b3: f32,
+        b4: f32,
+        b5: f32,
+        b6: f32,
+        b7: f32,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.mma.sync.row.col.tf32.f32"]
+    pub(crate) fn wmma_mma_tf32_f32_row_col_m16n16k8(
+        a0: f32,
+        a1: f32,
+        a2: f32,
+        a3: f32,
+        a4: f32,
+        a5: f32,
+        a6: f32,
+        a7: f32,
+        b0: f32,
+        b1: f32,
+        b2: f32,
+        b3: f32,
+        b4: f32,
+        b5: f32,
+        b6: f32,
+        b7: f32,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.mma.sync.col.row.tf32.f32"]
+    pub(crate) fn wmma_mma_tf32_f32_col_row_m16n16k8(
+        a0: f32,
+        a1: f32,
+        a2: f32,
+        a3: f32,
+        a4: f32,
+        a5: f32,
+        a6: f32,
+        a7: f32,
+        b0: f32,
+        b1: f32,
+        b2: f32,
+        b3: f32,
+        b4: f32,
+        b5: f32,
+        b6: f32,
+        b7: f32,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+
+    #[link_name = "llvm.nvvm.wmma.m16n16k8.mma.sync.col.col.tf32.f32"]
+    pub(crate) fn wmma_mma_tf32_f32_col_col_m16n16k8(
+        a0: f32,
+        a1: f32,
+        a2: f32,
+        a3: f32,
+        a4: f32,
+        a5: f32,
+        a6: f32,
+        a7: f32,
+        b0: f32,
+        b1: f32,
+        b2: f32,
+        b3: f32,
+        b4: f32,
+        b5: f32,
+        b6: f32,
+        b7: f32,
+        c0: f32,
+        c1: f32,
+        c2: f32,
+        c3: f32,
+        c4: f32,
+        c5: f32,
+        c6: f32,
+        c7: f32,
+    ) -> [f32; 8];
+}

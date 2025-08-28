@@ -16,24 +16,24 @@ error[E0277]: `Shape<7, 8, 16>` is not a valid tensor core shape
                Shape<8, 8, 32>
                Shape<8, 8, 4>
 note: required by a bound in `TensorCore`
-    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:3142:48
+    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1832:48
      |
-3142 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+1832 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
      |                                                ^^^^^^^^^^^^^^^ required by this bound in `TensorCore`
 
 error[E0599]: the function or associated item `new` exists for struct `TensorCore<cuda_std::f16, Shape<7, 8, 16>>`, but its trait bounds were not satisfied
-    --> $DIR/m_not_power_of_two.rs:10:57
-     |
-10   |     let _tc = TensorCore::<f16, dims::Shape<7, 8, 16>>::new();
-     |                                                         ^^^ function or associated item cannot be called on `TensorCore<cuda_std::f16, Shape<7, 8, 16>>` due to unsatisfied trait bounds
-     |
-    ::: /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1338:5
-     |
-1338 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
-     |     ---------------------------------------------------------------- doesn't satisfy `Shape<7, 8, 16>: TensorCoreShape`
-     |
-     = note: the following trait bounds were not satisfied:
-             `Shape<7, 8, 16>: TensorCoreShape`
+  --> $DIR/m_not_power_of_two.rs:10:57
+   |
+10 |     let _tc = TensorCore::<f16, dims::Shape<7, 8, 16>>::new();
+   |                                                         ^^^ function or associated item cannot be called on `TensorCore<cuda_std::f16, Shape<7, 8, 16>>` due to unsatisfied trait bounds
+   |
+  ::: /workspace/crates/cuda_std/src/warp/matrix/mod.rs:28:5
+   |
+28 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
+   |     ---------------------------------------------------------------- doesn't satisfy `Shape<7, 8, 16>: TensorCoreShape`
+   |
+   = note: the following trait bounds were not satisfied:
+           `Shape<7, 8, 16>: TensorCoreShape`
 
 error: aborting due to 2 previous errors
 

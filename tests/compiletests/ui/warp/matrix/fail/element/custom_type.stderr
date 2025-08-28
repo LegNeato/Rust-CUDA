@@ -18,27 +18,27 @@ error[E0277]: `CustomType` cannot be used as a tensor core matrix element
                i8
                u8
 note: required by a bound in `TensorCore`
-    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:3142:26
+    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1832:26
      |
-3142 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+1832 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
      |                          ^^^^^^^^^^^^^ required by this bound in `TensorCore`
 
 error[E0599]: the function or associated item `new` exists for struct `TensorCore<CustomType, Shape<16, 16, 16>>`, but its trait bounds were not satisfied
-    --> $DIR/custom_type.rs:11:66
-     |
-6    | struct CustomType;
-     | ----------------- doesn't satisfy `CustomType: MatrixElement`
+   --> $DIR/custom_type.rs:11:66
+    |
+6   | struct CustomType;
+    | ----------------- doesn't satisfy `CustomType: MatrixElement`
 ...
-11   |     let _tc = TensorCore::<CustomType, dims::Shape<16, 16, 16>>::new();
-     |                                                                  ^^^ function or associated item cannot be called on `TensorCore<CustomType, Shape<16, 16, 16>>` due to unsatisfied trait bounds
-     |
-     = note: the following trait bounds were not satisfied:
-             `CustomType: MatrixElement`
+11  |     let _tc = TensorCore::<CustomType, dims::Shape<16, 16, 16>>::new();
+    |                                                                  ^^^ function or associated item cannot be called on `TensorCore<CustomType, Shape<16, 16, 16>>` due to unsatisfied trait bounds
+    |
+    = note: the following trait bounds were not satisfied:
+            `CustomType: MatrixElement`
 note: the trait `MatrixElement` must be implemented
-    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1449:1
-     |
-1449 | pub trait MatrixElement: Copy + sealed::Sealed {
-     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:139:1
+    |
+139 | pub trait MatrixElement: Copy + sealed::Sealed {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 error: aborting due to 2 previous errors
 
