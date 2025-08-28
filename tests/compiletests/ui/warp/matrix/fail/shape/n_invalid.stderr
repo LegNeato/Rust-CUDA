@@ -16,9 +16,9 @@ error[E0277]: `Shape<16, 15, 16>` is not a valid tensor core shape
                Shape<8, 8, 32>
                Shape<8, 8, 4>
 note: required by a bound in `TensorCore`
-    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1808:48
+    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:2188:48
      |
-1808 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+2188 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
      |                                                ^^^^^^^^^^^^^^^ required by this bound in `TensorCore`
 
 error[E0599]: the function or associated item `new` exists for struct `TensorCore<cuda_std::f16, Shape<16, 15, 16>>`, but its trait bounds were not satisfied

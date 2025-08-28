@@ -169,6 +169,7 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
                 nvvm_internal: Symbol::intern("nvvm_internal"),
                 kernel: Symbol::intern("kernel"),
                 addrspace: Symbol::intern("addrspace"),
+                required_addrspace: Symbol::intern("required_addrspace"),
             },
             dbg_cx,
             codegen_args: CodegenArgs::from_session(tcx.sess()),

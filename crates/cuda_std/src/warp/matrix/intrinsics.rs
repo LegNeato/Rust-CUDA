@@ -723,3 +723,46 @@ pub(crate) use m16n16k8::convert::*;
 pub(crate) use m16n16k8::load::*;
 pub(crate) use m16n16k8::store::*;
 pub(crate) use m16n16k8::mma::*;
+
+// ============= ldmatrix intrinsics =============
+// These load matrix fragments from shared memory for MMA operations
+pub(crate) mod ldmatrix {
+    #[allow(dead_code)]
+    extern "C" {
+        // 8x8 matrix with 16-bit elements (bf16/f16)
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m8n8.x1.b16"]
+        pub(crate) fn ldmatrix_m8n8_x1_b16(ptr: *const u8) -> i32;
+        
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m8n8.x2.b16"]
+        pub(crate) fn ldmatrix_m8n8_x2_b16(ptr: *const u8) -> [i32; 2];
+        
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m8n8.x4.b16"]
+        pub(crate) fn ldmatrix_m8n8_x4_b16(ptr: *const u8) -> [i32; 4];
+        
+        // With transpose
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m8n8.x1.trans.b16"]
+        pub(crate) fn ldmatrix_m8n8_x1_trans_b16(ptr: *const u8) -> i32;
+        
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m8n8.x2.trans.b16"]
+        pub(crate) fn ldmatrix_m8n8_x2_trans_b16(ptr: *const u8) -> [i32; 2];
+        
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m8n8.x4.trans.b16"]
+        pub(crate) fn ldmatrix_m8n8_x4_trans_b16(ptr: *const u8) -> [i32; 4];
+        
+        // 16x16 matrix with 8-bit elements
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m16n16.x1.b8"]
+        pub(crate) fn ldmatrix_m16n16_x1_b8(ptr: *const u8) -> [i32; 2];
+        
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m16n16.x2.b8"]
+        pub(crate) fn ldmatrix_m16n16_x2_b8(ptr: *const u8) -> [i32; 4];
+        
+        // 16x16 with transpose (mandatory for 16x16)
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m16n16.x1.trans.b8"]
+        pub(crate) fn ldmatrix_m16n16_x1_trans_b8(ptr: *const u8) -> [i32; 2];
+        
+        #[link_name = "llvm.nvvm.ldmatrix.sync.aligned.m16n16.x2.trans.b8"]
+        pub(crate) fn ldmatrix_m16n16_x2_trans_b8(ptr: *const u8) -> [i32; 4];
+    }
+}
+
+pub(crate) use ldmatrix::*;

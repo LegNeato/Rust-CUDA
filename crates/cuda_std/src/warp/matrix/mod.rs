@@ -53,6 +53,20 @@ pub trait TensorCoreShape: sealed::Sealed {
 )]
 pub trait MmaShape: TensorCoreShape {}
 
+/// Compile-time fragment size information for type-safe register operations
+pub trait FragmentSize<T: MatrixElement>: MmaShape {
+    /// Number of registers needed for MatrixA fragments
+    const A_REGISTERS: usize;
+    /// Number of registers needed for MatrixB fragments
+    const B_REGISTERS: usize;
+}
+
+/// Compile-time fragment size for accumulators
+pub trait AccumulatorSize<T: AccumulatorElement>: MmaShape {
+    /// Number of registers needed for Accumulator fragments
+    const C_REGISTERS: usize;
+}
+
 /// Shapes that support full WMMA operations (load, store, in addition to compute)
 /// This trait extends MmaShape since WMMA shapes can do everything MMA shapes can do
 #[diagnostic::on_unimplemented(
@@ -62,6 +76,14 @@ pub trait MmaShape: TensorCoreShape {}
     note = "See LLVM source: https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/IR/IntrinsicsNVVM.td#L419-L1067"
 )]
 pub trait WmmaShape: MmaShape {}
+
+/// Marker trait for shapes that support loading from shared memory
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` does not support loading from shared memory",
+    label = "this shape cannot load from shared memory",
+    note = "Only certain shape configurations support shared memory loading"
+)]
+pub trait SharedMemoryLoadable: MmaShape {}
 
 // Only these exact combinations are valid for tensor cores
 impl TensorCoreShape for dims::Shape<16, 16, 16> {
@@ -133,6 +155,116 @@ impl WmmaShape for dims::Shape<16, 16, 8> {} // TF32
 impl WmmaShape for dims::Shape<8, 8, 32> {} // i8/u8
 impl WmmaShape for dims::Shape<8, 8, 128> {} // i4/u4
 impl WmmaShape for dims::Shape<8, 8, 4> {} // f64
+
+// Shapes that support loading from shared memory via ldmatrix
+// Shape<16, 8, 16> can use ldmatrix for shared memory loading (8x8 tiles with bf16/f16)
+impl SharedMemoryLoadable for dims::Shape<16, 8, 16> {}
+// Shape<16, 16, 16> supports both WMMA and ldmatrix
+impl SharedMemoryLoadable for dims::Shape<16, 16, 16> {}
+// Shape<32, 8, 16> and Shape<8, 32, 16> can use ldmatrix
+impl SharedMemoryLoadable for dims::Shape<32, 8, 16> {}
+impl SharedMemoryLoadable for dims::Shape<8, 32, 16> {}
+// 8x8 shapes with various K dimensions support ldmatrix for 8-bit types
+impl SharedMemoryLoadable for dims::Shape<8, 8, 32> {}
+impl SharedMemoryLoadable for dims::Shape<8, 8, 128> {}
+
+// ============================================================================
+// Fragment Size Implementations
+// ============================================================================
+
+// Shape<16, 16, 16> fragment sizes
+impl FragmentSize<f16> for dims::Shape<16, 16, 16> {
+    const A_REGISTERS: usize = 16;
+    const B_REGISTERS: usize = 16;
+}
+impl FragmentSize<bf16> for dims::Shape<16, 16, 16> {
+    const A_REGISTERS: usize = 16;
+    const B_REGISTERS: usize = 16;
+}
+impl FragmentSize<i8> for dims::Shape<16, 16, 16> {
+    const A_REGISTERS: usize = 4;
+    const B_REGISTERS: usize = 4;
+}
+impl FragmentSize<u8> for dims::Shape<16, 16, 16> {
+    const A_REGISTERS: usize = 4;
+    const B_REGISTERS: usize = 4;
+}
+
+// Shape<16, 8, 16> fragment sizes (MMA-only)
+impl FragmentSize<f16> for dims::Shape<16, 8, 16> {
+    const A_REGISTERS: usize = 8;
+    const B_REGISTERS: usize = 8;
+}
+impl FragmentSize<bf16> for dims::Shape<16, 8, 16> {
+    const A_REGISTERS: usize = 8;
+    const B_REGISTERS: usize = 8;
+}
+impl FragmentSize<i8> for dims::Shape<16, 8, 16> {
+    const A_REGISTERS: usize = 2;
+    const B_REGISTERS: usize = 2;
+}
+impl FragmentSize<u8> for dims::Shape<16, 8, 16> {
+    const A_REGISTERS: usize = 2;
+    const B_REGISTERS: usize = 2;
+}
+
+// Shape<32, 8, 16> fragment sizes
+impl FragmentSize<f16> for dims::Shape<32, 8, 16> {
+    const A_REGISTERS: usize = 16;
+    const B_REGISTERS: usize = 8;
+}
+impl FragmentSize<bf16> for dims::Shape<32, 8, 16> {
+    const A_REGISTERS: usize = 16;
+    const B_REGISTERS: usize = 8;
+}
+
+// Shape<8, 32, 16> fragment sizes
+impl FragmentSize<f16> for dims::Shape<8, 32, 16> {
+    const A_REGISTERS: usize = 8;
+    const B_REGISTERS: usize = 16;
+}
+impl FragmentSize<bf16> for dims::Shape<8, 32, 16> {
+    const A_REGISTERS: usize = 8;
+    const B_REGISTERS: usize = 16;
+}
+
+// Shape<16, 16, 8> fragment sizes (TF32)
+impl FragmentSize<f32> for dims::Shape<16, 16, 8> {
+    const A_REGISTERS: usize = 8;
+    const B_REGISTERS: usize = 8;
+}
+
+// Shape<8, 8, 4> fragment sizes (f64)
+impl FragmentSize<f64> for dims::Shape<8, 8, 4> {
+    const A_REGISTERS: usize = 2;
+    const B_REGISTERS: usize = 2;
+}
+
+// Accumulator sizes
+impl AccumulatorSize<f32> for dims::Shape<16, 16, 16> {
+    const C_REGISTERS: usize = 8;
+}
+impl AccumulatorSize<f16> for dims::Shape<16, 16, 16> {
+    const C_REGISTERS: usize = 8;
+}
+impl AccumulatorSize<i32> for dims::Shape<16, 16, 16> {
+    const C_REGISTERS: usize = 8;
+}
+impl AccumulatorSize<f32> for dims::Shape<16, 8, 16> {
+    const C_REGISTERS: usize = 4;
+}
+impl AccumulatorSize<f32> for dims::Shape<32, 8, 16> {
+    const C_REGISTERS: usize = 8;
+}
+impl AccumulatorSize<f32> for dims::Shape<8, 32, 16> {
+    const C_REGISTERS: usize = 8;
+}
+impl AccumulatorSize<f32> for dims::Shape<16, 16, 8> {
+    const C_REGISTERS: usize = 8;
+}
+impl AccumulatorSize<f64> for dims::Shape<8, 8, 4> {
+    const C_REGISTERS: usize = 2;
+}
 
 // ============================================================================
 // Layout Types
@@ -282,6 +414,163 @@ impl AccumulatorElement for f64 {
 }
 
 // ============================================================================
+// Extension trait for matrix operations
+// ============================================================================
+
+/// Extension trait providing from_array and splat operations for matrix types.
+/// This trait is implemented for specific type/shape combinations to provide
+/// compile-time size checking and ergonomic APIs.
+pub trait MatrixExt<T, const N: usize>: Sized {
+    /// Create a fragment from an array with compile-time size checking
+    fn from_array(values: [T; N]) -> Self;
+
+    /// Create a fragment with all elements set to the same value
+    fn splat(value: T) -> Self;
+}
+
+// ============================================================================
+// Macros for generating trait implementations
+// ============================================================================
+
+macro_rules! impl_from_array_a {
+    ($type:ty, $shape:ty, $size:literal) => {
+        impl<L: Layout> MatrixExt<$type, $size> for MatrixA<$type, $shape, L> {
+            #[inline]
+            fn from_array(values: [$type; $size]) -> Self {
+                let mut fragment = Self {
+                    data: unsafe { core::mem::zeroed() },
+                    _phantom: PhantomData,
+                };
+
+                for i in 0..$size {
+                    unsafe {
+                        core::ptr::write(
+                            &mut fragment.data[i] as *mut <$type as MatrixElement>::Storage
+                                as *mut $type,
+                            values[i],
+                        );
+                    }
+                }
+
+                fragment
+            }
+
+            #[inline]
+            fn splat(value: $type) -> Self {
+                let mut fragment = Self {
+                    data: unsafe { core::mem::zeroed() },
+                    _phantom: PhantomData,
+                };
+
+                for i in 0..$size {
+                    unsafe {
+                        core::ptr::write(
+                            &mut fragment.data[i] as *mut <$type as MatrixElement>::Storage
+                                as *mut $type,
+                            value,
+                        );
+                    }
+                }
+
+                fragment
+            }
+        }
+    };
+}
+
+macro_rules! impl_from_array_b {
+    ($type:ty, $shape:ty, $size:literal) => {
+        impl<L: Layout> MatrixExt<$type, $size> for MatrixB<$type, $shape, L> {
+            #[inline]
+            fn from_array(values: [$type; $size]) -> Self {
+                let mut fragment = Self {
+                    data: unsafe { core::mem::zeroed() },
+                    _phantom: PhantomData,
+                };
+
+                for i in 0..$size {
+                    unsafe {
+                        core::ptr::write(
+                            &mut fragment.data[i] as *mut <$type as MatrixElement>::Storage
+                                as *mut $type,
+                            values[i],
+                        );
+                    }
+                }
+
+                fragment
+            }
+
+            #[inline]
+            fn splat(value: $type) -> Self {
+                let mut fragment = Self {
+                    data: unsafe { core::mem::zeroed() },
+                    _phantom: PhantomData,
+                };
+
+                for i in 0..$size {
+                    unsafe {
+                        core::ptr::write(
+                            &mut fragment.data[i] as *mut <$type as MatrixElement>::Storage
+                                as *mut $type,
+                            value,
+                        );
+                    }
+                }
+
+                fragment
+            }
+        }
+    };
+}
+
+macro_rules! impl_from_array_c {
+    ($type:ty, $shape:ty, $size:literal) => {
+        impl MatrixExt<$type, $size> for Accumulator<$type, $shape> {
+            #[inline]
+            fn from_array(values: [$type; $size]) -> Self {
+                let mut fragment = Self {
+                    data: unsafe { core::mem::zeroed() },
+                    _phantom: PhantomData,
+                };
+
+                for i in 0..$size {
+                    unsafe {
+                        core::ptr::write(
+                            &mut fragment.data[i] as *mut <$type as AccumulatorElement>::Storage
+                                as *mut $type,
+                            values[i],
+                        );
+                    }
+                }
+
+                fragment
+            }
+
+            #[inline]
+            fn splat(value: $type) -> Self {
+                let mut fragment = Self {
+                    data: unsafe { core::mem::zeroed() },
+                    _phantom: PhantomData,
+                };
+
+                for i in 0..$size {
+                    unsafe {
+                        core::ptr::write(
+                            &mut fragment.data[i] as *mut <$type as AccumulatorElement>::Storage
+                                as *mut $type,
+                            value,
+                        );
+                    }
+                }
+
+                fragment
+            }
+        }
+    };
+}
+
+// ============================================================================
 // Matrix Fragments with Role-Specific Types
 // ============================================================================
 
@@ -344,6 +633,7 @@ where
 
     /// Load from memory with compile-time stride validation
     #[gpu_only]
+    #[crate::required_address_space(ptr = any(global, constant))]
     pub unsafe fn load<const STRIDE: usize>(&mut self, ptr: *const T)
     where
         Shape: WmmaShape, // Require WmmaShape for load operations
@@ -352,7 +642,22 @@ where
     {
         T::load_a_into(ptr as *const u8, STRIDE as i32, &mut self.data);
     }
+
+    /// Load from shared memory using ldmatrix
+    #[gpu_only]
+    #[crate::required_address_space(ptr = shared)]
+    pub unsafe fn load_from_shared<const STRIDE: usize>(&mut self, ptr: *const T)
+    where
+        Shape: SharedMemoryLoadable,
+        StrideValidator<T, STRIDE>: ValidStride,
+        T: ops::LoadMatrixAShared<Shape, L>,
+    {
+        T::load_a_shared_into(ptr as *const u8, STRIDE as i32, &mut self.data);
+    }
 }
+
+// Methods available for all MMA shapes (including MMA-only)
+// Note: from_array and splat are generated by macros for specific type/shape combinations
 
 impl<T, Shape, L> Default for MatrixA<T, Shape, L>
 where
@@ -382,6 +687,7 @@ where
 
     /// Load from memory with compile-time stride validation
     #[gpu_only]
+    #[crate::required_address_space(ptr = any(global, constant))]
     pub unsafe fn load<const STRIDE: usize>(&mut self, ptr: *const T)
     where
         Shape: WmmaShape, // Require WmmaShape for load operations
@@ -390,7 +696,22 @@ where
     {
         T::load_b_into(ptr as *const u8, STRIDE as i32, &mut self.data);
     }
+
+    /// Load from shared memory using ldmatrix
+    #[gpu_only]
+    #[crate::required_address_space(ptr = shared)]
+    pub unsafe fn load_from_shared<const STRIDE: usize>(&mut self, ptr: *const T)
+    where
+        Shape: SharedMemoryLoadable,
+        StrideValidator<T, STRIDE>: ValidStride,
+        T: ops::LoadMatrixBShared<Shape, L>,
+    {
+        T::load_b_shared_into(ptr as *const u8, STRIDE as i32, &mut self.data);
+    }
 }
+
+// Methods available for all MMA shapes (including MMA-only)
+// Note: from_array and splat are generated by macros for specific type/shape combinations
 
 impl<T, Shape, L> Default for MatrixB<T, Shape, L>
 where
@@ -450,6 +771,9 @@ where
     }
 }
 
+// Methods available for all MMA shapes (including MMA-only)
+// Note: from_array and splat are generated by macros for specific type/shape combinations
+
 impl<T, Shape> Default for Accumulator<T, Shape>
 where
     T: AccumulatorElement,
@@ -459,6 +783,62 @@ where
         Self::new()
     }
 }
+
+// ============================================================================
+// Concrete from_array implementations for specific shape/type combinations
+// ============================================================================
+
+// Shape<16, 16, 16> implementations
+impl_from_array_a!(f16, dims::Shape<16, 16, 16>, 16);
+impl_from_array_a!(bf16, dims::Shape<16, 16, 16>, 16);
+impl_from_array_a!(i8, dims::Shape<16, 16, 16>, 16);
+impl_from_array_a!(u8, dims::Shape<16, 16, 16>, 16);
+impl_from_array_b!(f16, dims::Shape<16, 16, 16>, 16);
+impl_from_array_b!(bf16, dims::Shape<16, 16, 16>, 16);
+impl_from_array_b!(i8, dims::Shape<16, 16, 16>, 16);
+impl_from_array_b!(u8, dims::Shape<16, 16, 16>, 16);
+impl_from_array_c!(f32, dims::Shape<16, 16, 16>, 8);
+impl_from_array_c!(f16, dims::Shape<16, 16, 16>, 8);
+impl_from_array_c!(i32, dims::Shape<16, 16, 16>, 8);
+
+// Shape<16, 8, 16> implementations (MMA-only shape)
+impl_from_array_a!(f16, dims::Shape<16, 8, 16>, 8);
+impl_from_array_a!(bf16, dims::Shape<16, 8, 16>, 8);
+impl_from_array_a!(i8, dims::Shape<16, 8, 16>, 8);
+impl_from_array_a!(u8, dims::Shape<16, 8, 16>, 8);
+impl_from_array_b!(f16, dims::Shape<16, 8, 16>, 8);
+impl_from_array_b!(bf16, dims::Shape<16, 8, 16>, 8);
+impl_from_array_b!(i8, dims::Shape<16, 8, 16>, 8);
+impl_from_array_b!(u8, dims::Shape<16, 8, 16>, 8);
+impl_from_array_c!(f32, dims::Shape<16, 8, 16>, 4);
+impl_from_array_c!(f16, dims::Shape<16, 8, 16>, 4);
+impl_from_array_c!(i32, dims::Shape<16, 8, 16>, 4);
+
+// Shape<32, 8, 16> implementations
+impl_from_array_a!(f16, dims::Shape<32, 8, 16>, 16);
+impl_from_array_a!(bf16, dims::Shape<32, 8, 16>, 16);
+impl_from_array_b!(f16, dims::Shape<32, 8, 16>, 8);
+impl_from_array_b!(bf16, dims::Shape<32, 8, 16>, 8);
+impl_from_array_c!(f32, dims::Shape<32, 8, 16>, 8);
+impl_from_array_c!(f16, dims::Shape<32, 8, 16>, 8);
+
+// Shape<8, 32, 16> implementations
+impl_from_array_a!(f16, dims::Shape<8, 32, 16>, 8);
+impl_from_array_a!(bf16, dims::Shape<8, 32, 16>, 8);
+impl_from_array_b!(f16, dims::Shape<8, 32, 16>, 16);
+impl_from_array_b!(bf16, dims::Shape<8, 32, 16>, 16);
+impl_from_array_c!(f32, dims::Shape<8, 32, 16>, 8);
+impl_from_array_c!(f16, dims::Shape<8, 32, 16>, 8);
+
+// Shape<16, 16, 8> implementations (f32 accumulator)
+impl_from_array_a!(f32, dims::Shape<16, 16, 8>, 8);
+impl_from_array_b!(f32, dims::Shape<16, 16, 8>, 8);
+impl_from_array_c!(f32, dims::Shape<16, 16, 8>, 8);
+
+// Shape<8, 8, 4> implementations (f64 accumulator)
+impl_from_array_a!(f64, dims::Shape<8, 8, 4>, 4);
+impl_from_array_b!(f64, dims::Shape<8, 8, 4>, 4);
+impl_from_array_c!(f64, dims::Shape<8, 8, 4>, 4);
 
 // The Mma trait is removed - we'll use MmaWithShapeAndLayout directly
 // This provides pure compile-time dispatch

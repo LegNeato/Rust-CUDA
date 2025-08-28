@@ -7,9 +7,9 @@ error[E0308]: mismatched types
     |           arguments to this method are incorrect
     |
 note: method defined here
-   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:434:12
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:755:12
     |
-434 |     pub fn fill(&mut self, value: T) {
+755 |     pub fn fill(&mut self, value: T) {
     |            ^^^^
 help: change the type of the numeric literal from `f32` to `i32`
     |

@@ -1,0 +1,10 @@
+error: required_address_space requires explicit parameter names (e.g., `ptr = shared`, not just `shared`)
+ --> $DIR/missing_param_name.rs:6:1
+  |
+6 | #[cuda_std::required_address_space(shared)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `cuda_std::required_address_space` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to 1 previous error
+

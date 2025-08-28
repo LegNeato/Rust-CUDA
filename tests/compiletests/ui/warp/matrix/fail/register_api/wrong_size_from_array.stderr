@@ -1,0 +1,22 @@
+error[E0308]: mismatched types
+   --> $DIR/wrong_size_from_array.rs:14:9
+    |
+13  |       let _bad = MatrixA::<bf16, Shape, layout::Row>::from_array(
+    |                  ----------------------------------------------- arguments to this function are incorrect
+14  | /         [
+15  | |          // Wrong size, should be 8
+16  | |         bf16::from_f32(1.0); 16
+17  | |     ],
+    | |_____^ expected an array with a size of 8, found one with a size of 16
+    |
+    = note: expected array `[bf16; 8]`
+               found array `[bf16; 16]`
+note: associated function defined here
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:425:8
+    |
+425 |     fn from_array(values: [T; N]) -> Self;
+    |        ^^^^^^^^^^
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0308`.

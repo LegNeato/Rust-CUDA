@@ -101,6 +101,7 @@ pub struct Symbols {
     pub nvvm_internal: Symbol,
     pub kernel: Symbol,
     pub addrspace: Symbol,
+    pub required_addrspace: Symbol,
 }
 
 // inspired by rust-gpu's attribute handling

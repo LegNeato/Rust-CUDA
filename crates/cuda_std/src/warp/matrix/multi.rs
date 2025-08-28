@@ -252,11 +252,17 @@ where
     crate::warp::matrix::StrideValidator<T, STRIDE>: crate::warp::matrix::ValidStride,
     T: crate::warp::matrix::ops::LoadMatrixA<Shape, L>,
 {
+    #[cfg(target_arch = "nvptx64")]
     #[inline(always)]
     unsafe fn load_batch(&mut self, ptr: *const u8, offset: usize) {
         for (i, fragment) in self.fragments.iter_mut().enumerate() {
             fragment.load::<STRIDE>(ptr.add(i * offset) as *const T);
         }
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_batch(&mut self, _ptr: *const u8, _offset: usize) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
     }
 }
 

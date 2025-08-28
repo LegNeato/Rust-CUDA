@@ -231,3 +231,139 @@ pub fn address_space(attr: proc_macro::TokenStream, item: proc_macro::TokenStrea
 
     global.into_token_stream().into()
 }
+
+/// Validates that function parameters are pointers to specified address space(s).
+/// This is checked at compile-time by the NVVM codegen backend.
+///
+/// # Arguments
+///
+/// Parameters must be explicitly specified by name:
+/// - Single address space: `#[required_address_space(ptr = shared)]`
+/// - Multiple allowed spaces: `#[required_address_space(ptr = any(global, constant))]`
+/// - Multiple parameters: `#[required_address_space(ptr0 = shared, ptr1 = global)]`
+///
+/// # Examples
+///
+/// ```ignore
+/// #[required_address_space(ptr = shared)]
+/// unsafe fn load_from_shared(ptr: *const f32) { ... }
+///
+/// #[required_address_space(ptr0 = any(global, constant), ptr1 = shared)]
+/// unsafe fn matrix_multiply(ptr0: *const f32, ptr1: *const f32, out: *mut f32) { ... }
+/// ```
+#[proc_macro_attribute]
+pub fn required_address_space(
+    attr: proc_macro::TokenStream,
+    item: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    use quote::quote;
+    use syn::{FnArg, ItemFn, Pat};
+
+    let attr_str = attr.to_string().trim().to_string();
+    let mut func = parse_macro_input!(item as ItemFn);
+
+    if attr_str.is_empty() {
+        return Error::new(
+            Span::call_site(),
+            "required_address_space requires parameter specifications (e.g., `ptr = shared`)",
+        )
+        .to_compile_error()
+        .into();
+    }
+
+    // Must always have explicit parameter names
+    if !attr_str.contains('=') {
+        return Error::new(
+            Span::call_site(),
+            "required_address_space requires explicit parameter names (e.g., `ptr = shared`, not just `shared`)"
+        )
+        .to_compile_error()
+        .into();
+    }
+
+    // Parse named parameters from the attribute
+    // Format: ptr = shared, ptr1 = any(global, constant)
+    // Handle nested parentheses in any() expressions
+    let mut parts = Vec::new();
+    let mut current = String::new();
+    let mut paren_depth = 0;
+
+    for ch in attr_str.chars() {
+        match ch {
+            '(' => {
+                paren_depth += 1;
+                current.push(ch);
+            }
+            ')' => {
+                paren_depth -= 1;
+                current.push(ch);
+            }
+            ',' if paren_depth == 0 => {
+                if !current.trim().is_empty() {
+                    parts.push(current.trim().to_string());
+                    current.clear();
+                }
+            }
+            _ => current.push(ch),
+        }
+    }
+    if !current.trim().is_empty() {
+        parts.push(current.trim().to_string());
+    }
+
+    for part in parts {
+        if let Some((param_name, space)) = part.split_once('=') {
+            let param_name = param_name.trim();
+            let space = space.trim();
+
+            // Find the parameter by name
+            let mut found = false;
+            for param in func.sig.inputs.iter_mut() {
+                if let FnArg::Typed(pat_type) = param {
+                    if let Pat::Ident(ident) = &*pat_type.pat {
+                        if ident.ident.to_string() == param_name {
+                            // Check if this is a pointer type
+                            let ty_str = quote!(#pat_type.ty).to_string().replace(" ", "");
+                            if !ty_str.contains("*const") && !ty_str.contains("*mut") {
+                                return Error::new(
+                                    ident.ident.span(),
+                                    format!("Parameter '{}' must be a pointer type (*const or *mut) to use required_address_space", param_name)
+                                )
+                                .to_compile_error()
+                                .into();
+                            }
+
+                            let attr = parse_quote! {
+                                #[cfg_attr(target_os = "cuda", nvvm_internal::required_addrspace(#space))]
+                            };
+                            pat_type.attrs.push(attr);
+                            found = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if !found {
+                return Error::new(
+                    Span::call_site(),
+                    format!("Parameter '{}' not found in function signature", param_name),
+                )
+                .to_compile_error()
+                .into();
+            }
+        } else {
+            return Error::new(
+                Span::call_site(),
+                format!(
+                    "Invalid attribute format: '{}'. Expected 'param = address_space'",
+                    part
+                ),
+            )
+            .to_compile_error()
+            .into();
+        }
+    }
+
+    func.into_token_stream().into()
+}

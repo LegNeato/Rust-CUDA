@@ -120,6 +120,26 @@ pub trait LoadMatrixB<Shape: TensorCoreShape, L: Layout>: MatrixElement {
     unsafe fn load_b_into(ptr: *const u8, stride: i32, out: &mut [Self::Storage; 32]);
 }
 
+// Trait for loading matrix A fragments from shared memory using ldmatrix
+#[diagnostic::on_unimplemented(
+    message = "Cannot load matrix A from shared memory: `{Self}` with shape `{Shape}` and layout `{L}` is not supported",
+    label = "unsupported shared memory matrix A configuration",
+    note = "This combination doesn't have a corresponding ldmatrix implementation"
+)]
+pub trait LoadMatrixAShared<Shape: TensorCoreShape, L: Layout>: MatrixElement {
+    unsafe fn load_a_shared_into(ptr: *const u8, stride: i32, out: &mut [Self::Storage; 32]);
+}
+
+// Trait for loading matrix B fragments from shared memory using ldmatrix
+#[diagnostic::on_unimplemented(
+    message = "Cannot load matrix B from shared memory: `{Self}` with shape `{Shape}` and layout `{L}` is not supported",
+    label = "unsupported shared memory matrix B configuration",
+    note = "This combination doesn't have a corresponding ldmatrix implementation"
+)]
+pub trait LoadMatrixBShared<Shape: TensorCoreShape, L: Layout>: MatrixElement {
+    unsafe fn load_b_shared_into(ptr: *const u8, stride: i32, out: &mut [Self::Storage; 32]);
+}
+
 // Trait for loading accumulator matrices with layout in type system
 #[diagnostic::on_unimplemented(
     message = "Cannot load accumulator: `{Self}` with shape `{Shape}` and layout `{L}` is not supported",
@@ -836,3 +856,357 @@ impl_store_d!(
     wmma_store_d_f32_row_m16n16k8,
     wmma_store_d_f32_col_m16n16k8
 );
+
+// ============================================================================
+// Shared Memory Load Implementations (ldmatrix)
+// ============================================================================
+
+use super::{ldmatrix_m8n8_x2_b16, ldmatrix_m8n8_x2_trans_b16};
+
+// Shape<16, 8, 16> with bf16 - uses 2x 8x8 matrices (x2)
+impl LoadMatrixAShared<Shape16x8x16, Row> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        // Load 2 matrices of 8x8 for the 16x8 shape
+        let result = ldmatrix_m8n8_x2_b16(ptr);
+        // Result is [i32; 2] which contains 4 i16s packed
+        let storage: [bf16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [bf16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixAShared<Shape16x8x16, Col> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        // Use transpose version for column layout
+        let result = ldmatrix_m8n8_x2_trans_b16(ptr);
+        let storage: [bf16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [bf16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x8x16, Row> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        let result = ldmatrix_m8n8_x2_b16(ptr);
+        let storage: [bf16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [bf16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x8x16, Col> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        let result = ldmatrix_m8n8_x2_trans_b16(ptr);
+        let storage: [bf16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [bf16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+// Shape<16, 8, 16> with f16 - uses 2x 8x8 matrices (x2)
+impl LoadMatrixAShared<Shape16x8x16, Row> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x2_b16(ptr);
+        // Transmute to f16 array
+        let storage: [f16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [f16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixAShared<Shape16x8x16, Col> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x2_trans_b16(ptr);
+        let storage: [f16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [f16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x8x16, Row> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x2_b16(ptr);
+        let storage: [f16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [f16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x8x16, Col> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x2_trans_b16(ptr);
+        let storage: [f16; 4] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [f16::ZERO; 32];
+        // Then copy the actual data
+        out[..4].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+// ============= Shape<16, 16, 16> shared memory loading implementations =============
+// Shape<16, 16, 16> uses 4x 8x8 matrices (x4) = 16 registers for bf16/f16
+
+impl LoadMatrixAShared<Shape16x16x16, Row> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        let result = ldmatrix_m8n8_x4_b16(ptr);
+        let storage: [bf16; 8] = core::mem::transmute(result);
+        // Zero out the entire output first
+        *out = [bf16::ZERO; 32];
+        // Then copy the actual data to the first 8 elements (16 registers, but bf16 is 2 per register)
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixAShared<Shape16x16x16, Col> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        let result = ldmatrix_m8n8_x4_trans_b16(ptr);
+        let storage: [bf16; 8] = core::mem::transmute(result);
+        *out = [bf16::ZERO; 32];
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x16x16, Row> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        let result = ldmatrix_m8n8_x4_b16(ptr);
+        let storage: [bf16; 8] = core::mem::transmute(result);
+        *out = [bf16::ZERO; 32];
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x16x16, Col> for bf16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [bf16; 32]) {
+        let result = ldmatrix_m8n8_x4_trans_b16(ptr);
+        let storage: [bf16; 8] = core::mem::transmute(result);
+        *out = [bf16::ZERO; 32];
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<bf16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+// Shape<16, 16, 16> with f16
+impl LoadMatrixAShared<Shape16x16x16, Row> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x4_b16(ptr);
+        let storage: [f16; 8] = core::mem::transmute(result);
+        *out = [f16::ZERO; 32];
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixAShared<Shape16x16x16, Col> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_a_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x4_trans_b16(ptr);
+        let storage: [f16; 8] = core::mem::transmute(result);
+        *out = [f16::ZERO; 32];
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_a_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x16x16, Row> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x4_b16(ptr);
+        let storage: [f16; 8] = core::mem::transmute(result);
+        *out = [f16::ZERO; 32];
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}
+
+impl LoadMatrixBShared<Shape16x16x16, Col> for f16 {
+    #[cfg(target_arch = "nvptx64")]
+    #[inline(always)]
+    unsafe fn load_b_shared_into(ptr: *const u8, _stride: i32, out: &mut [f16; 32]) {
+        let result = ldmatrix_m8n8_x4_trans_b16(ptr);
+        let storage: [f16; 8] = core::mem::transmute(result);
+        *out = [f16::ZERO; 32];
+        out[..8].copy_from_slice(&storage);
+    }
+
+    #[cfg(not(target_arch = "nvptx64"))]
+    unsafe fn load_b_shared_into(
+        _ptr: *const u8,
+        _stride: i32,
+        _out: &mut [<f16 as MatrixElement>::Storage; 32],
+    ) {
+        unimplemented!("Matrix operations are only supported on NVPTX64")
+    }
+}

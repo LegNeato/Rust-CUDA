@@ -1,8 +1,7 @@
 use std::cmp;
 
 use libc::c_uint;
-use rustc_abi::BackendRepr::{Scalar, ScalarPair};
-use rustc_abi::CanonAbi;
+use rustc_abi::BackendRepr::Scalar;
 use rustc_abi::Size;
 use rustc_abi::{HasDataLayout, Primitive, Reg, RegKind};
 use rustc_codegen_ssa::mir::operand::OperandRef;

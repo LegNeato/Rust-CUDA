@@ -105,7 +105,7 @@ pub fn codegen_bitcode_modules(
     if std::env::var("DEBUG_NVVM_LLVM").is_ok() {
         unsafe {
             let debug_path = "/workspace/target/debug_nvvm.ll";
-            let result = LLVMRustPrintModule(
+            let _result = LLVMRustPrintModule(
                 module,
                 debug_path.as_c_char_ptr(),
                 debug_path.len(),

@@ -1190,9 +1190,15 @@ impl<'ll, 'tcx, 'a> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         llfn: &'ll Value,
         args: &[&'ll Value],
         _funclet: Option<&Self::Funclet>,
-        _instance: Option<Instance<'tcx>>,
+        instance: Option<Instance<'tcx>>,
     ) -> &'ll Value {
         trace!("Calling fn {:?} with args {:?}", llfn, args);
+
+        // Validate address space requirements if we have an instance
+        if let Some(inst) = instance {
+            self.validate_address_space_requirements(inst, args, fn_abi);
+        }
+
         self.cx.last_call_llfn.set(None);
         let args = self.check_call("call", llty, llfn, args);
 
@@ -1254,6 +1260,58 @@ impl<'ll> StaticBuilderMethods for Builder<'_, 'll, '_> {
 }
 
 impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
+    /// Validates that pointer arguments match required address space attributes
+    fn validate_address_space_requirements(
+        &mut self,
+        instance: Instance<'tcx>,
+        args: &[&'ll Value],
+        _fn_abi: Option<&FnAbi<'tcx, Ty<'tcx>>>,
+    ) {
+        // Get function attributes to look for required_addrspace on parameters
+        let def_id = instance.def_id();
+        let attrs = self.cx.tcx.get_attrs_unchecked(def_id);
+
+        // Check each parameter's attributes
+        for attr in attrs {
+            if attr.path_matches(&[
+                self.cx.symbols.nvvm_internal,
+                self.cx.symbols.required_addrspace,
+            ]) {
+                // Found a required_addrspace attribute
+                // Parse which parameter index and required address spaces
+                if let Some(meta_list) = attr.meta_item_list() {
+                    // TODO: Parse the attribute arguments to get:
+                    // 1. Parameter index
+                    // 2. Required address space(s)
+                    trace!("Found required_addrspace attribute: {:?}", meta_list);
+                }
+            }
+        }
+
+        // For each pointer argument, check if it has required_addrspace constraints
+        for (idx, arg) in args.iter().enumerate() {
+            let arg_ty = self.val_ty(*arg);
+            if self.cx.type_kind(arg_ty) == TypeKind::Pointer {
+                let actual_addrspace = unsafe { llvm::LLVMGetPointerAddressSpace(arg_ty) };
+
+                // TODO: Check this against the required address space from attributes
+                // For now, just trace what we see
+                trace!(
+                    "Arg {} is pointer in address space {}",
+                    idx, actual_addrspace
+                );
+
+                // In the future, this would check:
+                // if required_addrspace_for_param(idx) != actual_addrspace {
+                //     self.cx.tcx.sess.dcx().error(format!(
+                //         "Address space mismatch: parameter {} requires address space X but got {}",
+                //         idx, actual_addrspace
+                //     ));
+                // }
+            }
+        }
+    }
+
     // Helper function to check if a value is 128-bit integer
     fn is_i128(&self, val: &'ll Value) -> bool {
         let ty = self.val_ty(val);

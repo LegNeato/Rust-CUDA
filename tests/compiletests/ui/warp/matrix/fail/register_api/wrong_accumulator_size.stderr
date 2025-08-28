@@ -1,0 +1,12 @@
+error[E0277]: the trait bound `Accumulator<f32, cuda_std::warp::matrix::dims::Shape<16, 8, 16>>: MatrixExt<{float}, 8>` is not satisfied
+  --> $DIR/wrong_accumulator_size.rs:12:41
+   |
+12 |     let _bad: Accumulator<f32, Shape> = Accumulator::from_array(
+   |                                         ^^^^^^^^^^^ the trait `MatrixExt<{float}, 8>` is not implemented for `Accumulator<f32, cuda_std::warp::matrix::dims::Shape<16, 8, 16>>`
+   |
+   = help: the trait `MatrixExt<{float}, 8>` is not implemented for `Accumulator<f32, cuda_std::warp::matrix::dims::Shape<16, 8, 16>>`
+           but trait `MatrixExt<f32, 4>` is implemented for it
+
+error: aborting due to 1 previous error
+
+For more information about this error, try `rustc --explain E0277`.
