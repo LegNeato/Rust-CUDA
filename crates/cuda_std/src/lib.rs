@@ -24,8 +24,9 @@
 #![allow(internal_features)]
 #![cfg_attr(
     target_os = "cuda",
-    feature(alloc_error_handler, asm_experimental_arch, link_llvm_intrinsics)
+    feature(alloc_error_handler, asm_experimental_arch)
 )]
+#![feature(link_llvm_intrinsics)]
 
 extern crate alloc;
 

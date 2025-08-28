@@ -6,7 +6,6 @@ use super::layout::{Col, Layout, Row};
 use super::*;
 
 // Import all the intrinsic functions from the parent module
-#[cfg(target_arch = "nvptx64")]
 use super::{
     wmma_load_a_bf16_col_m16n16k16,
     wmma_load_a_bf16_col_m16n8k16,

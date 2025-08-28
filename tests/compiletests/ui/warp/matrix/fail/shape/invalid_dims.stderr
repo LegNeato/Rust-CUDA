@@ -16,9 +16,9 @@ error[E0277]: `Shape<17, 17, 17>` is not a valid tensor core shape
                Shape<8, 8, 32>
                Shape<8, 8, 4>
 note: required by a bound in `TensorCore`
-    --> /workspace/crates/cuda_std/src/warp/matrix.rs:3143:48
+    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:3142:48
      |
-3143 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+3142 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
      |                                                ^^^^^^^^^^^^^^^ required by this bound in `TensorCore`
 
 error[E0599]: the function or associated item `new` exists for struct `TensorCore<cuda_std::f16, Shape<17, 17, 17>>`, but its trait bounds were not satisfied
@@ -27,9 +27,9 @@ error[E0599]: the function or associated item `new` exists for struct `TensorCor
 11   |     let invalid = TensorCore::<f16, dims::Shape<17, 17, 17>>::new();
      |                                                               ^^^ function or associated item cannot be called on `TensorCore<cuda_std::f16, Shape<17, 17, 17>>` due to unsatisfied trait bounds
      |
-    ::: /workspace/crates/cuda_std/src/warp/matrix.rs:1339:5
+    ::: /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1338:5
      |
-1339 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
+1338 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
      |     ---------------------------------------------------------------- doesn't satisfy `Shape<17, 17, 17>: TensorCoreShape`
      |
      = note: the following trait bounds were not satisfied:
@@ -53,9 +53,9 @@ error[E0277]: `Shape<64, 64, 64>` is not a valid tensor core shape
                Shape<8, 8, 32>
                Shape<8, 8, 4>
 note: required by a bound in `TensorCore`
-    --> /workspace/crates/cuda_std/src/warp/matrix.rs:3143:48
+    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:3142:48
      |
-3143 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+3142 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
      |                                                ^^^^^^^^^^^^^^^ required by this bound in `TensorCore`
 
 error[E0599]: the function or associated item `new` exists for struct `TensorCore<cuda_std::f16, Shape<64, 64, 64>>`, but its trait bounds were not satisfied
@@ -64,9 +64,9 @@ error[E0599]: the function or associated item `new` exists for struct `TensorCor
 15   |     let too_large = TensorCore::<f16, dims::Shape<64, 64, 64>>::new();
      |                                                                 ^^^ function or associated item cannot be called on `TensorCore<cuda_std::f16, Shape<64, 64, 64>>` due to unsatisfied trait bounds
      |
-    ::: /workspace/crates/cuda_std/src/warp/matrix.rs:1339:5
+    ::: /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1338:5
      |
-1339 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
+1338 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
      |     ---------------------------------------------------------------- doesn't satisfy `Shape<64, 64, 64>: TensorCoreShape`
      |
      = note: the following trait bounds were not satisfied:
@@ -90,9 +90,9 @@ error[E0277]: `Shape<1, 1, 1>` is not a valid tensor core shape
                Shape<8, 8, 32>
                Shape<8, 8, 4>
 note: required by a bound in `TensorCore`
-    --> /workspace/crates/cuda_std/src/warp/matrix.rs:3143:48
+    --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:3142:48
      |
-3143 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
+3142 | pub struct TensorCore<T: MatrixElement, Shape: TensorCoreShape> {
      |                                                ^^^^^^^^^^^^^^^ required by this bound in `TensorCore`
 
 error[E0599]: the function or associated item `new` exists for struct `TensorCore<cuda_std::f16, Shape<1, 1, 1>>`, but its trait bounds were not satisfied
@@ -101,9 +101,9 @@ error[E0599]: the function or associated item `new` exists for struct `TensorCor
 19   |     let too_small = TensorCore::<f16, dims::Shape<1, 1, 1>>::new();
      |                                                              ^^^ function or associated item cannot be called on `TensorCore<cuda_std::f16, Shape<1, 1, 1>>` due to unsatisfied trait bounds
      |
-    ::: /workspace/crates/cuda_std/src/warp/matrix.rs:1339:5
+    ::: /workspace/crates/cuda_std/src/warp/matrix/mod.rs:1338:5
      |
-1339 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
+1338 |     pub struct Shape<const M: usize, const N: usize, const K: usize>;
      |     ---------------------------------------------------------------- doesn't satisfy `Shape<1, 1, 1>: TensorCoreShape`
      |
      = note: the following trait bounds were not satisfied:

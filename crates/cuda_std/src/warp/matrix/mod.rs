@@ -15,7 +15,6 @@ pub mod ops;
 
 // WMMA intrinsic declarations
 // These LLVM intrinsics return arrays by value which is their intended behavior
-#[cfg(target_arch = "nvptx64")]
 #[allow(improper_ctypes)]
 extern "C" {
     // ============= 16x16x16 intrinsics =============
