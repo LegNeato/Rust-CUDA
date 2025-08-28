@@ -19,15 +19,20 @@ pub unsafe fn test_warp_matrix_type_safe() {
     // Initialize accumulator
     c_fragment.fill(0.0);
 
+    // Create mock pointers for demonstration
+    let a_matrix: *const f16 = core::ptr::null();
+    let b_matrix: *const f16 = core::ptr::null();
+    let c_matrix: *mut f32 = core::ptr::null_mut();
+
     // Load operations would use compile-time stride validation
-    // a_fragment.load::<64>(&a_matrix);  // STRIDE validated at compile time
-    // b_fragment.load::<64>(&b_matrix);
+    a_fragment.load::<16>(a_matrix);  // STRIDE validated at compile time  
+    b_fragment.load::<16>(b_matrix);
 
     // Perform matrix multiply-accumulate
-    // c_fragment.mma(&a_fragment, &b_fragment);
+    c_fragment.mma_inplace(&a_fragment, &b_fragment);
 
-    // Store result
-    // c_fragment.store::<layout::Row, 64>(&mut c_matrix);
+    // Store result (f32 needs stride multiple of 4)
+    c_fragment.store::<layout::Row, 16>(c_matrix);
 }
 
 #[kernel]
@@ -84,6 +89,7 @@ pub unsafe fn test_layout_combinations() {
 
     // Accumulator can have different layouts for storage
     let acc = tc.accumulator();
-    // acc.store::<layout::Row, 64>(&mut output);
-    // acc.store::<layout::Col, 64>(&mut output);
+    let output: *mut f32 = core::ptr::null_mut();
+    acc.store::<layout::Row, 16>(output);
+    acc.store::<layout::Col, 16>(output);
 }

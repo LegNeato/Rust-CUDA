@@ -132,27 +132,27 @@ pub unsafe fn test_layout_combinations() {
     let tc = TensorCore::<f16, Shape>::new();
 
     // Row-major matrix A
-    let _a_row: MatrixA<f16, Shape, layout::Row> = tc.matrix_a();
+    let a_row: MatrixA<f16, Shape, layout::Row> = tc.matrix_a();
 
     // Column-major matrix A
-    let _a_col: MatrixA<f16, Shape, layout::Col> = tc.matrix_a();
+    let a_col: MatrixA<f16, Shape, layout::Col> = tc.matrix_a();
 
     // Row-major matrix B
-    let _b_row: MatrixB<f16, Shape, layout::Row> = tc.matrix_b();
+    let b_row: MatrixB<f16, Shape, layout::Row> = tc.matrix_b();
 
     // Column-major matrix B
-    let _b_col: MatrixB<f16, Shape, layout::Col> = tc.matrix_b();
+    let b_col: MatrixB<f16, Shape, layout::Col> = tc.matrix_b();
 
     // All combinations are valid for MMA
-    let acc = tc.accumulator();
+    let mut acc = tc.accumulator();
     // Row-Row combination
-    // acc.mma(&a_row, &b_row);
+    let _result1 = acc.mma(&a_row, &b_row);
     // Row-Col combination
-    // acc.mma(&a_row, &b_col);
+    let _result2 = acc.mma(&a_row, &b_col);
     // Col-Row combination
-    // acc.mma(&a_col, &b_row);
+    let _result3 = acc.mma(&a_col, &b_row);
     // Col-Col combination
-    // acc.mma(&a_col, &b_col);
+    let _result4 = acc.mma(&a_col, &b_col);
 }
 
 // Helper generic function (not a kernel)
