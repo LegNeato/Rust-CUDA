@@ -1,0 +1,110 @@
+thread 'rustc' panicked at crates/rustc_codegen_nvvm/src/nvvm.rs:183:14:
+Failed to parse module bitcode
+stack backtrace:
+   0:     0xffff85a8f664 - std::backtrace_rs::backtrace::libunwind::trace::h0a1e65b856cdf645
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/../../backtrace/src/backtrace/libunwind.rs:117:9
+   1:     0xffff85a8f664 - std::backtrace_rs::backtrace::trace_unsynchronized::hf193b00e1d397097
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/../../backtrace/src/backtrace/mod.rs:66:14
+   2:     0xffff85a8f664 - std::backtrace::Backtrace::create::hfe44717a3de5b3a2
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/backtrace.rs:331:13
+   3:     0xffff84d2cff0 - std[7c834211888231fa]::panicking::update_hook::<alloc[b7f0eb9fb9c7807d]::boxed::Box<rustc_driver_impl[6233232f21ab22ef]::install_ice_hook::{closure#1}>>::{closure#0}
+   4:     0xffff84d2ca34 - std[7c834211888231fa]::panicking::update_hook::<alloc[b7f0eb9fb9c7807d]::boxed::Box<rustc_driver_impl[6233232f21ab22ef]::install_ice_hook::{closure#1}>>::{closure#0}
+   5:     0xffff85aa9cac - <alloc::boxed::Box<F,A> as core::ops::function::Fn<Args>>::call::h589a519df05fc3b6
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/alloc/src/boxed.rs:1980:9
+   6:     0xffff85aa9cac - std::panicking::rust_panic_with_hook::h2f04f70e69c5f322
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/panicking.rs:841:13
+   7:     0xffff85aa99b0 - std::panicking::begin_panic_handler::{{closure}}::hb118b861dfa81644
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/panicking.rs:706:13
+   8:     0xffff85aa6134 - std::sys::backtrace::__rust_end_short_backtrace::h90908305a5517e88
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/sys/backtrace.rs:168:18
+   9:     0xffff85aa96dc - __rustc[d633ab75c18c9cde]::rust_begin_unwind
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/panicking.rs:697:5
+  10:     0xffff82c6a73c - core::panicking::panic_fmt::h4cbe7e6f9413cd7e
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/core/src/panicking.rs:75:14
+  11:     0xffff834f1cc0 - core::panicking::panic_display::h1fe060068239b746
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/core/src/panicking.rs:268:5
+  12:     0xffff834f1cc0 - core::option::expect_failed::he711a395574bb468
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/core/src/option.rs:2081:5
+  13:     0xffff75437c54 - core::option::Option<T>::expect::he61e7abcc00c0f2f
+                               at /root/.rustup/toolchains/nightly-2025-06-23-aarch64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:960:21
+  14:     0xffff75437c54 - rustc_codegen_nvvm::nvvm::merge_llvm_modules::h6bd81d4718298abf
+                               at /workspace/crates/rustc_codegen_nvvm/src/nvvm.rs:183:14
+  15:     0xffff75437c54 - rustc_codegen_nvvm::nvvm::codegen_bitcode_modules::h3e9b0b3ff5e82162
+                               at /workspace/crates/rustc_codegen_nvvm/src/nvvm.rs:71:18
+  16:     0xffff75471f18 - rustc_codegen_nvvm::link::codegen_into_ptx_file::h14e5554a904f7e4f
+                               at /workspace/crates/rustc_codegen_nvvm/src/link.rs:301:27
+  17:     0xffff75471f18 - rustc_codegen_nvvm::link::link_exe::h0fb0794f6bc6fa70
+                               at /workspace/crates/rustc_codegen_nvvm/src/link.rs:233:5
+  18:     0xffff75471f18 - rustc_codegen_nvvm::link::link::hedd88a87bda4fd37
+                               at /workspace/crates/rustc_codegen_nvvm/src/link.rs:149:29
+  19:     0xffff754ecb9c - <rustc_codegen_nvvm::NvvmCodegenBackend as rustc_codegen_ssa::traits::backend::CodegenBackend>::link::hac2ede425f8a179e
+                               at /workspace/crates/rustc_codegen_nvvm/src/lib.rs:206:9
+  20:     0xffff8421ff64 - <rustc_interface[b0046679b5370b77]::queries::Linker>::link
+  21:     0xffff842753f0 - rustc_interface[b0046679b5370b77]::interface::run_compiler::<(), rustc_driver_impl[6233232f21ab22ef]::run_compiler::{closure#0}>::{closure#1}
+  22:     0xffff84254bc8 - std[7c834211888231fa]::sys::backtrace::__rust_begin_short_backtrace::<rustc_interface[b0046679b5370b77]::util::run_in_thread_with_globals<rustc_interface[b0046679b5370b77]::util::run_in_thread_pool_with_globals<rustc_interface[b0046679b5370b77]::interface::run_compiler<(), rustc_driver_impl[6233232f21ab22ef]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>
+  23:     0xffff8425482c - <<std[7c834211888231fa]::thread::Builder>::spawn_unchecked_<rustc_interface[b0046679b5370b77]::util::run_in_thread_with_globals<rustc_interface[b0046679b5370b77]::util::run_in_thread_pool_with_globals<rustc_interface[b0046679b5370b77]::interface::run_compiler<(), rustc_driver_impl[6233232f21ab22ef]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>::{closure#1} as core[f85fe0d3f5565b9a]::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+  24:     0xffff85aae138 - <alloc::boxed::Box<F,A> as core::ops::function::FnOnce<Args>>::call_once::hc944e7699807f130
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/alloc/src/boxed.rs:1966:9
+  25:     0xffff85aae138 - <alloc::boxed::Box<F,A> as core::ops::function::FnOnce<Args>>::call_once::hf3129ad7c7dd2bac
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/alloc/src/boxed.rs:1966:9
+  26:     0xffff85aae138 - std::sys::pal::unix::thread::Thread::new::thread_start::h89734001914b8bbe
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/sys/pal/unix/thread.rs:97:17
+  27:     0xffff817c595c - <unknown>
+  28:     0xffff8182ba4c - <unknown>
+  29:                0x0 - <unknown>
+
+
+rustc version: 1.89.0-nightly (be19eda0d 2025-06-22)
+platform: aarch64-unknown-linux-gnuthread 'rustc' panicked at crates/rustc_codegen_nvvm/src/nvvm.rs:183:14:
+Failed to parse module bitcode
+stack backtrace:
+   0:     0xffff85a8f664 - std::backtrace_rs::backtrace::libunwind::trace::h0a1e65b856cdf645
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/../../backtrace/src/backtrace/libunwind.rs:117:9
+   1:     0xffff85a8f664 - std::backtrace_rs::backtrace::trace_unsynchronized::hf193b00e1d397097
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/../../backtrace/src/backtrace/mod.rs:66:14
+   2:     0xffff85a8f664 - std::backtrace::Backtrace::create::hfe44717a3de5b3a2
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/backtrace.rs:331:13
+   3:     0xffff84d2cff0 - std[7c834211888231fa]::panicking::update_hook::<alloc[b7f0eb9fb9c7807d]::boxed::Box<rustc_driver_impl[6233232f21ab22ef]::install_ice_hook::{closure#1}>>::{closure#0}
+   4:     0xffff85aa9cac - <alloc::boxed::Box<F,A> as core::ops::function::Fn<Args>>::call::h589a519df05fc3b6
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/alloc/src/boxed.rs:1980:9
+   5:     0xffff85aa9cac - std::panicking::rust_panic_with_hook::h2f04f70e69c5f322
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/panicking.rs:841:13
+   6:     0xffff85aa99b0 - std::panicking::begin_panic_handler::{{closure}}::hb118b861dfa81644
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/panicking.rs:706:13
+   7:     0xffff85aa6134 - std::sys::backtrace::__rust_end_short_backtrace::h90908305a5517e88
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/sys/backtrace.rs:168:18
+   8:     0xffff85aa96dc - __rustc[d633ab75c18c9cde]::rust_begin_unwind
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/panicking.rs:697:5
+   9:     0xffff82c6a73c - core::panicking::panic_fmt::h4cbe7e6f9413cd7e
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/core/src/panicking.rs:75:14
+  10:     0xffff834f1cc0 - core::panicking::panic_display::h1fe060068239b746
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/core/src/panicking.rs:268:5
+  11:     0xffff834f1cc0 - core::option::expect_failed::he711a395574bb468
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/core/src/option.rs:2081:5
+  12:     0xffff75437c54 - core::option::Option<T>::expect::he61e7abcc00c0f2f
+                               at /root/.rustup/toolchains/nightly-2025-06-23-aarch64-unknown-linux-gnu/lib/rustlib/src/rust/library/core/src/option.rs:960:21
+  13:     0xffff75437c54 - rustc_codegen_nvvm::nvvm::merge_llvm_modules::h6bd81d4718298abf
+                               at /workspace/crates/rustc_codegen_nvvm/src/nvvm.rs:183:14
+  14:     0xffff75437c54 - rustc_codegen_nvvm::nvvm::codegen_bitcode_modules::h3e9b0b3ff5e82162
+                               at /workspace/crates/rustc_codegen_nvvm/src/nvvm.rs:71:18
+  15:     0xffff75471f18 - rustc_codegen_nvvm::link::codegen_into_ptx_file::h14e5554a904f7e4f
+                               at /workspace/crates/rustc_codegen_nvvm/src/link.rs:301:27
+  16:     0xffff75471f18 - rustc_codegen_nvvm::link::link_exe::h0fb0794f6bc6fa70
+                               at /workspace/crates/rustc_codegen_nvvm/src/link.rs:233:5
+  17:     0xffff75471f18 - rustc_codegen_nvvm::link::link::hedd88a87bda4fd37
+                               at /workspace/crates/rustc_codegen_nvvm/src/link.rs:149:29
+  18:     0xffff754ecb9c - <rustc_codegen_nvvm::NvvmCodegenBackend as rustc_codegen_ssa::traits::backend::CodegenBackend>::link::hac2ede425f8a179e
+                               at /workspace/crates/rustc_codegen_nvvm/src/lib.rs:206:9
+  19:     0xffff8421ff64 - <rustc_interface[b0046679b5370b77]::queries::Linker>::link
+  20:     0xffff842753f0 - rustc_interface[b0046679b5370b77]::interface::run_compiler::<(), rustc_driver_impl[6233232f21ab22ef]::run_compiler::{closure#0}>::{closure#1}
+  21:     0xffff84254bc8 - std[7c834211888231fa]::sys::backtrace::__rust_begin_short_backtrace::<rustc_interface[b0046679b5370b77]::util::run_in_thread_with_globals<rustc_interface[b0046679b5370b77]::util::run_in_thread_pool_with_globals<rustc_interface[b0046679b5370b77]::interface::run_compiler<(), rustc_driver_impl[6233232f21ab22ef]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>
+  22:     0xffff8425482c - <<std[7c834211888231fa]::thread::Builder>::spawn_unchecked_<rustc_interface[b0046679b5370b77]::util::run_in_thread_with_globals<rustc_interface[b0046679b5370b77]::util::run_in_thread_pool_with_globals<rustc_interface[b0046679b5370b77]::interface::run_compiler<(), rustc_driver_impl[6233232f21ab22ef]::run_compiler::{closure#0}>::{closure#1}, ()>::{closure#0}, ()>::{closure#0}::{closure#0}, ()>::{closure#1} as core[f85fe0d3f5565b9a]::ops::function::FnOnce<()>>::call_once::{shim:vtable#0}
+  23:     0xffff85aae138 - <alloc::boxed::Box<F,A> as core::ops::function::FnOnce<Args>>::call_once::hc944e7699807f130
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/alloc/src/boxed.rs:1966:9
+  24:     0xffff85aae138 - <alloc::boxed::Box<F,A> as core::ops::function::FnOnce<Args>>::call_once::hf3129ad7c7dd2bac
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/alloc/src/boxed.rs:1966:9
+  25:     0xffff85aae138 - std::sys::pal::unix::thread::Thread::new::thread_start::h89734001914b8bbe
+                               at /rustc/be19eda0dc4c22c5cf5f1b48fd163acf9bd4b0a6/library/std/src/sys/pal/unix/thread.rs:97:17
+  26:     0xffff817c595c - <unknown>
+  27:     0xffff8182ba4c - <unknown>
+  28:                0x0 - <unknown>

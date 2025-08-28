@@ -45,6 +45,24 @@ pub trait TensorCoreShape: sealed::Sealed {
     const K: usize;
 }
 
+/// Shapes that support MMA compute operations
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` does not support MMA compute operations",
+    label = "MMA compute not available for this shape",
+    note = "This shape is not a valid tensor core shape for MMA operations"
+)]
+pub trait MmaShape: TensorCoreShape {}
+
+/// Shapes that support full WMMA operations (load, store, in addition to compute)
+/// This trait extends MmaShape since WMMA shapes can do everything MMA shapes can do
+#[diagnostic::on_unimplemented(
+    message = "`{Self}` does not support WMMA load/store operations",
+    label = "WMMA load/store not available for this shape",
+    note = "This shape only supports MMA compute operations, not WMMA load/store",
+    note = "See LLVM source: https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/IR/IntrinsicsNVVM.td#L419-L1067"
+)]
+pub trait WmmaShape: MmaShape {}
+
 // Only these exact combinations are valid for tensor cores
 impl TensorCoreShape for dims::Shape<16, 16, 16> {
     const M: usize = 16;
@@ -93,6 +111,28 @@ impl TensorCoreShape for dims::Shape<8, 8, 4> {
     const N: usize = 8;
     const K: usize = 4;
 }
+
+// All tensor core shapes support MMA compute operations
+impl MmaShape for dims::Shape<16, 16, 16> {}
+impl MmaShape for dims::Shape<32, 8, 16> {}
+impl MmaShape for dims::Shape<8, 32, 16> {}
+impl MmaShape for dims::Shape<16, 8, 16> {} // MMA-only (no WMMA load/store)
+impl MmaShape for dims::Shape<16, 16, 8> {}
+impl MmaShape for dims::Shape<8, 8, 32> {}
+impl MmaShape for dims::Shape<8, 8, 128> {}
+impl MmaShape for dims::Shape<8, 8, 4> {}
+
+// Shapes that ALSO support WMMA load/store (in addition to MMA compute)
+impl WmmaShape for dims::Shape<16, 16, 16> {}
+impl WmmaShape for dims::Shape<32, 8, 16> {}
+impl WmmaShape for dims::Shape<8, 32, 16> {}
+// Note: 16x8x16 does NOT implement WmmaShape - it's MMA-only
+
+// Other shapes support WMMA for their respective data types
+impl WmmaShape for dims::Shape<16, 16, 8> {} // TF32
+impl WmmaShape for dims::Shape<8, 8, 32> {} // i8/u8
+impl WmmaShape for dims::Shape<8, 8, 128> {} // i4/u4
+impl WmmaShape for dims::Shape<8, 8, 4> {} // f64
 
 // ============================================================================
 // Layout Types
@@ -306,6 +346,7 @@ where
     #[gpu_only]
     pub unsafe fn load<const STRIDE: usize>(&mut self, ptr: *const T)
     where
+        Shape: WmmaShape, // Require WmmaShape for load operations
         StrideValidator<T, STRIDE>: ValidStride,
         T: ops::LoadMatrixA<Shape, L>,
     {
@@ -343,6 +384,7 @@ where
     #[gpu_only]
     pub unsafe fn load<const STRIDE: usize>(&mut self, ptr: *const T)
     where
+        Shape: WmmaShape, // Require WmmaShape for load operations
         StrideValidator<T, STRIDE>: ValidStride,
         T: ops::LoadMatrixB<Shape, L>,
     {
@@ -379,6 +421,7 @@ where
     #[gpu_only]
     pub unsafe fn load<L, const STRIDE: usize>(&mut self, ptr: *const T)
     where
+        Shape: WmmaShape, // Require WmmaShape for load operations
         L: Layout,
         StrideValidator<T, STRIDE>: ValidStride,
         T: ops::LoadMatrixC<Shape, L>,
@@ -398,6 +441,7 @@ where
     #[gpu_only]
     pub unsafe fn store<L, const STRIDE: usize>(&self, ptr: *mut T)
     where
+        Shape: WmmaShape, // Require WmmaShape for store operations
         L: Layout,
         StrideValidator<T, STRIDE>: ValidStride,
         T: ops::StoreMatrixD<Shape, L>,

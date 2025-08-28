@@ -247,7 +247,7 @@ impl<T, Shape, L, const N: usize, const STRIDE: usize> BatchLoad<STRIDE>
     for FragmentArray<MatrixA<T, Shape, L>, N>
 where
     T: MatrixElement,
-    Shape: TensorCoreShape,
+    Shape: TensorCoreShape + crate::warp::matrix::WmmaShape, // Require WmmaShape for load
     L: Layout,
     crate::warp::matrix::StrideValidator<T, STRIDE>: crate::warp::matrix::ValidStride,
     T: crate::warp::matrix::ops::LoadMatrixA<Shape, L>,
@@ -360,63 +360,3 @@ pub type FragmentRow<T, const N: usize> = FragmentArray<T, N>;
 
 /// Single column of fragments
 pub type FragmentCol<T, const N: usize> = FragmentArray<T, N>;
-
-// ============================================================================
-// Example Usage
-// ============================================================================
-
-#[cfg(test)]
-mod examples {
-    use super::*;
-    use crate::warp::matrix::dims;
-    use half::f16;
-
-    /// Example: Flash Attention with idiomatic Rust patterns
-    fn flash_attention_example() {
-        // Use const generics for compile-time guarantees
-        const TILE_M: usize = 2;
-        const TILE_N: usize = 8;
-
-        type Shape = dims::Shape<16, 8, 16>;
-
-        // Create tiled fragments with type inference
-        let mut q_tiles: FragmentGrid<MatrixA<f16, Shape, Row>, TILE_M, TILE_N> =
-            Default::default();
-        let mut k_tiles: FragmentGrid<MatrixB<f16, Shape, Row>, TILE_M, TILE_N> =
-            Default::default();
-        let mut acc_tiles: FragmentGrid<Accumulator<f32, Shape>, TILE_M, TILE_N> =
-            Default::default();
-
-        // Load with iterator pattern
-        for (i, tile) in q_tiles.iter_mut().enumerate() {
-            // tile.load(ptr.offset(i * stride), stride);
-        }
-
-        // Use indexing for specific tiles
-        let tile_0_0 = &q_tiles[(0, 0)];
-
-        // Map operations are zero-cost
-        let scaled_tiles = acc_tiles.map(|tile| {
-            // Scale each tile
-            tile
-        });
-    }
-
-    /// Example: Using the builder pattern
-    fn builder_example() {
-        type Shape = dims::Shape<16, 16, 16>;
-
-        // Type inference makes this clean
-        let a_tiles = FragmentBuilder::<f16, Shape>::array::<4>();
-        let b_tiles = FragmentBuilder::<f16, Shape>::grid::<2, 2>();
-    }
-
-    /// Example: Pattern matching for optimization
-    fn pattern_matching_example() {
-        // Compiler can optimize based on const values
-        const PATTERN: TilePattern<2, 4, 2> = TilePattern;
-
-        type Shape = dims::Shape<16, 16, 16>;
-        let (a, b, c) = PATTERN.create_fragments::<f16, f32, Shape>();
-    }
-}

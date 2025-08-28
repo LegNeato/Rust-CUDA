@@ -244,92 +244,12 @@ mod m16n16k16 {
 }
 
 // ============= 16x8x16 shape =============
+// NOTE: m16n8k16 only supports MMA operations, not WMMA load/store
 mod m16n8k16 {
-    // Load operations
-    pub(crate) mod load {
-        extern "C" {
-            // f16 loads
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.f16"]
-            pub(crate) fn wmma_load_a_f16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.f16"]
-            pub(crate) fn wmma_load_a_f16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.f16"]
-            pub(crate) fn wmma_load_b_f16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.f16"]
-            pub(crate) fn wmma_load_b_f16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-
-            // bf16 loads
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.bf16"]
-            pub(crate) fn wmma_load_a_bf16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.bf16"]
-            pub(crate) fn wmma_load_a_bf16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.bf16"]
-            pub(crate) fn wmma_load_b_bf16_row_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.bf16"]
-            pub(crate) fn wmma_load_b_bf16_col_m16n8k16(ptr: *const u8, stride: i32) -> [i16; 8];
-
-            // i8/u8 loads
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.s8"]
-            pub(crate) fn wmma_load_a_s8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.s8"]
-            pub(crate) fn wmma_load_a_s8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.row.stride.u8"]
-            pub(crate) fn wmma_load_a_u8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.a.sync.col.stride.u8"]
-            pub(crate) fn wmma_load_a_u8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.s8"]
-            pub(crate) fn wmma_load_b_s8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.s8"]
-            pub(crate) fn wmma_load_b_s8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.row.stride.u8"]
-            pub(crate) fn wmma_load_b_u8_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.b.sync.col.stride.u8"]
-            pub(crate) fn wmma_load_b_u8_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 2];
-
-            // Accumulator loads
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.row.stride.f32"]
-            pub(crate) fn wmma_load_c_f32_row_m16n8k16(ptr: *const u8, stride: i32) -> [f32; 4];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.col.stride.f32"]
-            pub(crate) fn wmma_load_c_f32_col_m16n8k16(ptr: *const u8, stride: i32) -> [f32; 4];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.row.stride.s32"]
-            pub(crate) fn wmma_load_c_s32_row_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.load.c.sync.col.stride.s32"]
-            pub(crate) fn wmma_load_c_s32_col_m16n8k16(ptr: *const u8, stride: i32) -> [i32; 4];
-        }
-    }
-
-    // Store operations
-    pub(crate) mod store {
-        extern "C" {
-            // f32 stores
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.row.stride.f32"]
-            pub(crate) fn wmma_store_d_f32_row_m16n8k16(
-                ptr: *mut u8,
-                d0: f32, d1: f32, d2: f32, d3: f32,
-                stride: i32,
-            );
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.col.stride.f32"]
-            pub(crate) fn wmma_store_d_f32_col_m16n8k16(
-                ptr: *mut u8,
-                d0: f32, d1: f32, d2: f32, d3: f32,
-                stride: i32,
-            );
-
-            // i32 stores
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.row.stride.s32"]
-            pub(crate) fn wmma_store_d_s32_row_m16n8k16(
-                ptr: *mut u8,
-                d0: i32, d1: i32, d2: i32, d3: i32,
-                stride: i32,
-            );
-            #[link_name = "llvm.nvvm.wmma.m16n8k16.store.d.sync.col.stride.s32"]
-            pub(crate) fn wmma_store_d_s32_col_m16n8k16(
-                ptr: *mut u8,
-                d0: i32, d1: i32, d2: i32, d3: i32,
-                stride: i32,
-            );
-        }
-    }
+    // No WMMA load operations - this shape only supports MMA
+    // The LLVM spec only defines MMA intrinsics for m16n8k16
+    
+    // No WMMA store operations - this shape only supports MMA
 
     // MMA operations
     pub(crate) mod mma {
@@ -784,8 +704,7 @@ pub(crate) use m16n16k16::load::*;
 pub(crate) use m16n16k16::store::*;
 pub(crate) use m16n16k16::mma::*;
 
-pub(crate) use m16n8k16::load::*;
-pub(crate) use m16n8k16::store::*;
+// m16n8k16 has no load/store operations (MMA-only)
 pub(crate) use m16n8k16::mma::*;
 
 pub(crate) use m32n8k16::load::*;

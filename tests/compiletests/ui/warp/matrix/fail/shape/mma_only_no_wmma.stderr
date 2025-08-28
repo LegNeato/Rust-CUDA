@@ -1,0 +1,53 @@
+error[E0277]: `cuda_std::warp::matrix::dims::Shape<16, 8, 16>` does not support WMMA load/store operations
+   --> $DIR/mma_only_no_wmma.rs:16:12
+    |
+16  |     b_frag.load::<16>(core::ptr::null());
+    |            ^^^^ WMMA load/store not available for this shape
+    |
+    = help: the trait `WmmaShape` is not implemented for `cuda_std::warp::matrix::dims::Shape<16, 8, 16>`
+    = note: This shape only supports MMA compute operations, not WMMA load/store
+    = note: See LLVM source: https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/IR/IntrinsicsNVVM.td#L419-L1067
+    = help: the following other types implement trait `WmmaShape`:
+              cuda_std::warp::matrix::dims::Shape<16, 16, 16>
+              cuda_std::warp::matrix::dims::Shape<16, 16, 8>
+              cuda_std::warp::matrix::dims::Shape<32, 8, 16>
+              cuda_std::warp::matrix::dims::Shape<8, 32, 16>
+              cuda_std::warp::matrix::dims::Shape<8, 8, 128>
+              cuda_std::warp::matrix::dims::Shape<8, 8, 32>
+              cuda_std::warp::matrix::dims::Shape<8, 8, 4>
+note: required by a bound in `MatrixB::<T, Shape, L>::load`
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:387:16
+    |
+385 |     pub unsafe fn load<const STRIDE: usize>(&mut self, ptr: *const T)
+    |                   ---- required by a bound in this associated function
+386 |     where
+387 |         Shape: WmmaShape, // Require WmmaShape for load operations
+    |                ^^^^^^^^^ required by this bound in `MatrixB::<T, Shape, L>::load`
+
+error[E0277]: Cannot load matrix B: `bf16` with shape `cuda_std::warp::matrix::dims::Shape<16, 8, 16>` and layout `Row` is not supported
+   --> $DIR/mma_only_no_wmma.rs:16:12
+    |
+16  |     b_frag.load::<16>(core::ptr::null());
+    |            ^^^^ unsupported matrix B load configuration
+    |
+    = help: the trait `LoadMatrixB<cuda_std::warp::matrix::dims::Shape<16, 8, 16>, Row>` is not implemented for `bf16`
+    = note: This combination of element type, shape, and layout doesn't have a corresponding WMMA load implementation
+    = help: the following other types implement trait `LoadMatrixB<Shape, L>`:
+              `bf16` implements `LoadMatrixB<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, Col>`
+              `bf16` implements `LoadMatrixB<cuda_std::warp::matrix::dims::Shape<16, 16, 16>, Row>`
+              `bf16` implements `LoadMatrixB<cuda_std::warp::matrix::dims::Shape<32, 8, 16>, Col>`
+              `bf16` implements `LoadMatrixB<cuda_std::warp::matrix::dims::Shape<32, 8, 16>, Row>`
+              `bf16` implements `LoadMatrixB<cuda_std::warp::matrix::dims::Shape<8, 32, 16>, Col>`
+              `bf16` implements `LoadMatrixB<cuda_std::warp::matrix::dims::Shape<8, 32, 16>, Row>`
+note: required by a bound in `MatrixB::<T, Shape, L>::load`
+   --> /workspace/crates/cuda_std/src/warp/matrix/mod.rs:389:12
+    |
+385 |     pub unsafe fn load<const STRIDE: usize>(&mut self, ptr: *const T)
+    |                   ---- required by a bound in this associated function
+...
+389 |         T: ops::LoadMatrixB<Shape, L>,
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^ required by this bound in `MatrixB::<T, Shape, L>::load`
+
+error: aborting due to 2 previous errors
+
+For more information about this error, try `rustc --explain E0277`.

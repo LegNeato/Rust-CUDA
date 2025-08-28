@@ -8,21 +8,17 @@ use super::*;
 // Import all the intrinsic functions from the parent module
 use super::{
     wmma_load_a_bf16_col_m16n16k16,
-    wmma_load_a_bf16_col_m16n8k16,
     wmma_load_a_bf16_col_m32n8k16,
     wmma_load_a_bf16_col_m8n32k16,
     wmma_load_a_bf16_row_m16n16k16,
-    wmma_load_a_bf16_row_m16n8k16,
     wmma_load_a_bf16_row_m32n8k16,
     wmma_load_a_bf16_row_m8n32k16,
     wmma_load_a_f16_col_m16n16k16,
-    wmma_load_a_f16_col_m16n8k16,
     wmma_load_a_f16_col_m32n8k16,
     wmma_load_a_f16_col_m8n32k16,
     // 16x16x16 intrinsics
     wmma_load_a_f16_row_m16n16k16,
     // 16x8x16 intrinsics
-    wmma_load_a_f16_row_m16n8k16,
     // 32x8x16 intrinsics
     wmma_load_a_f16_row_m32n8k16,
     // 8x32x16 intrinsics
@@ -31,87 +27,67 @@ use super::{
     // 8x8x4 intrinsics (f64)
     wmma_load_a_f64_row_m8n8k4,
     wmma_load_a_s8_col_m16n16k16,
-    wmma_load_a_s8_col_m16n8k16,
     wmma_load_a_s8_col_m32n8k16,
     wmma_load_a_s8_col_m8n32k16,
     wmma_load_a_s8_row_m16n16k16,
-    wmma_load_a_s8_row_m16n8k16,
     wmma_load_a_s8_row_m32n8k16,
     wmma_load_a_s8_row_m8n32k16,
     wmma_load_a_u8_col_m16n16k16,
-    wmma_load_a_u8_col_m16n8k16,
     wmma_load_a_u8_col_m32n8k16,
     wmma_load_a_u8_col_m8n32k16,
     wmma_load_a_u8_row_m16n16k16,
-    wmma_load_a_u8_row_m16n8k16,
     wmma_load_a_u8_row_m32n8k16,
     wmma_load_a_u8_row_m8n32k16,
     wmma_load_b_bf16_col_m16n16k16,
-    wmma_load_b_bf16_col_m16n8k16,
     wmma_load_b_bf16_col_m32n8k16,
     wmma_load_b_bf16_col_m8n32k16,
     wmma_load_b_bf16_row_m16n16k16,
-    wmma_load_b_bf16_row_m16n8k16,
     wmma_load_b_bf16_row_m32n8k16,
     wmma_load_b_bf16_row_m8n32k16,
     wmma_load_b_f16_col_m16n16k16,
-    wmma_load_b_f16_col_m16n8k16,
     wmma_load_b_f16_col_m32n8k16,
     wmma_load_b_f16_col_m8n32k16,
     wmma_load_b_f16_row_m16n16k16,
-    wmma_load_b_f16_row_m16n8k16,
     wmma_load_b_f16_row_m32n8k16,
     wmma_load_b_f16_row_m8n32k16,
     wmma_load_b_f64_col_m8n8k4,
     wmma_load_b_f64_row_m8n8k4,
     wmma_load_b_s8_col_m16n16k16,
-    wmma_load_b_s8_col_m16n8k16,
     wmma_load_b_s8_col_m32n8k16,
     wmma_load_b_s8_col_m8n32k16,
     wmma_load_b_s8_row_m16n16k16,
-    wmma_load_b_s8_row_m16n8k16,
     wmma_load_b_s8_row_m32n8k16,
     wmma_load_b_s8_row_m8n32k16,
     wmma_load_b_u8_col_m16n16k16,
-    wmma_load_b_u8_col_m16n8k16,
     wmma_load_b_u8_col_m32n8k16,
     wmma_load_b_u8_col_m8n32k16,
     wmma_load_b_u8_row_m16n16k16,
-    wmma_load_b_u8_row_m16n8k16,
     wmma_load_b_u8_row_m32n8k16,
     wmma_load_b_u8_row_m8n32k16,
-    wmma_load_c_f32_col_m16n8k16,
     wmma_load_c_f32_col_m32n8k16,
     wmma_load_c_f32_col_m8n32k16,
     wmma_load_c_f32_row_m16n16k16,
-    wmma_load_c_f32_row_m16n8k16,
     wmma_load_c_f32_row_m32n8k16,
     wmma_load_c_f32_row_m8n32k16,
     wmma_load_c_f64_col_m8n8k4,
     wmma_load_c_f64_row_m8n8k4,
-    wmma_load_c_s32_col_m16n8k16,
     wmma_load_c_s32_col_m32n8k16,
     wmma_load_c_s32_col_m8n32k16,
     wmma_load_c_s32_row_m16n16k16,
-    wmma_load_c_s32_row_m16n8k16,
     wmma_load_c_s32_row_m32n8k16,
     wmma_load_c_s32_row_m8n32k16,
     wmma_store_d_f32_col_m16n16k16,
-    wmma_store_d_f32_col_m16n8k16,
     wmma_store_d_f32_col_m32n8k16,
     wmma_store_d_f32_col_m8n32k16,
     wmma_store_d_f32_row_m16n16k16,
-    wmma_store_d_f32_row_m16n8k16,
     wmma_store_d_f32_row_m32n8k16,
     wmma_store_d_f32_row_m8n32k16,
     wmma_store_d_f64_col_m8n8k4,
     wmma_store_d_f64_row_m8n8k4,
     wmma_store_d_s32_col_m16n16k16,
-    wmma_store_d_s32_col_m16n8k16,
     wmma_store_d_s32_col_m32n8k16,
     wmma_store_d_s32_col_m8n32k16,
     wmma_store_d_s32_row_m16n16k16,
-    wmma_store_d_s32_row_m16n8k16,
     wmma_store_d_s32_row_m32n8k16,
     wmma_store_d_s32_row_m8n32k16,
 };
@@ -128,7 +104,7 @@ type Shape8x8x4 = super::dims::Shape<8, 8, 4>;
 #[diagnostic::on_unimplemented(
     message = "Cannot load matrix A: `{Self}` with shape `{Shape}` and layout `{L}` is not supported",
     label = "unsupported matrix A load configuration",
-    note = "This combination of element type, shape, and layout doesn't have a corresponding load implementation"
+    note = "This combination of element type, shape, and layout doesn't have a corresponding WMMA load implementation"
 )]
 pub trait LoadMatrixA<Shape: TensorCoreShape, L: Layout>: MatrixElement {
     unsafe fn load_a_into(ptr: *const u8, stride: i32, out: &mut [Self::Storage; 32]);
@@ -138,7 +114,7 @@ pub trait LoadMatrixA<Shape: TensorCoreShape, L: Layout>: MatrixElement {
 #[diagnostic::on_unimplemented(
     message = "Cannot load matrix B: `{Self}` with shape `{Shape}` and layout `{L}` is not supported",
     label = "unsupported matrix B load configuration",
-    note = "This combination of element type, shape, and layout doesn't have a corresponding load implementation"
+    note = "This combination of element type, shape, and layout doesn't have a corresponding WMMA load implementation"
 )]
 pub trait LoadMatrixB<Shape: TensorCoreShape, L: Layout>: MatrixElement {
     unsafe fn load_b_into(ptr: *const u8, stride: i32, out: &mut [Self::Storage; 32]);
@@ -148,7 +124,7 @@ pub trait LoadMatrixB<Shape: TensorCoreShape, L: Layout>: MatrixElement {
 #[diagnostic::on_unimplemented(
     message = "Cannot load accumulator: `{Self}` with shape `{Shape}` and layout `{L}` is not supported",
     label = "unsupported accumulator load configuration",
-    note = "This combination of accumulator type, shape, and layout doesn't have a corresponding load implementation"
+    note = "This combination of accumulator type, shape, and layout doesn't have a corresponding WMMA load implementation"
 )]
 pub trait LoadMatrixC<Shape: TensorCoreShape, L: Layout>: AccumulatorElement {
     unsafe fn load_c_into(ptr: *const u8, stride: i32, out: &mut [Self::Storage; 32]);
@@ -158,7 +134,7 @@ pub trait LoadMatrixC<Shape: TensorCoreShape, L: Layout>: AccumulatorElement {
 #[diagnostic::on_unimplemented(
     message = "Cannot store accumulator: `{Self}` with shape `{Shape}` and layout `{L}` is not supported",
     label = "unsupported accumulator store configuration",
-    note = "This combination of accumulator type, shape, and layout doesn't have a corresponding store implementation"
+    note = "This combination of accumulator type, shape, and layout doesn't have a corresponding WMMA store implementation"
 )]
 pub trait StoreMatrixD<Shape: TensorCoreShape, L: Layout>: AccumulatorElement {
     unsafe fn store_d_from(ptr: *mut u8, data: &[Self::Storage; 32], stride: i32);
@@ -316,30 +292,7 @@ macro_rules! impl_store_d {
             }
         }
     };
-    // Special case for 16x8x16 shape which uses 4 values
-    ($type:ty, $shape:ty, $row_fn:ident, $col_fn:ident, m16n8k16) => {
-        impl StoreMatrixD<$shape, Row> for $type {
-            #[inline(always)]
-            unsafe fn store_d_from(
-                ptr: *mut u8,
-                data: &[<$type as AccumulatorElement>::Storage; 32],
-                stride: i32,
-            ) {
-                $row_fn(ptr, data[0], data[1], data[2], data[3], stride);
-            }
-        }
-
-        impl StoreMatrixD<$shape, Col> for $type {
-            #[inline(always)]
-            unsafe fn store_d_from(
-                ptr: *mut u8,
-                data: &[<$type as AccumulatorElement>::Storage; 32],
-                stride: i32,
-            ) {
-                $col_fn(ptr, data[0], data[1], data[2], data[3], stride);
-            }
-        }
-    };
+    // m16n8k16 shape removed - MMA-only, no WMMA store operations
     // Special case for f64 which only uses 2 values
     ($type:ty, $shape:ty, $row_fn:ident, $col_fn:ident, f64) => {
         impl StoreMatrixD<$shape, Row> for $type {
@@ -622,101 +575,17 @@ impl_store_d!(
 );
 
 // ============= 16x8x16 shape implementations =============
-// f16
-impl_load_a!(
-    f16,
-    Shape16x8x16,
-    8,
-    wmma_load_a_f16_row_m16n8k16,
-    wmma_load_a_f16_col_m16n8k16
-);
-impl_load_b!(
-    f16,
-    Shape16x8x16,
-    8,
-    wmma_load_b_f16_row_m16n8k16,
-    wmma_load_b_f16_col_m16n8k16
-);
+// f16 - Shape16x8x16 is MMA-only, no WMMA load/store
 
-// bf16
-impl_load_a!(
-    bf16,
-    Shape16x8x16,
-    8,
-    wmma_load_a_bf16_row_m16n8k16,
-    wmma_load_a_bf16_col_m16n8k16
-);
-impl_load_b!(
-    bf16,
-    Shape16x8x16,
-    8,
-    wmma_load_b_bf16_row_m16n8k16,
-    wmma_load_b_bf16_col_m16n8k16
-);
+// bf16 - Shape16x8x16 is MMA-only, no WMMA load/store
 
-// i8
-impl_load_a!(
-    i8,
-    Shape16x8x16,
-    2,
-    wmma_load_a_s8_row_m16n8k16,
-    wmma_load_a_s8_col_m16n8k16
-);
-impl_load_b!(
-    i8,
-    Shape16x8x16,
-    2,
-    wmma_load_b_s8_row_m16n8k16,
-    wmma_load_b_s8_col_m16n8k16
-);
+// i8 - Shape16x8x16 is MMA-only, no WMMA load/store
 
-// u8
-impl_load_a!(
-    u8,
-    Shape16x8x16,
-    2,
-    wmma_load_a_u8_row_m16n8k16,
-    wmma_load_a_u8_col_m16n8k16
-);
-impl_load_b!(
-    u8,
-    Shape16x8x16,
-    2,
-    wmma_load_b_u8_row_m16n8k16,
-    wmma_load_b_u8_col_m16n8k16
-);
+// u8 - Shape16x8x16 is MMA-only, no WMMA load/store
 
-// f32 accumulator for 16x8x16
-impl_load_c!(
-    f32,
-    Shape16x8x16,
-    4,
-    wmma_load_c_f32_row_m16n8k16,
-    wmma_load_c_f32_col_m16n8k16
-);
-impl_store_d!(
-    f32,
-    Shape16x8x16,
-    wmma_store_d_f32_row_m16n8k16,
-    wmma_store_d_f32_col_m16n8k16,
-    m16n8k16
-);
+// f32 accumulator for 16x8x16 - MMA-only, no WMMA load/store
 
-// i32 accumulator for 16x8x16
-impl_load_c!(
-    i32,
-    Shape16x8x16,
-    4,
-    wmma_load_c_s32_row_m16n8k16,
-    wmma_load_c_s32_col_m16n8k16
-);
-impl_store_d!(
-    i32,
-    Shape16x8x16,
-    wmma_store_d_s32_row_m16n8k16,
-    wmma_store_d_s32_col_m16n8k16,
-    m16n8k16
-);
+// i32 accumulator for 16x8x16 - MMA-only, no WMMA load/store
 
 // ============= 8x32x16 shape implementations =============
 // f16
