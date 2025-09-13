@@ -1,0 +1,12 @@
+[package]
+name = "debug-shuffle-llvm"
+version = "0.1.0"
+edition = "2021"
+
+[workspace]
+
+[dependencies]
+cuda_std = { path = "../../../crates/cuda_std" }
+
+[lib]
+crate-type = ["cdylib"]

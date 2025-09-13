@@ -1,0 +1,10 @@
+error: required_address_space requires parameter specifications (e.g., `ptr = shared`)
+ --> $DIR/empty_attribute.rs:6:1
+  |
+6 | #[cuda_std::required_address_space()]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `cuda_std::required_address_space` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: aborting due to 1 previous error
+

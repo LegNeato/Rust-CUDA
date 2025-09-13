@@ -1,0 +1,8 @@
+error: Parameter 'value' must be a pointer type (*const or *mut) to use required_address_space
+ --> $DIR/not_a_pointer.rs:7:25
+  |
+7 | unsafe fn process_value(value: f32) -> f32 {
+  |                         ^^^^^
+
+error: aborting due to 1 previous error
+

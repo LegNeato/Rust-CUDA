@@ -1,0 +1,11 @@
+[package]
+name = "h3o_crates_io_kernels"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cuda_std = { path = "../../../../crates/cuda_std" }
+h3o = { version = "0.8", default-features = false }
+
+[lib]
+crate-type = ["cdylib", "rlib"]

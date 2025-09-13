@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./sync-to-vast.sh:*)",
+      "WebFetch(domain:patch-diff.githubusercontent.com)",
+      "Bash(git push:*)",
+      "Bash(git cherry-pick:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker start:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)",
+      "Bash(docker run:*)",
+      "Bash(cargo check:*)",
+      "Bash(./deploy-cuda.sh:*)",
+      "Bash(bash:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:rustc-dev-guide.rust-lang.org)",
+      "Bash(./run-example.sh:*)",
+      "Bash(docker cp:*)",
+      "WebFetch(domain:docs.nvidia.com)",
+      "WebFetch(domain:reviews.llvm.org)",
+      "Bash(find:*)"
+    ],
+    "deny": []
+  }
+}

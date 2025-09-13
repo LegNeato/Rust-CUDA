@@ -1,0 +1,12 @@
+[package]
+name = "h3o_crates_io"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+cust = { path = "../../../crates/cust" }
+h3o_crates_io_kernels = { path = "kernels" }
+h3o = { version = "0.8", default-features = false }
+
+[build-dependencies]
+cuda_builder = { path = "../../../crates/cuda_builder" }
